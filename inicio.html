@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio - La Pica del Pescador</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             min-height: 100vh;
@@ -62,6 +62,9 @@
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Añadir/Editar productos</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ordenes-activas.html">Ordenes Activas</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -69,8 +72,37 @@
 
     <!-- Contenido principal -->
     <div class="container main-content">
-        <h1>Inicio</h1>
-        <p>Bienvenido al sistema de La Pica del Pescador.</p>
+        <h1 class="mb-4">Inicio</h1>
+        <div class="row">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        Mi Perfil
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="img/perfil-ejemplo.png" alt="Foto de perfil" class="rounded-circle me-3" width="70" height="70">
+                            <div>
+                                <h5 class="mb-0">Juan Pérez</h5>
+                                <small class="text-muted">Garzón</small>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Correo:</strong> juan.perez@email.com</li>
+                            <li class="list-group-item"><strong>Último acceso:</strong> 18/06/2025 09:15</li>
+                            <li class="list-group-item"><strong>Órdenes tomadas hoy:</strong> 5</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-7">
+                <div class="alert alert-info mt-2" role="alert">
+                    Bienvenido al sistema de La Pica del Pescador.<br>
+                    Aquí podrás gestionar tus órdenes, ver comandas y mucho más.
+                </div>
+                <!-- Puedes agregar aquí más información relevante, como accesos rápidos o estadísticas -->
+            </div>
+        </div>
     </div>
 
     <!-- Onda decorativa inferior -->
@@ -80,6 +112,6 @@
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
     </svg>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

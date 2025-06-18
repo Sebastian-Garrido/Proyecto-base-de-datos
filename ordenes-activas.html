@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes Activas - Restaurante del Mar</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .offcanvas-body .nav-link:hover {
+            background-color: #4fc3f7;
+            color: #fff;
+            border-radius: 0.5rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .wave {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            min-width: 100%;
+            height: 180px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .main-content {
+            margin-top: 70px;
+            z-index: 10;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="inicio.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="administrar-personal.html">Administrar personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="tomar-orden.html">Tomar orden</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="imprimir-boleta.html">Imprimir boleta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Ver comanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Añadir/Editar productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ordenes-activas.html">Ordenes Activas</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container main-content">
+        <h1 class="mb-4">Órdenes Activas</h1>
+        <div class="row" id="ordenes-container">
+            <!-- Card de ejemplo -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        Mesa 5 - Juan Pérez
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Paila Marina
+                                <span class="badge bg-secondary rounded-pill">2</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Empanada de Mariscos
+                                <span class="badge bg-secondary rounded-pill">1</span>
+                            </li>
+                        </ul>
+                        <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Puedes duplicar este bloque para más órdenes -->
+        </div>
+    </div>
+
+    <!-- Modal para editar orden -->
+    <div class="modal fade" id="editarOrdenModal" tabindex="-1" aria-labelledby="editarOrdenModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="editarOrdenModalLabel">Editar Orden - Mesa 5</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <h6>Platillos en la orden</h6>
+            <ul class="list-group mb-3" id="platillos-lista">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Paila Marina
+                    <span>
+                        <span class="badge bg-secondary rounded-pill me-2">2</span>
+                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Empanada de Mariscos
+                    <span>
+                        <span class="badge bg-secondary rounded-pill me-2">1</span>
+                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                    </span>
+                </li>
+            </ul>
+            <hr>
+            <h6>Añadir platillo</h6>
+            <div class="input-group mb-3">
+                <select class="form-select" id="nuevo-platillo">
+                    <option value="">Selecciona un platillo</option>
+                    <option>Paila Marina</option>
+                    <option>Empanada de Mariscos</option>
+                    <option>Jugo Natural</option>
+                    <option>Reineta Frita</option>
+                </select>
+                <input type="number" class="form-control" id="cantidad-platillo" min="1" value="1" style="max-width: 80px;">
+                <button class="btn btn-success" type="button">Añadir</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onda decorativa inferior -->
+    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
+        <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
+        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
+    </svg>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

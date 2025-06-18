@@ -6,9 +6,15 @@
     <title>Imprimir Boleta - Restaurante del Mar</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            min-height: 100vh;
-            background: #fff;
+        .boleta-preview {
+            background: #f8f9fa;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            margin: 0 auto 2rem auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.07);
+            position: relative;
+            z-index: 1;
         }
         .wave {
             position: fixed;
@@ -19,24 +25,6 @@
             height: 180px;
             z-index: 2;
             pointer-events: none;
-        }
-        .main-content {
-            margin-top: 90px;
-            z-index: 10;
-            position: relative;
-        }
-        .navbar .btn:hover, .navbar .btn:focus {
-            background-color: #1976d2;
-            color: #fff;
-            transition: background 0.2s, color 0.2s;
-        }
-        .boleta-preview {
-            background: #f8f9fa;
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 400px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.07);
         }
     </style>
 </head>
@@ -60,13 +48,16 @@
                         <a class="nav-link btn btn-primary mx-1 my-1" href="tomar-orden.html">Tomar orden</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-primary mx-1 my-1 active" href="imprimir-boleta.html">Imprimir boleta</a>
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="imprimir-boleta.html">Imprimir boleta</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Ver comanda</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-primary mx-1 my-1" href="editar-productos.html">Añadir/Editar productos</a>
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Añadir/Editar productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ordenes-activas.html">Ordenes Activas</a>
                     </li>
                 </ul>
             </div>
@@ -123,31 +114,181 @@
                 <tfoot>
                     <tr>
                         <th colspan="2" class="text-end">Total</th>
-                        <th class="text-end">$15.500</th>
+                        <th class="text-end" id="total-boleta">$15.500</th>
                     </tr>
                     <tr>
                         <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                        <th class="text-end">$1.550</th>
+                        <th class="text-end" id="propina-sugerida">$1.550</th>
                     </tr>
                     <tr>
                         <th colspan="2" class="text-end">Total con propina</th>
-                        <th class="text-end">$17.050</th>
+                        <th class="text-end" id="total-con-propina">$17.050</th>
                     </tr>
                 </tfoot>
             </table>
             <div class="text-center mt-3">
-                <button class="btn btn-primary" onclick="window.print()">Imprimir Boleta</button>
+                <button class="btn btn-success" id="btnAbrirPago">Pagar</button>
+                <button class="btn btn-primary ms-2" id="btnImprimir" onclick="window.print()" disabled
+                    title="Debe pagar el total antes de imprimir la boleta"
+                    onmouseover="if(this.disabled){this.setAttribute('data-title','Debe pagar el total antes de imprimir la boleta')}"
+                    onmouseout="this.removeAttribute('data-title')">
+                    Imprimir Boleta
+                </button>
             </div>
         </div>
     </div>
+    </div>
 
-    <!-- Onda decorativa inferior -->
+    <!-- Modal de Pago Bootstrap -->
+    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content modal-pago">
+          <div class="modal-header">
+            <h5 class="modal-title text-primary" id="modalPagoLabel">Registrar Pago</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="incluirPropina" checked>
+                <label class="form-check-label" for="incluirPropina">
+                    Incluir propina sugerida ($<span id="propina-sugerida-modal"></span>)
+                </label>
+            </div>
+            <div id="lista-abonos"></div>
+            <hr>
+            <form id="form-abono" class="row g-2 align-items-end">
+                <div class="col-6">
+                    <label for="metodo-pago" class="form-label mb-0">Método de pago</label>
+                    <select class="form-select" id="metodo-pago" required>
+                        <option value="">Selecciona...</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label for="monto-abono" class="form-label mb-0">Monto</label>
+                    <input type="number" class="form-control" id="monto-abono" min="1" placeholder="$" required>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-success mt-2">Agregar Abono</button>
+                </div>
+            </form>
+            <div class="mt-3">
+                <strong>Total abonado:</strong> $<span id="total-abonado">0</span><br>
+                <strong>Restante:</strong> $<span id="restante"></span><br>
+                <span id="vuelto" class="text-success"></span>
+                <div class="mt-2 small">
+                    <span id="info-pago"></span>
+                </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ...onda decorativa... -->
     <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
     </svg>
-
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+    // --- Configuración de totales ---
+    const totalSinPropina = 15500;
+    const propinaSugerida = 1550;
+    const totalConPropina = totalSinPropina + propinaSugerida;
+    let abonos = [];
+    let incluirPropina = true;
+
+    // Actualiza el total a pagar según la propina
+    function getTotalAPagar() {
+        return incluirPropina ? totalConPropina : totalSinPropina;
+    }
+
+    function actualizarAbonos() {
+        const lista = document.getElementById('lista-abonos');
+        lista.innerHTML = '';
+        let total = 0;
+        abonos.forEach((abono, idx) => {
+            total += abono.monto;
+            const div = document.createElement('div');
+            div.className = "alert alert-secondary py-2 d-flex justify-content-between align-items-center mb-2";
+            div.innerHTML = `
+                <span><strong>${abono.metodo}</strong> - $${abono.monto.toLocaleString()}</span>
+                <button class="btn btn-sm btn-danger" onclick="eliminarAbono(${idx})">Eliminar</button>
+            `;
+            lista.appendChild(div);
+        });
+        document.getElementById('total-abonado').textContent = total.toLocaleString();
+
+        // Calcular el total a pagar según propina
+        const totalAPagar = getTotalAPagar();
+        let restante = Math.max(totalAPagar - total, 0);
+        document.getElementById('restante').textContent = restante.toLocaleString();
+
+        // Mostrar vuelto si pagó de más
+        let vuelto = total > totalAPagar ? total - totalAPagar : 0;
+        document.getElementById('vuelto').textContent = vuelto > 0 ? `Vuelto: $${vuelto.toLocaleString()}` : '';
+
+        // Mostrar info de pago
+        let info = `<span>Total sin propina: <b>$${totalSinPropina.toLocaleString()}</b></span><br>`;
+        info += `<span>Total con propina: <b>$${totalConPropina.toLocaleString()}</b> (propina sugerida $${propinaSugerida.toLocaleString()})</span>`;
+        if (!incluirPropina && total >= totalSinPropina) {
+            info += `<br><span class="text-warning">Has pagado el total sin propina.</span>`;
+        }
+        if (incluirPropina && total >= totalConPropina) {
+            info += `<br><span class="text-success">¡Pago completo incluyendo propina!</span>`;
+        }
+        document.getElementById('info-pago').innerHTML = info;
+
+        // Habilitar botón imprimir si está pagado el total requerido
+        document.getElementById('btnImprimir').disabled = (total < totalAPagar);
+    }
+
+    function eliminarAbono(idx) {
+        abonos.splice(idx, 1);
+        actualizarAbonos();
+    }
+
+    document.getElementById('form-abono').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const metodo = document.getElementById('metodo-pago').value;
+        const monto = parseInt(document.getElementById('monto-abono').value, 10);
+        if (!metodo || isNaN(monto) || monto < 1) return;
+        abonos.push({metodo, monto});
+        document.getElementById('form-abono').reset();
+        actualizarAbonos();
+    });
+
+    // Manejar el cambio de propina
+    document.getElementById('incluirPropina').addEventListener('change', function() {
+        incluirPropina = this.checked;
+        actualizarAbonos();
+    });
+
+    // Abrir modal Bootstrap
+    document.getElementById('btnAbrirPago').addEventListener('click', function() {
+        document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
+        const modal = new bootstrap.Modal(document.getElementById('modalPago'));
+        modal.show();
+        actualizarAbonos();
+    });
+
+    // Inicializar totales y tooltip
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('total-boleta').textContent = `$${totalSinPropina.toLocaleString()}`;
+        document.getElementById('propina-sugerida').textContent = `$${propinaSugerida.toLocaleString()}`;
+        document.getElementById('total-con-propina').textContent = `$${totalConPropina.toLocaleString()}`;
+        document.getElementById('restante').textContent = totalSinPropina.toLocaleString();
+        document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
+        actualizarAbonos();
+        // Tooltip Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        tooltipTriggerList.map(function (el) {
+            return new bootstrap.Tooltip(el);
+        });
+    });
+    </script>
 </body>
 </html>
