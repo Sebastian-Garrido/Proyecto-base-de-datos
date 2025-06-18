@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Personal - Restaurante del Mar</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #fff;
+        }
+        .wave {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            min-width: 100%;
+            height: 180px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .main-content {
+            margin-top: 90px;
+            z-index: 10;
+            position: relative;
+        }
+        .navbar .btn:hover, .navbar .btn:focus {
+            background-color: #1976d2;
+            color: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="inicio.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1 active" href="administrar-personal.html">Administrar personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="tomar-orden.html">Tomar orden</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="imprimir-boleta.html">Imprimir boleta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Ver comanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="editar-productos.html">Añadir/Editar productos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container main-content">
+        <h1 class="mb-4">Administrar Personal</h1>
+        <!-- Formulario para agregar personal -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Agregar nuevo personal
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" placeholder="Nombre completo" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="rol" class="form-label">Rol</label>
+                            <select class="form-select" id="rol" required>
+                                <option value="">Selecciona un rol</option>
+                                <option>Administrador</option>
+                                <option>Garzón</option>
+                                <option>Cocinero</option>
+                                <option>Cajero</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="usuario" class="form-label">Usuario</label>
+                            <input type="text" class="form-control" id="usuario" placeholder="Nombre de usuario" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                        </div>
+                        <div class="col-md-4 align-self-end">
+                            <button type="submit" class="btn btn-success w-100">Agregar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Tabla de personal existente -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Personal registrado
+            </div>
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Rol</th>
+                            <th>Usuario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Juan Pérez</td>
+                            <td>Garzón</td>
+                            <td>juanp</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">Editar</button>
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>María López</td>
+                            <td>Cocinero</td>
+                            <td>marial</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">Editar</button>
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </td>
+                        </tr>
+                        <!-- Más filas según personal registrado -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onda decorativa inferior -->
+    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
+        <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
+        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
+    </svg>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Restaurante del Mar</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #a2d9ff 0%, #e0f7fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.35;
+            z-index: 1;
+            animation: float 8s infinite ease-in-out;
+        }
+        /* Burbujas de diferentes tamaños, posiciones y animaciones */
+        .bubble1 { width: 80px; height: 80px; left: 10%; top: 15%; background: #b3e0ff; animation-delay: 0s;}
+        .bubble2 { width: 50px; height: 50px; left: 80%; top: 10%; background: #81d4fa; animation-delay: 2s;}
+        .bubble3 { width: 100px; height: 100px; left: 70%; top: 60%; background: #4fc3f7; animation-delay: 4s;}
+        .bubble4 { width: 60px; height: 60px; left: 20%; top: 70%; background: #b3e0ff; animation-delay: 1s;}
+        .bubble5 { width: 40px; height: 40px; left: 60%; top: 30%; background: #81d4fa; animation-delay: 3s;}
+        .bubble6 { width: 30px; height: 30px; left: 85%; top: 80%; background: #b3e0ff; animation-delay: 5s;}
+        .bubble7 { width: 25px; height: 25px; left: 5%; top: 80%; background: #4fc3f7; animation-delay: 6s;}
+        .bubble8 { width: 70px; height: 70px; left: 50%; top: 10%; background: #b3e0ff; animation-delay: 1.5s;}
+        .bubble9 { width: 35px; height: 35px; left: 30%; top: 60%; background: #81d4fa; animation-delay: 2.5s;}
+        .bubble10 { width: 55px; height: 55px; left: 75%; top: 40%; background: #b3e0ff; animation-delay: 3.5s;}
+        .bubble11 { width: 45px; height: 45px; left: 40%; top: 80%; background: #4fc3f7; animation-delay: 4.5s;}
+        .bubble12 { width: 65px; height: 65px; left: 15%; top: 50%; background: #81d4fa; animation-delay: 5.5s;}
+        .bubble13 { width: 20px; height: 20px; left: 90%; top: 60%; background: #b3e0ff; animation-delay: 6.5s;}
+        .bubble14 { width: 90px; height: 90px; left: 5%; top: 35%; background: #4fc3f7; animation-delay: 7s;}
+        .bubble15 { width: 38px; height: 38px; left: 55%; top: 75%; background: #81d4fa; animation-delay: 2.2s;}
+        .bubble16 { width: 28px; height: 28px; left: 35%; top: 20%; background: #b3e0ff; animation-delay: 3.8s;}
+        .bubble17 { width: 60px; height: 60px; left: 65%; top: 15%; background: #4fc3f7; animation-delay: 1.8s;}
+        .bubble18 { width: 22px; height: 22px; left: 25%; top: 85%; background: #81d4fa; animation-delay: 4.8s;}
+        .bubble19 { width: 48px; height: 48px; left: 80%; top: 70%; background: #b3e0ff; animation-delay: 5.8s;}
+        .bubble20 { width: 33px; height: 33px; left: 60%; top: 55%; background: #4fc3f7; animation-delay: 6.8s;}
+        @keyframes float {
+            0%, 100% { transform: translateY(0);}
+            50% { transform: translateY(-30px);}
+        }
+        .wave {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            min-width: 100%;
+            height: 320px; /* Más alto */
+            z-index: 2;
+            pointer-events: none;
+        }
+        .login-container {
+            position: relative;
+            z-index: 10;
+            max-width: 400px;
+            width: 100%;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 600px) {
+            .wave { height: 180px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Muchas burbujas decorativas -->
+    <div class="bubble bubble1"></div>
+    <div class="bubble bubble2"></div>
+    <div class="bubble bubble3"></div>
+    <div class="bubble bubble4"></div>
+    <div class="bubble bubble5"></div>
+    <div class="bubble bubble6"></div>
+    <div class="bubble bubble7"></div>
+    <div class="bubble bubble8"></div>
+    <div class="bubble bubble9"></div>
+    <div class="bubble bubble10"></div>
+    <div class="bubble bubble11"></div>
+    <div class="bubble bubble12"></div>
+    <div class="bubble bubble13"></div>
+    <div class="bubble bubble14"></div>
+    <div class="bubble bubble15"></div>
+    <div class="bubble bubble16"></div>
+    <div class="bubble bubble17"></div>
+    <div class="bubble bubble18"></div>
+    <div class="bubble bubble19"></div>
+    <div class="bubble bubble20"></div>
+
+    <!-- Formulario de login -->
+    <div class="login-container">
+        <h2 class="mb-4 text-center">La Pica del Pescador</h2>
+        <form>
+            <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="username" placeholder="Ingresa tu usuario" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+        </form>
+    </div>
+
+    <!-- Onda decorativa inferior más alta -->
+    <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,220 C360,320 1080,120 1440,220 L1440,320 L0,320 Z"></path>
+        <path fill="#81d4fa" fill-opacity="0.5" d="M0,260 C400,180 1040,300 1440,260 L1440,320 L0,320 Z"></path>
+        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,320 C400,280 1040,320 1440,320 L1440,320 L0,320 Z"></path>
+    </svg>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evita el envío real del formulario
+        window.location.href = 'inicio.html'; // Redirige a landing.html
+    });
+    </script>
+</body>
+</html>

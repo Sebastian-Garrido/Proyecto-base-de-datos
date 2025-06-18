@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Comanda - Restaurante del Mar</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #fff;
+        }
+        .wave {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            min-width: 100%;
+            height: 180px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .main-content {
+            margin-top: 90px;
+            z-index: 10;
+            position: relative;
+        }
+        .navbar .btn:hover, .navbar .btn:focus {
+            background-color: #1976d2;
+            color: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+        .comanda-card {
+            min-width: 250px;
+            max-width: 350px;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.07);
+            outline: none;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .comanda-card.selected, .comanda-card:focus {
+            box-shadow: 0 0 0 4px #4fc3f7;
+            border-color: #1976d2 !important;
+        }
+        .comanda-card .card-header {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="inicio.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="administrar-personal.html">Administrar personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="tomar-orden.html">Tomar orden</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="imprimir-boleta.html">Imprimir boleta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1 active" href="ver-comanda.html">Ver comanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="editar-productos.html">Añadir/Editar productos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container main-content">
+        <div class="row g-4" id="comandas-list">
+            <!-- Comanda 1 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
+                    <div class="card-header bg-primary text-white">
+                        Orden #12345
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Paila Marina</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 2</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Comanda 2 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
+                    <div class="card-header bg-primary text-white">
+                        Orden #12345
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Empanada de Mariscos</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 1</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Comanda 3 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
+                    <div class="card-header bg-primary text-white">
+                        Orden #12346
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Reineta Frita</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 3</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 2</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:30</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Más comandas según platillos preparados -->
+        </div>
+    </div>
+
+    <!-- Onda decorativa inferior -->
+    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
+        <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
+        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
+    </svg>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Botón entregar: elimina la comanda
+    document.querySelectorAll('.entregar-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const card = btn.closest('.col-12');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = 0;
+            setTimeout(() => card.remove(), 300);
+        });
+    });
+
+    // Selección con teclado
+    const cards = Array.from(document.querySelectorAll('.comanda-card'));
+    let selectedIdx = 0;
+    if (cards.length) {
+        cards[selectedIdx].classList.add('selected');
+        cards[selectedIdx].focus();
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (!cards.length) return;
+        // Flecha derecha o abajo
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            cards[selectedIdx].classList.remove('selected');
+            selectedIdx = (selectedIdx + 1) % cards.length;
+            cards[selectedIdx].classList.add('selected');
+            cards[selectedIdx].focus();
+            e.preventDefault();
+        }
+        // Flecha izquierda o arriba
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            cards[selectedIdx].classList.remove('selected');
+            selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
+            cards[selectedIdx].classList.add('selected');
+            cards[selectedIdx].focus();
+            e.preventDefault();
+        }
+        // Enter: entregar comanda seleccionada
+        if (e.key === 'Enter') {
+            const card = cards[selectedIdx].closest('.col-12');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = 0;
+            setTimeout(() => {
+                card.remove();
+                cards.splice(selectedIdx, 1);
+                if (cards.length) {
+                    selectedIdx = selectedIdx % cards.length;
+                    cards[selectedIdx].classList.add('selected');
+                    cards[selectedIdx].focus();
+                }
+            }, 300);
+            e.preventDefault();
+        }
+    });
+    </script>
+</body>
+</html>

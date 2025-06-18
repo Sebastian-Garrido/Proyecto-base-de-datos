@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tomar Orden - Restaurante del Mar</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #fff;
+        }
+        .wave {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100vw;
+            min-width: 100%;
+            height: 180px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .main-content {
+            margin-top: 90px;
+            z-index: 10;
+            position: relative;
+        }
+        .navbar .btn:hover, .navbar .btn:focus {
+            background-color: #1976d2;
+            color: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="inicio.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="administrar-personal.html">Administrar personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1 active" href="tomar-orden.html">Tomar orden</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="imprimir-boleta.html">Imprimir boleta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="ver-comanda.html">Ver comanda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="editar-productos.html">Añadir/Editar productos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container main-content">
+        <h1 class="mb-4">Tomar Orden</h1>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Nueva Orden
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="mesa" class="form-label">Mesa</label>
+                            <input type="number" class="form-control" id="mesa" placeholder="Número de mesa" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="garzon" class="form-label">Garzón</label>
+                            <select class="form-select" id="garzon" required>
+                                <option value="">Selecciona un garzón</option>
+                                <option>Juan Pérez</option>
+                                <option>María López</option>
+                                <!-- Más garzones -->
+                            </select>
+                        </div>
+                    </div>
+                    <hr>
+                    <h5>Agregar productos</h5>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label for="producto" class="form-label">Producto</label>
+                            <select class="form-select" id="producto">
+                                <option value="">Selecciona un producto</option>
+                                <option>Paila Marina</option>
+                                <option>Empanada de Mariscos</option>
+                                <option>Jugo Natural</option>
+                                <option>Reineta Frita</option>
+                                <!-- Más productos -->
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="cantidad" class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="cantidad" min="1" value="1">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success w-100">Agregar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Tabla de productos agregados a la orden -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Productos en la Orden
+            </div>
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Paila Marina</td>
+                            <td>2</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Empanada de Mariscos</td>
+                            <td>1</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </td>
+                        </tr>
+                        <!-- Más filas según productos agregados -->
+                    </tbody>
+                </table>
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-primary">Enviar Orden</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onda decorativa inferior -->
+    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
+        <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
+        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
+    </svg>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
