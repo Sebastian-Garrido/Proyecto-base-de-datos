@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrar Personal - Restaurante del Mar</title>
+    <title>Administrar Personal - La Pica del Pescador</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -36,7 +36,7 @@
     <!-- Navbar superior -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <a class="navbar-brand" href="#">La Pica del Pescador</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -74,35 +74,121 @@
         <!-- Formulario para agregar personal -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                Agregar nuevo personal
+                Agregar/Editar personal
             </div>
             <div class="card-body">
                 <form>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="nombre" placeholder="Nombre completo" required>
+                        <div class="col-md-3">
+                            <label for="run" class="form-label">RUN</label>
+                            <input type="text" class="form-control" id="run" placeholder="Ej: 12.345.678-9" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="nombres" class="form-label">Nombres</label>
+                            <input type="text" class="form-control" id="nombres" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="apellidoPaterno" class="form-label">Apellido paterno</label>
+                            <input type="text" class="form-control" id="apellidoPaterno" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="apellidoMaterno" class="form-label">Apellido materno</label>
+                            <input type="text" class="form-control" id="apellidoMaterno" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="sexo" class="form-label">Sexo</label>
+                            <select class="form-select" id="sexo" required>
+                                <option value="">Selecciona</option>
+                                <option>Masculino</option>
+                                <option>Femenino</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="regionCascada" class="form-label">Región</label>
+                            <select class="form-select" id="regionCascada" required>
+                                <option value="">Selecciona región</option>
+                                <option value="tarapaca">Tarapacá</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="comunaCascada" class="form-label">Comuna</label>
+                            <select class="form-select" id="comunaCascada" required>
+                                <option value="">Selecciona comuna</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ciudadCascada" class="form-label">Ciudad</label>
+                            <select class="form-select" id="ciudadCascada" required>
+                                <option value="">Selecciona ciudad</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="calle" class="form-label">Calle</label>
+                            <input type="text" class="form-control" id="calle" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="numero" class="form-label">Número</label>
+                            <input type="text" class="form-control" id="numero" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="telefono" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="rol" class="form-label">Rol</label>
-                            <select class="form-select" id="rol" required>
-                                <option value="">Selecciona un rol</option>
+                            <label for="correo" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="correo" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                            <input type="date" class="form-control" id="fechaNacimiento" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaIngreso" class="form-label">Fecha de ingreso</label>
+                            <input type="date" class="form-control" id="fechaIngreso" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaEgreso" class="form-label">Fecha de egreso</label>
+                            <input type="date" class="form-control" id="fechaEgreso">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="cargo" class="form-label">Cargo</label>
+                            <select class="form-select" id="cargo" required>
+                                <option value="">Selecciona un cargo</option>
                                 <option>Administrador</option>
                                 <option>Garzón</option>
                                 <option>Cocinero</option>
                                 <option>Cajero</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label for="usuario" class="form-label">Usuario</label>
-                            <input type="text" class="form-control" id="usuario" placeholder="Nombre de usuario" required>
+                        <div class="col-md-3">
+                            <label for="sueldo" class="form-label">Sueldo mensual</label>
+                            <input type="number" class="form-control" id="sueldo" required>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label for="vigencia" class="form-label">Vigente</label>
+                            <select class="form-select" id="vigencia" required>
+                                <option value="si">Sí</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="localCascada" class="form-label">Local</label>
+                            <select class="form-select" id="localCascada" required>
+                                <option value="">Selecciona local</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
                             <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <span id="toggleIcon" class="bi bi-eye"></span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-4 align-self-end">
-                            <button type="submit" class="btn btn-success w-100">Agregar</button>
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-success">Guardar</button>
                         </div>
                     </div>
                 </form>
@@ -114,37 +200,61 @@
                 Personal registrado
             </div>
             <div class="card-body">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Rol</th>
-                            <th>Usuario</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Juan Pérez</td>
-                            <td>Garzón</td>
-                            <td>juanp</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm">Editar</button>
-                                <button class="btn btn-danger btn-sm">Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>María López</td>
-                            <td>Cocinero</td>
-                            <td>marial</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm">Editar</button>
-                                <button class="btn btn-danger btn-sm">Eliminar</button>
-                            </td>
-                        </tr>
-                        <!-- Más filas según personal registrado -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>RUN</th>
+                                <th>Nombres</th>
+                                <th>Apellido paterno</th>
+                                <th>Apellido materno</th>
+                                <th>Sexo</th>
+                                <th>Dirección</th>
+                                <th>Teléfono</th>
+                                <th>Correo</th>
+                                <th>F. Nacimiento</th>
+                                <th>F. Ingreso</th>
+                                <th>F. Egreso</th>
+                                <th>Cargo</th>
+                                <th>Sueldo</th>
+                                <th>Vigente</th>
+                                <th>Local</th>
+                                <th>Contraseña</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>12.345.678-9</td>
+                                <td>Juan</td>
+                                <td>Pérez</td>
+                                <td>González</td>
+                                <td>Masculino</td>
+                                <td>Región de Tarapacá, Comuna de Iquique, Iquique, Calle 123, 456</td>
+                                <td>912345678</td>
+                                <td>juan.perez@email.com</td>
+                                <td>1990-01-01</td>
+                                <td>2020-05-01</td>
+                                <td></td>
+                                <td>Garzón</td>
+                                <td>$500.000</td>
+                                <td>Sí</td>
+                                <td>Local 1</td>
+                                <td>
+                                    <input type="password" value="12345678" class="form-control form-control-sm d-inline w-auto" readonly style="background:transparent; border:none; padding-left:0;">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm ms-2 togglePasswordRow">
+                                        <span class="bi bi-eye"></span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">Editar</button>
+                                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                                </td>
+                            </tr>
+                            <!-- Más filas según personal registrado -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -157,5 +267,116 @@
     </svg>
 
     <script src="js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        // Toggle para el campo de contraseña del formulario
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        if (toggleBtn && passwordField && toggleIcon) {
+            toggleBtn.addEventListener('click', function() {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.classList.remove('bi-eye');
+                    toggleIcon.classList.add('bi-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.classList.remove('bi-eye-slash');
+                    toggleIcon.classList.add('bi-eye');
+                }
+            });
+        }
+
+        // Toggle para las contraseñas en la tabla
+        document.querySelectorAll('.togglePasswordRow').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const input = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
+                const icon = btn.querySelector('.bi');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+    </script>
+
+    <script>
+    // Datos de Tarapacá: comunas, ciudades y locales
+    const data = {
+        tarapaca: {
+            comunas: {
+                iquique: {
+                    nombre: "Iquique",
+                    ciudades: ["Iquique", "Alto Hospicio"]
+                },
+                alto_hospicio: {
+                    nombre: "Alto Hospicio",
+                    ciudades: ["Alto Hospicio"]
+                },
+                pozo_almonte: {
+                    nombre: "Pozo Almonte",
+                    ciudades: ["Pozo Almonte", "La Tirana", "La Huayca"]
+                },
+                cavancha: {
+                    nombre: "Cavancha",
+                    ciudades: ["Cavancha"]
+                }
+            }
+        }
+    };
+
+    const locales = ["Local 1", "Local 2", "Local 3"];
+
+    const regionSelect = document.getElementById('regionCascada');
+    const comunaSelect = document.getElementById('comunaCascada');
+    const ciudadSelect = document.getElementById('ciudadCascada');
+    const localSelect = document.getElementById('localCascada');
+
+    regionSelect.addEventListener('change', function() {
+        comunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
+        ciudadSelect.innerHTML = '<option value="">Selecciona ciudad</option>';
+        localSelect.innerHTML = '<option value="">Selecciona local</option>';
+        if (regionSelect.value && data[regionSelect.value]) {
+            const comunas = data[regionSelect.value].comunas;
+            Object.keys(comunas).forEach(comunaKey => {
+                const option = document.createElement('option');
+                option.value = comunaKey;
+                option.textContent = comunas[comunaKey].nombre;
+                comunaSelect.appendChild(option);
+            });
+        }
+    });
+
+    comunaSelect.addEventListener('change', function() {
+        ciudadSelect.innerHTML = '<option value="">Selecciona ciudad</option>';
+        localSelect.innerHTML = '<option value="">Selecciona local</option>';
+        const region = regionSelect.value;
+        const comuna = comunaSelect.value;
+        if (region && comuna && data[region].comunas[comuna]) {
+            data[region].comunas[comuna].ciudades.forEach(ciudad => {
+                const option = document.createElement('option');
+                option.value = ciudad;
+                option.textContent = ciudad;
+                ciudadSelect.appendChild(option);
+            });
+        }
+    });
+
+    ciudadSelect.addEventListener('change', function() {
+        localSelect.innerHTML = '<option value="">Selecciona local</option>';
+        locales.forEach(local => {
+            const option = document.createElement('option');
+            option.value = local;
+            option.textContent = local;
+            localSelect.appendChild(option);
+        });
+    });
+</script>
+
 </body>
 </html>

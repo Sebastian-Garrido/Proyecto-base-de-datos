@@ -38,7 +38,7 @@
     <!-- Navbar superior -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Restaurante del Mar</a>
+            <a class="navbar-brand" href="#">La Pica del Pescador</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -80,17 +80,17 @@
                         Mi Perfil
                     </div>
                     <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="img/perfil-ejemplo.png" alt="Foto de perfil" class="rounded-circle me-3" width="70" height="70">
-                            <div>
-                                <h5 class="mb-0">Juan Pérez</h5>
-                                <small class="text-muted">Garzón</small>
-                            </div>
-                        </div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Correo:</strong> juan.perez@email.com</li>
-                            <li class="list-group-item"><strong>Último acceso:</strong> 18/06/2025 09:15</li>
-                            <li class="list-group-item"><strong>Órdenes tomadas hoy:</strong> 5</li>
+                            <li class="list-group-item">
+                                <strong>Correo:</strong> juan.perez@email.com
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <strong class="me-2">Contraseña:</strong>
+                                <input type="password" id="passwordField" value="12345678" class="form-control form-control-sm w-auto" readonly style="background:transparent; border:none; padding-left:0;">
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="togglePassword">
+                                    <span id="toggleIcon" class="bi bi-eye"></span> Mostrar
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -113,5 +113,21 @@
     </svg>
 
     <script src="js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('passwordField');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        toggleBtn.addEventListener('click', function() {
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleBtn.innerHTML = '<span id="toggleIcon" class="bi bi-eye-slash"></span> Ocultar';
+            } else {
+                passwordField.type = 'password';
+                toggleBtn.innerHTML = '<span id="toggleIcon" class="bi bi-eye"></span> Mostrar';
+            }
+        });
+    </script>
 </body>
 </html>
