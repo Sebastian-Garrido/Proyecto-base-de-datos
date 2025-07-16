@@ -45,6 +45,9 @@
                         <a class="nav-link btn btn-primary mx-1 my-1" href="administrar-personal.html">Administrar personal</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link btn btn-primary mx-1 my-1" href="administrar-empresas.html">Administrar empresas</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link btn btn-primary mx-1 my-1" href="tomar-orden.html">Tomar orden</a>
                     </li>
                     <li class="nav-item">
@@ -83,189 +86,120 @@
                 </form>
             </div>
         </div>
-        <!-- Selector de tipo de documento -->
-        <div class="mb-4 text-center">
-            <div class="btn-group" role="group">
-                <button class="btn btn-outline-primary active" id="btnBoleta">Boleta</button>
-                <button class="btn btn-outline-secondary" id="btnFactura">Factura</button>
+        <!-- Vista previa de Documento tributario -->
+        <div class="d-flex justify-content-center mb-4">
+            <div id="doc-tributario" class="card boleta-preview shadow-lg">
+                <div class="card-header bg-primary text-white text-center fs-4">
+                    Documento Tributario N° 12345
+                </div>
+                <div class="card-body">
+                    <p><strong>Mesa:</strong> 7</p>
+                    <p><strong>Garzón:</strong> Juan Pérez</p>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Paila Marina</td>
+                                <td class="text-end">2</td>
+                                <td class="text-end">$12.000</td>
+                            </tr>
+                            <tr>
+                                <td>Empanada de Mariscos</td>
+                                <td class="text-end">1</td>
+                                <td class="text-end">$3.500</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" class="text-end">Total</th>
+                                <th class="text-end" id="total-boleta">$15.500</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="text-end">Propina sugerida (10%)</th>
+                                <th class="text-end" id="propina-sugerida">$1.550</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="text-end">Total con propina</th>
+                                <th class="text-end" id="total-con-propina">$17.050</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="mt-2 text-success" id="pago-doc-trib-info" style="display:none;">
+                        <div><strong>Total pagado:</strong> $<span id="total-pagado-boleta">0</span></div>
+                        <div><strong>Vuelto:</strong> $<span id="vuelto-boleta-monto">0</span></div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-primary me-2" id="btnPagarBoleta">Boleta</button>
+                        <button class="btn btn-outline-secondary" id="btnPagarFactura">Factura</button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <!-- Cascada de empresa para factura -->
-        <div class="mb-4" id="empresa-cascada" style="display:none;">
-            <div class="row g-3 justify-content-center">
-                <div class="col-md-6">
-                    <label for="empresa" class="form-label">Empresa</label>
-                    <select class="form-select" id="empresa">
+
+        <!-- Modal de Pago Unificado -->
+        <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content modal-pago">
+              <div class="modal-header">
+                <h5 class="modal-title text-primary" id="modalPagoLabel">Registrar Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <div id="empresa-select-modal" style="display:none;">
+                    <label for="empresa-modal" class="form-label">Empresa</label>
+                    <select class="form-select mb-3" id="empresa-modal">
                         <option value="">Selecciona empresa</option>
                         <option value="0">Mariscos Iquique SpA</option>
                         <option value="1">Mariscos Alto Hospicio Ltda.</option>
                         <option value="2">Pescados del Norte S.A.</option>
                     </select>
                 </div>
-            </div>
-        </div>
-        <!-- Vista previa de boleta/factura -->
-        <div class="d-flex justify-content-center mb-4">
-        <div id="preview-boleta" class="card boleta-preview shadow-lg">
-            <div class="card-header bg-primary text-white text-center fs-4">
-                Boleta N° 12345
-            </div>
-            <div class="card-body">
-                <p><strong>Mesa:</strong> 7</p>
-                <p><strong>Garzón:</strong> Juan Pérez</p>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th class="text-end">Cantidad</th>
-                            <th class="text-end">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Paila Marina</td>
-                            <td class="text-end">2</td>
-                            <td class="text-end">$12.000</td>
-                        </tr>
-                        <tr>
-                            <td>Empanada de Mariscos</td>
-                            <td class="text-end">1</td>
-                            <td class="text-end">$3.500</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="2" class="text-end">Total</th>
-                            <th class="text-end" id="total-boleta">$15.500</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                            <th class="text-end" id="propina-sugerida">$1.550</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2" class="text-end">Total con propina</th>
-                            <th class="text-end" id="total-con-propina">$17.050</th>
-                        </tr>
-                    </tfoot>
-                </table>
-                <div id="vuelto-boleta" class="mt-2 text-success" style="display:none;">
-                    <div><strong>Total pagado:</strong> $<span id="total-pagado-boleta">0</span></div>
-                    <strong>Vuelto:</strong> $<span id="vuelto-boleta-monto">0</span>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="incluirPropina" checked>
+                    <label class="form-check-label" for="incluirPropina">
+                        Incluir propina sugerida ($<span id="propina-sugerida-modal"></span>)
+                    </label>
                 </div>
-            </div>
-        </div>
-        <div id="preview-factura" class="card boleta-preview shadow-lg" style="display:none;">
-            <div class="card-header bg-secondary text-white text-center fs-4">
-                Factura N° 12345
-            </div>
-            <div class="card-body">
-                <div class="mb-2">
-                    <strong>Empresa:</strong> <span id="factura-empresa-nombre">---</span><br>
-                    <strong>RUT:</strong> <span id="factura-empresa-rut">---</span><br>
-                    <strong>Teléfono:</strong> <span id="factura-empresa-telefono">---</span><br>
-                    <strong>Correo:</strong> <span id="factura-empresa-correo">---</span><br>
-                    <strong>Dirección:</strong> <span id="factura-empresa-direccion">---</span>
+                <div id="lista-abonos"></div>
+                <hr>
+                <form id="form-abono" class="row g-2 align-items-end">
+                    <div class="col-6">
+                        <label for="metodo-pago" class="form-label mb-0">Método de pago</label>
+                        <select class="form-select" id="metodo-pago" required>
+                            <option value="">Selecciona...</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label for="monto-abono" class="form-label mb-0">Monto</label>
+                        <input type="number" class="form-control" id="monto-abono" min="1" placeholder="$" required>
+                        <div id="monto-error" class="text-danger small mt-1" style="display:none;"></div>
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-success mt-2">Agregar Abono</button>
+                    </div>
+                </form>
+                <div class="mt-3">
+                    <strong>Total abonado:</strong> $<span id="total-abonado">0</span><br>
+                    <strong>Restante:</strong> $<span id="restante"></span><br>
+                    <span id="vuelto" class="text-success"></span>
+                    <div class="mt-2 small">
+                        <span id="info-pago"></span>
+                    </div>
                 </div>
-                <p><strong>Mesa:</strong> 7</p>
-                <p><strong>Garzón:</strong> Juan Pérez</p>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th class="text-end">Cantidad</th>
-                            <th class="text-end">Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Paila Marina</td>
-                            <td class="text-end">2</td>
-                            <td class="text-end">$12.000</td>
-                        </tr>
-                        <tr>
-                            <td>Empanada de Mariscos</td>
-                            <td class="text-end">1</td>
-                            <td class="text-end">$3.500</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="2" class="text-end">Total</th>
-                            <th class="text-end" id="total-factura">$15.500</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                            <th class="text-end" id="propina-factura">$1.550</th>
-                        </tr>
-                        <tr>
-                            <th colspan="2" class="text-end">Total con propina</th>
-                            <th class="text-end" id="total-con-propina-factura">$17.050</th>
-                        </tr>
-                    </tfoot>
-                </table>
-                <div id="vuelto-factura" class="mt-2 text-success" style="display:none;">
-                    <div><strong>Total pagado:</strong> $<span id="total-pagado-factura">0</span></div>
-                    <strong>Vuelto:</strong> $<span id="vuelto-factura-monto">0</span>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" id="btnImprimirModal" disabled>Imprimir</button>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
-        <div class="text-center mt-1 mb-4">
-            <button class="btn btn-success" id="btnAbrirPago">Pagar</button>
-            <button class="btn btn-primary ms-2" id="btnImprimir" disabled
-                title="Debe pagar el total antes de imprimir"
-                onmouseover="if(this.disabled){this.setAttribute('data-title','Debe pagar el total antes de imprimir')}"
-                onmouseout="this.removeAttribute('data-title')">
-                Imprimir
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal de Pago Bootstrap -->
-    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content modal-pago">
-          <div class="modal-header">
-            <h5 class="modal-title text-primary" id="modalPagoLabel">Registrar Pago</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
-          <div class="modal-body">
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="incluirPropina" checked>
-                <label class="form-check-label" for="incluirPropina">
-                    Incluir propina sugerida ($<span id="propina-sugerida-modal"></span>)
-                </label>
-            </div>
-            <div id="lista-abonos"></div>
-            <hr>
-            <form id="form-abono" class="row g-2 align-items-end">
-                <div class="col-6">
-                    <label for="metodo-pago" class="form-label mb-0">Método de pago</label>
-                    <select class="form-select" id="metodo-pago" required>
-                        <option value="">Selecciona...</option>
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Tarjeta">Tarjeta</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <label for="monto-abono" class="form-label mb-0">Monto</label>
-                    <input type="number" class="form-control" id="monto-abono" min="1" placeholder="$" required>
-                </div>
-                <div class="col-12 text-end">
-                    <button type="submit" class="btn btn-success mt-2">Agregar Abono</button>
-                </div>
-            </form>
-            <div class="mt-3">
-                <strong>Total abonado:</strong> $<span id="total-abonado">0</span><br>
-                <strong>Restante:</strong> $<span id="restante"></span><br>
-                <span id="vuelto" class="text-success"></span>
-                <div class="mt-2 small">
-                    <span id="info-pago"></span>
-                </div>
-            </div>
         </div>
-        </div>
-      </div>
     </div>
 
     <!-- ...onda decorativa... -->
@@ -282,8 +216,10 @@
         const totalConPropina = totalSinPropina + propinaSugerida;
         let abonos = [];
         let incluirPropina = true;
+        let modoPago = "boleta"; // "boleta" o "factura"
+        let pagoCompleto = false;
 
-        // Datos de empresas para cascada
+        // Empresas
         const empresasData = [
             {
                 nombre: "Mariscos Iquique SpA",
@@ -308,50 +244,60 @@
             }
         ];
 
-        const empresaSelect = document.getElementById('empresa');
-        const facturaEmpresaNombre = document.getElementById('factura-empresa-nombre');
-        const facturaEmpresaRut = document.getElementById('factura-empresa-rut');
-        const facturaEmpresaTelefono = document.getElementById('factura-empresa-telefono');
-        const facturaEmpresaCorreo = document.getElementById('factura-empresa-correo');
-        const facturaEmpresaDireccion = document.getElementById('factura-empresa-direccion');
+        // Mostrar modal de pago según tipo
+        function abrirModalPago(tipo) {
+            modoPago = tipo;
+            document.getElementById('empresa-select-modal').style.display = (tipo === 'factura') ? '' : 'none';
+            document.getElementById('modalPagoLabel').textContent = tipo === 'factura' ? "Registrar Pago Factura" : "Registrar Pago Boleta";
+            document.getElementById('btnImprimirModal').textContent = tipo === 'factura' ? "Imprimir Factura" : "Imprimir Boleta";
+            document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
+            const modal = new bootstrap.Modal(document.getElementById('modalPago'));
+            modal.show();
+            actualizarAbonos();
+        }
 
-        empresaSelect.addEventListener('change', function() {
-            const idx = empresaSelect.value;
+        document.getElementById('btnPagarBoleta').addEventListener('click', function() {
+            abrirModalPago('boleta');
+        });
+        document.getElementById('btnPagarFactura').addEventListener('click', function() {
+            abrirModalPago('factura');
+        });
+
+        document.getElementById('empresa-modal').addEventListener('change', function() {
+            const idx = this.value;
             if (empresasData[idx]) {
                 const empresa = empresasData[idx];
-                facturaEmpresaNombre.textContent = empresa.nombre;
-                facturaEmpresaRut.textContent = empresa.rut;
-                facturaEmpresaTelefono.textContent = empresa.telefono;
-                facturaEmpresaCorreo.textContent = empresa.correo;
-                facturaEmpresaDireccion.textContent = empresa.direccion;
+                document.getElementById('factura-empresa-nombre').textContent = empresa.nombre;
+                document.getElementById('factura-empresa-rut').textContent = empresa.rut;
+                document.getElementById('factura-empresa-telefono').textContent = empresa.telefono;
+                document.getElementById('factura-empresa-correo').textContent = empresa.correo;
+                document.getElementById('factura-empresa-direccion').textContent = empresa.direccion;
             } else {
-                facturaEmpresaNombre.textContent = "---";
-                facturaEmpresaRut.textContent = "---";
-                facturaEmpresaTelefono.textContent = "---";
-                facturaEmpresaCorreo.textContent = "---";
-                facturaEmpresaDireccion.textContent = "---";
+                document.getElementById('factura-empresa-nombre').textContent = "---";
+                document.getElementById('factura-empresa-rut').textContent = "---";
+                document.getElementById('factura-empresa-telefono').textContent = "---";
+                document.getElementById('factura-empresa-correo').textContent = "---";
+                document.getElementById('factura-empresa-direccion').textContent = "---";
             }
-        });
-
-        // Cambiar entre boleta y factura
-        document.getElementById('btnBoleta').addEventListener('click', function() {
-            this.classList.add('active');
-            document.getElementById('btnFactura').classList.remove('active');
-            document.getElementById('preview-boleta').style.display = '';
-            document.getElementById('preview-factura').style.display = 'none';
-            document.getElementById('empresa-cascada').style.display = 'none';
-        });
-        document.getElementById('btnFactura').addEventListener('click', function() {
-            this.classList.add('active');
-            document.getElementById('btnBoleta').classList.remove('active');
-            document.getElementById('preview-boleta').style.display = 'none';
-            document.getElementById('preview-factura').style.display = '';
-            document.getElementById('empresa-cascada').style.display = '';
         });
 
         // --- Pago y totales ---
         function getTotalAPagar() {
             return incluirPropina ? totalConPropina : totalSinPropina;
+        }
+
+        function actualizarBotonesImprimir() {
+            const empresaValida = document.getElementById('empresa-modal').value !== "";
+            // Si tienes dos botones:
+            // document.getElementById('btnImprimirBoleta').disabled = !pagoCompleto;
+            // document.getElementById('btnImprimirFactura').disabled = !(pagoCompleto && empresaValida);
+
+            // Si tienes un solo botón y el modo es boleta/factura:
+            if (modoPago === "factura") {
+                document.getElementById('btnImprimirModal').disabled = !(pagoCompleto && empresaValida);
+            } else {
+                document.getElementById('btnImprimirModal').disabled = !pagoCompleto;
+            }
         }
 
         function actualizarAbonos() {
@@ -390,49 +336,27 @@
             }
             document.getElementById('info-pago').innerHTML = info;
 
-            try {
-                const totalAPagar = getTotalAPagar();
-                let totalAbonado = abonos.reduce((sum, abono) => sum + abono.monto, 0);
-                let vuelto = totalAbonado - totalAPagar;
-                const hayEfectivo = abonos.some(a => a.metodo === "Efectivo");
-                const vueltoBoleta = document.getElementById('vuelto-boleta');
-                const vueltoFactura = document.getElementById('vuelto-factura');
-                const vueltoBoletaMonto = document.getElementById('vuelto-boleta-monto');
-                const vueltoFacturaMonto = document.getElementById('vuelto-factura-monto');
-                const totalPagadoBoleta = document.getElementById('total-pagado-boleta');
-                const totalPagadoFactura = document.getElementById('total-pagado-factura');
-                if (hayEfectivo && vuelto > 0) {
-                    if (document.getElementById('btnBoleta').classList.contains('active')) {
-                        if (vueltoBoleta && vueltoBoletaMonto && totalPagadoBoleta) {
-                            vueltoBoleta.style.display = '';
-                            vueltoBoletaMonto.textContent = vuelto.toLocaleString();
-                            totalPagadoBoleta.textContent = totalAbonado.toLocaleString();
-                        }
-                        if (vueltoFactura) vueltoFactura.style.display = 'none';
-                    } else {
-                        if (vueltoFactura && vueltoFacturaMonto && totalPagadoFactura) {
-                            vueltoFactura.style.display = '';
-                            vueltoFacturaMonto.textContent = vuelto.toLocaleString();
-                            totalPagadoFactura.textContent = totalAbonado.toLocaleString();
-                        }
-                        if (vueltoBoleta) vueltoBoleta.style.display = 'none';
-                    }
-                } else {
-                    if (vueltoBoleta) vueltoBoleta.style.display = 'none';
-                    if (vueltoFactura) vueltoFactura.style.display = 'none';
-                }
-            } catch (e) {
-                // No hacer nada si los elementos no existen
+            // Mostrar total pagado y vuelto en la card si el pago está completo
+            pagoCompleto = total >= totalAPagar;
+            if (modoPago === "boleta" || modoPago == "factura") {
+                document.getElementById('pago-doc-trib-info').style.display = pagoCompleto ? '' : 'none';
+                document.getElementById('total-pagado-boleta').textContent = total.toLocaleString();
+                document.getElementById('vuelto-boleta-monto').textContent = vuelto.toLocaleString();
+            } else {
+                document.getElementById('pago-doc-trib-info').style.display = 'none';
             }
 
-            // Habilitar botón imprimir si está pagado el total requerido
-            document.getElementById('btnImprimir').disabled = (total < totalAPagar);
+            actualizarBotonesImprimir();
         }
 
         function eliminarAbono(idx) {
             abonos.splice(idx, 1);
             actualizarAbonos();
         }
+
+        document.getElementById('empresa-modal').addEventListener('change', function() {
+            actualizarBotonesImprimir();
+        });
 
         document.getElementById('form-abono').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -441,34 +365,29 @@
             const totalAPagar = getTotalAPagar();
             const totalAbonado = abonos.reduce((sum, abono) => sum + abono.monto, 0);
             const restante = Math.max(totalAPagar - totalAbonado, 0);
+            const errorDiv = document.getElementById('monto-error');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
 
             if (!metodo || isNaN(monto) || monto < 1) return;
 
             if (metodo === "Tarjeta" && monto > restante) {
-                alert("El monto pagado con tarjeta no puede ser mayor al total por pagar.");
+                errorDiv.textContent = "El monto pagado con tarjeta no puede ser mayor al total por pagar.";
+                errorDiv.style.display = 'block';
                 return;
             }
 
             abonos.push({metodo, monto});
             document.getElementById('form-abono').reset();
+            errorDiv.style.display = 'none';
             actualizarAbonos();
         });
 
-        // Manejar el cambio de propina
         document.getElementById('incluirPropina').addEventListener('change', function() {
             incluirPropina = this.checked;
             actualizarAbonos();
         });
 
-        // Abrir modal Bootstrap
-        document.getElementById('btnAbrirPago').addEventListener('click', function() {
-            document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
-            const modal = new bootstrap.Modal(document.getElementById('modalPago'));
-            modal.show();
-            actualizarAbonos();
-        });
-
-        // Inicializar totales y tooltip
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('total-boleta').textContent = `$${totalSinPropina.toLocaleString()}`;
             document.getElementById('propina-sugerida').textContent = `$${propinaSugerida.toLocaleString()}`;
@@ -476,45 +395,8 @@
             document.getElementById('total-factura').textContent = `$${totalSinPropina.toLocaleString()}`;
             document.getElementById('propina-factura').textContent = `$${propinaSugerida.toLocaleString()}`;
             document.getElementById('total-con-propina-factura').textContent = `$${totalConPropina.toLocaleString()}`;
-            document.getElementById('restante').textContent = totalSinPropina.toLocaleString();
             document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
             actualizarAbonos();
-            // Tooltip Bootstrap
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-            tooltipTriggerList.map(function (el) {
-                return new bootstrap.Tooltip(el);
-            });
-        });
-
-        // Imprimir solo la previsualización seleccionada
-        document.getElementById('btnImprimir').addEventListener('click', function() {
-            let printContent;
-            if (document.getElementById('btnBoleta').classList.contains('active')) {
-                printContent = document.getElementById('preview-boleta').outerHTML;
-            } else {
-                printContent = document.getElementById('preview-factura').outerHTML;
-            }
-            const win = window.open('', '', 'width=800,height=900');
-            win.document.write(`
-                <html>
-                <head>
-                    <title>Impresión</title>
-                    <link href="css/bootstrap.min.css" rel="stylesheet">
-                    <style>
-                        body { background: #fff; }
-                        .boleta-preview { background: #f8f9fa; border-radius: 1rem; padding: 2rem; max-width: 600px; margin: 2rem auto; box-shadow: 0 0 10px rgba(0,0,0,0.07);}
-                        .table-sm th, .table-sm td { font-size: 1.1rem; }
-                    </style>
-                </head>
-                <body>
-                    ${printContent}
-                </body>
-                </html>
-            `);
-            win.document.close();
-            win.focus();
-            win.print();
-            win.close();
         });
     </script>
 </body>
