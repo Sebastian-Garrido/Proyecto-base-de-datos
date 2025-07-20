@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,43 +7,20 @@
         body {
             min-height: 100vh;
             background: linear-gradient(135deg, #a2d9ff 0%, #e0f7fa 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-repeat: no-repeat;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
-        .bubble {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.35;
-            z-index: 1;
-            animation: float 8s infinite ease-in-out;
+        a[data-bs-toggle="modal"] {
+            cursor: pointer;
         }
-        /* Burbujas de diferentes tamaños, posiciones y animaciones */
-        .bubble1 { width: 80px; height: 80px; left: 10%; top: 15%; background: #b3e0ff; animation-delay: 0s;}
-        .bubble2 { width: 50px; height: 50px; left: 80%; top: 10%; background: #81d4fa; animation-delay: 2s;}
-        .bubble3 { width: 100px; height: 100px; left: 70%; top: 60%; background: #4fc3f7; animation-delay: 4s;}
-        .bubble4 { width: 60px; height: 60px; left: 20%; top: 70%; background: #b3e0ff; animation-delay: 1s;}
-        .bubble5 { width: 40px; height: 40px; left: 60%; top: 30%; background: #81d4fa; animation-delay: 3s;}
-        .bubble6 { width: 30px; height: 30px; left: 85%; top: 80%; background: #b3e0ff; animation-delay: 5s;}
-        .bubble7 { width: 25px; height: 25px; left: 5%; top: 80%; background: #4fc3f7; animation-delay: 6s;}
-        .bubble8 { width: 70px; height: 70px; left: 50%; top: 10%; background: #b3e0ff; animation-delay: 1.5s;}
-        .bubble9 { width: 35px; height: 35px; left: 30%; top: 60%; background: #81d4fa; animation-delay: 2.5s;}
-        .bubble10 { width: 55px; height: 55px; left: 75%; top: 40%; background: #b3e0ff; animation-delay: 3.5s;}
-        .bubble11 { width: 45px; height: 45px; left: 40%; top: 80%; background: #4fc3f7; animation-delay: 4.5s;}
-        .bubble12 { width: 65px; height: 65px; left: 15%; top: 50%; background: #81d4fa; animation-delay: 5.5s;}
-        .bubble13 { width: 20px; height: 20px; left: 90%; top: 60%; background: #b3e0ff; animation-delay: 6.5s;}
-        .bubble14 { width: 90px; height: 90px; left: 5%; top: 35%; background: #4fc3f7; animation-delay: 7s;}
-        .bubble15 { width: 38px; height: 38px; left: 55%; top: 75%; background: #81d4fa; animation-delay: 2.2s;}
-        .bubble16 { width: 28px; height: 28px; left: 35%; top: 20%; background: #b3e0ff; animation-delay: 3.8s;}
-        .bubble17 { width: 60px; height: 60px; left: 65%; top: 15%; background: #4fc3f7; animation-delay: 1.8s;}
-        .bubble18 { width: 22px; height: 22px; left: 25%; top: 85%; background: #81d4fa; animation-delay: 4.8s;}
-        .bubble19 { width: 48px; height: 48px; left: 80%; top: 70%; background: #b3e0ff; animation-delay: 5.8s;}
-        .bubble20 { width: 33px; height: 33px; left: 60%; top: 55%; background: #4fc3f7; animation-delay: 6.8s;}
-        @keyframes float {
-            0%, 100% { transform: translateY(0);}
-            50% { transform: translateY(-30px);}
+        /* Fondo blurry */
+        .bg-blur {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            background: url('background.jpg') center center/cover no-repeat;
+            filter: blur(8px) brightness(0.7);
         }
         .wave {
             position: fixed;
@@ -53,77 +28,107 @@
             bottom: 0;
             width: 100vw;
             min-width: 100%;
-            height: 320px; /* Más alto */
+            height: 80px;
             z-index: 2;
             pointer-events: none;
         }
-        .login-container {
+        .h-custom {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
             position: relative;
-            z-index: 10;
-            max-width: 400px;
-            width: 100%;
-            padding: 2rem;
-            background: #fff;
-            border-radius: 1rem;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            z-index: 3;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.90);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+            padding: 2.5rem 2rem;
+            z-index: 4;
         }
         @media (max-width: 600px) {
             .wave { height: 180px; }
+            .h-custom { min-height: 100vh; margin-top: 20px; }
+            .login-card { padding: 1.5rem 0.5rem; }
         }
+        
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
-    <!-- Muchas burbujas decorativas -->
-    <div class="bubble bubble1"></div>
-    <div class="bubble bubble2"></div>
-    <div class="bubble bubble3"></div>
-    <div class="bubble bubble4"></div>
-    <div class="bubble bubble5"></div>
-    <div class="bubble bubble6"></div>
-    <div class="bubble bubble7"></div>
-    <div class="bubble bubble8"></div>
-    <div class="bubble bubble9"></div>
-    <div class="bubble bubble10"></div>
-    <div class="bubble bubble11"></div>
-    <div class="bubble bubble12"></div>
-    <div class="bubble bubble13"></div>
-    <div class="bubble bubble14"></div>
-    <div class="bubble bubble15"></div>
-    <div class="bubble bubble16"></div>
-    <div class="bubble bubble17"></div>
-    <div class="bubble bubble18"></div>
-    <div class="bubble bubble19"></div>
-    <div class="bubble bubble20"></div>
-
-    <!-- Formulario de login -->
-    <div class="login-container">
-        <h2 class="mb-4 text-center">La Pica del Pescador</h2>
-        <form>
-            <div class="mb-3">
-                <label for="username" class="form-label">Usuario</label>
-                <input type="text" class="form-control" id="username" placeholder="Ingresa tu usuario" required>
+<div class="bg-blur"></div>
+<section class="vh-100 d-flex align-items-center justify-content-center">
+  <div class="container h-custom">
+    <div class="row justify-content-center align-items-center h-100">
+      <div class="col-md-9 col-lg-6 col-xl-5 d-none d-md-block">
+        <img src="para_el_login.png"
+          class="img-fluid"
+          alt="Sample image"
+          style="max-width: 100%; height: auto;">
+      </div>
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-0">
+        <div class="login-card">
+          <form>
+            <div class="text-center mb-4">
+              <h2>La Pica del Pescador</h2>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+            <!-- RUN input -->
+            <div class="form-outline mb-4">
+              <input type="text" id="form3Example3" class="form-control form-control-lg"
+                placeholder="RUN sin puntos ni número verificador, ej.: 12345678" required />
+              <label class="form-label" for="form3Example3">RUN</label>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
-        </form>
+            <!-- Password input -->
+            <div class="form-outline mb-3">
+              <input type="password" id="form3Example4" class="form-control form-control-lg"
+                placeholder="Contraseña" required />
+              <label class="form-label" for="form3Example4">Contraseña</label>
+            </div>
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                <a class="text-body" data-bs-toggle="modal" data-bs-target="#avisoModal">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg w-100"
+                style="padding-left: 2.5rem; padding-right: 2.5rem;">Entrar</button>
+              <p class="small fw-bold mt-2 pt-1 mb-0">¿No tienes cuenta? <a href="#!"
+                  class="link-danger">Regístrate</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-
-    <!-- Onda decorativa inferior más alta -->
-    <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
-        <path fill="#4fc3f7" fill-opacity="0.6" d="M0,220 C360,320 1080,120 1440,220 L1440,320 L0,320 Z"></path>
-        <path fill="#81d4fa" fill-opacity="0.5" d="M0,260 C400,180 1040,300 1440,260 L1440,320 L0,320 Z"></path>
-        <path fill="#b3e0ff" fill-opacity="0.4" d="M0,320 C400,280 1040,320 1440,320 L1440,320 L0,320 Z"></path>
-    </svg>
-
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        e.preventDefault(); // Evita el envío real del formulario
-        window.location.href = 'inicio.html'; // Redirige a landing.html
-    });
-    </script>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" style="height:80px;">
+<!-- Modal Bootstrap FUERA del form y de la card -->
+<div class="modal fade" id="avisoModal" tabindex="-1" aria-labelledby="avisoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="avisoModalLabel">Aviso</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        Por favor contacta a tu administrador.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+    <path fill="#4fc3f7" fill-opacity="0.6" d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z"></path>
+    <path fill="#81d4fa" fill-opacity="0.5" d="M0,60 C400,20 1040,80 1440,60 L1440,80 L0,80 Z"></path>
+    <path fill="#b3e0ff" fill-opacity="0.4" d="M0,80 C400,60 1040,80 1440,80 L1440,80 L0,80 Z"></path>
+  </svg>
+</section>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    window.location.href = 'inicio.html';
+});
+</script>
 </body>
 </html>
