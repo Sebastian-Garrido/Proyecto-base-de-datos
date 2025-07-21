@@ -24,6 +24,13 @@ body, .navbar, .card {
     z-index: 2000;
     transition: background-color 0.5s, color 0.5s;
 }
+
+/* Placeholders visibles en modo oscuro */
+body.bg-dark ::placeholder {
+    color: #bbb !important;
+    opacity: 1 !important;
+}
+
 .dropdown-menu.darkmode {
     background-color: #23272b !important;
     color: #fff !important;
@@ -73,4 +80,17 @@ body.bg-dark .modal-content {
     background-color: #23272b !important;
     color: #fff !important;
     border-color: #444 !important;
+}
+
+body.bg-dark .list-group-item {
+    background-color: #23272b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+body.bg-dark .list-group-item .badge {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+.list-group-item, .list-group-item .badge {
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
 }

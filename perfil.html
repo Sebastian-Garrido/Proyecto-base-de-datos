@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Órdenes Activas - La Pica del Pescador</title>
+    <title>Perfil de Usuario - La Pica del Pescador</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/navbar.css">
     <style>
-        body {
-            min-height: 100vh;
-            overflow-x: hidden;
+        .main-content {
+            margin-top: 90px;
+            position: relative;
+        }
+        .perfil-card {
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 1rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.07);
         }
         .wave {
             position: fixed;
@@ -19,13 +25,8 @@
             width: 100vw;
             min-width: 100%;
             height: 180px;
-            z-index: 2;
+            z-index: -2;
             pointer-events: none;
-        }
-        .main-content {
-            margin-top: 100px;
-            z-index: 10;
-            position: relative;
         }
     </style>
 </head>
@@ -60,7 +61,7 @@
                     </li>
                     <!-- Personal y Usuarios -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center " href="administrar-personal.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.html">
                             <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Personal</span>
                         </a>
@@ -86,7 +87,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center active" href="ordenes-activas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.html">
                             <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Órdenes</span>
                         </a>
@@ -152,92 +153,138 @@
         </div>
     </nav>
 
-    <!-- Contenido principal -->
     <div class="container main-content">
-        <h1 class="mb-4">Órdenes Activas</h1>
-        <div class="row" id="ordenes-container">
-            <!-- Card de ejemplo -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        Orden #12345 - Mesa 5 - Juan Pérez
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group mb-3">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Paila Marina
-                                <span class="badge bg-secondary rounded-pill">2</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Empanada de Mariscos
-                                <span class="badge bg-secondary rounded-pill">1</span>
-                            </li>
-                        </ul>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>
-                            <button class="btn btn-success" type="button">Finalizar pedido</button>
-                        </div>
-                    </div>
+        <h1 class="mb-4 text-center">Perfil de Usuario</h1>
+        <div class="card perfil-card mb-4">
+            <div class="card-header bg-primary text-white text-center">
+                <span id="perfil-nombre">Juan Pérez</span>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5">RUN:</dt>
+                    <dd class="col-7" id="perfil-run">12345678-9</dd>
+
+                    <dt class="col-5">Fecha de ingreso:</dt>
+                    <dd class="col-7" id="perfil-fecha-ingreso">2023-03-15</dd>
+
+                    <dt class="col-5">Cargo:</dt>
+                    <dd class="col-7" id="perfil-cargo">Garzón</dd>
+
+                    <dt class="col-5">Correo electrónico:</dt>
+                    <dd class="col-7" id="perfil-correo">juan.perez@email.com</dd>
+
+                    <dt class="col-5">Teléfono:</dt>
+                    <dd class="col-7" id="perfil-telefono">+56 9 1234 5678</dd>
+                </dl>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-success" id="btnEntrada">Marcar entrada</button>
+                    <button class="btn btn-danger" id="btnSalida" disabled>Marcar salida</button>
+                </div>
+                <div class="mt-3">
+                    <div><strong>Hora de entrada:</strong> <span id="hora-entrada">--:--</span></div>
+                    <div><strong>Hora de salida:</strong> <span id="hora-salida">--:--</span></div>
+                    <div><strong>Horas trabajadas hoy:</strong> <span id="horas-trabajadas">--</span></div>
                 </div>
             </div>
-            <!-- Puedes duplicar este bloque para más órdenes -->
         </div>
     </div>
-
-    <!-- Modal para editar orden -->
-    <div class="modal fade" id="editarOrdenModal" tabindex="-1" aria-labelledby="editarOrdenModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="editarOrdenModalLabel">Editar Orden #12345 - Mesa 5</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-          <div class="modal-body">
-            <h6>Platillos en la orden</h6>
-            <ul class="list-group mb-3" id="platillos-lista">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Paila Marina
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">2</span>
-                    </span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Empanada de Mariscos
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">1</span>
-                    </span>
-                </li>
-            </ul>
-            <hr>
-            <h6>Añadir platillo</h6>
-            <div class="input-group mb-3">
-                <select class="form-select" id="nuevo-platillo">
-                    <option value="">Selecciona un platillo</option>
-                    <option>Paila Marina</option>
-                    <option>Empanada de Mariscos</option>
-                    <option>Jugo Natural</option>
-                    <option>Reineta Frita</option>
-                </select>
-                <input type="number" class="form-control" id="cantidad-platillo" min="1" value="1" style="max-width: 80px;">
-                <button class="btn btn-success" type="button">Añadir</button>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary">Guardar Cambios</button>
-          </div>
+    <!-- Modal Confirmar Entrada -->
+    <div class="modal fade" id="modalConfirmarEntrada" tabindex="-1" aria-labelledby="modalConfirmarEntradaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="modalConfirmarEntradaLabel">Confirmar entrada</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
-      </div>
+        <div class="modal-body">
+            ¿Está seguro que desea marcar su entrada laboral?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" id="confirmarEntrada">Sí, marcar entrada</button>
+        </div>
+        </div>
+    </div>
     </div>
 
-    <!-- Onda decorativa inferior -->
+    <!-- Modal Confirmar Salida -->
+    <div class="modal fade" id="modalConfirmarSalida" tabindex="-1" aria-labelledby="modalConfirmarSalidaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="modalConfirmarSalidaLabel">Confirmar salida</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+            ¿Está seguro que desea marcar su salida laboral?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmarSalida">Sí, marcar salida</button>
+        </div>
+        </div>
+    </div>
+    </div>
+
     <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
     </svg>
-
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
+    <script>
+        let horaEntrada = null;
+        let horaSalida = null;
+
+        // Inicialmente solo entrada habilitada
+        document.getElementById('btnEntrada').disabled = false;
+        document.getElementById('btnSalida').disabled = true;
+
+        // Mostrar modal de confirmación al marcar entrada
+        document.getElementById('btnEntrada').addEventListener('click', function() {
+            const modalEntrada = new bootstrap.Modal(document.getElementById('modalConfirmarEntrada'));
+            modalEntrada.show();
+        });
+
+        // Mostrar modal de confirmación al marcar salida
+        document.getElementById('btnSalida').addEventListener('click', function() {
+            const modalSalida = new bootstrap.Modal(document.getElementById('modalConfirmarSalida'));
+            modalSalida.show();
+        });
+
+        // Confirmar entrada
+        document.getElementById('confirmarEntrada').addEventListener('click', function() {
+            const ahora = new Date();
+            horaEntrada = ahora;
+            document.getElementById('hora-entrada').textContent = ahora.toLocaleTimeString();
+            document.getElementById('btnEntrada').disabled = true;
+            document.getElementById('btnSalida').disabled = false;
+            calcularHoras();
+            bootstrap.Modal.getInstance(document.getElementById('modalConfirmarEntrada')).hide();
+        });
+
+        // Confirmar salida
+        document.getElementById('confirmarSalida').addEventListener('click', function() {
+            const ahora = new Date();
+            horaSalida = ahora;
+            document.getElementById('hora-salida').textContent = ahora.toLocaleTimeString();
+            document.getElementById('btnSalida').disabled = true;
+            calcularHoras();
+            bootstrap.Modal.getInstance(document.getElementById('modalConfirmarSalida')).hide();
+        });
+
+        function calcularHoras() {
+            if (horaEntrada && horaSalida) {
+                const ms = horaSalida - horaEntrada;
+                const horas = Math.floor(ms / 3600000);
+                const minutos = Math.floor((ms % 3600000) / 60000);
+                document.getElementById('horas-trabajadas').textContent = `${horas}h ${minutos}m`;
+            } else {
+                document.getElementById('horas-trabajadas').textContent = '--';
+            }
+        }
+    </script>
 </body>
 </html>
