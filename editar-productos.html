@@ -65,12 +65,7 @@
                             <span class="small">Personal</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-usuarios.html">
-                            <i class="bi bi-person-gear my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Usuarios</span>
-                        </a>
-                    </li>
+                    
                     <!-- Empresas -->
                     <li class="nav-item">
                         <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
@@ -164,15 +159,15 @@
                 <form id="form-producto">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label for="nombre" class="form-label">Nombre</label>
+                            <label for="nombre" class="form-label">Nombre*</label>
                             <input type="text" class="form-control" id="nombre" placeholder="Nombre del producto" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="precio" class="form-label">Precio ($)</label>
+                            <label for="precio" class="form-label">Precio ($)*</label>
                             <input type="number" class="form-control" id="precio" placeholder="Precio" min="0" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="tipo" class="form-label">Tipo</label>
+                            <label for="tipo" class="form-label">Tipo*</label>
                             <select class="form-select" id="tipo" required>
                                 <option value="">Selecciona tipo</option>
                                 <option value="platillo">Platillo preparado</option>
@@ -180,8 +175,24 @@
                             </select>
                         </div>
                         <div class="col-md-12">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion" rows="2" placeholder="Descripción del producto"></textarea>
+                            <label for="descripcion" class="form-label">Descripción*</label>
+                            <textarea class="form-control" id="descripcion" rows="2" placeholder="Descripción del producto" required></textarea>
+                        </div>
+                        <div class="col-md-4 d-none" id="grupo-disponibilidad">
+                            <label for="disponible" class="form-label">¿Disponible?*</label>
+                            <select class="form-select" id="disponible" required>
+                                <option value="">Selecciona</option>
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-none" id="grupo-stock">
+                            <label for="stock" class="form-label">Stock*</label>
+                            <input type="number" class="form-control" id="stock" min="0" required>
+                        </div>
+                        <div class="col-md-4 d-none" id="grupo-marca">
+                            <label for="marca" class="form-label">Marca*</label>
+                            <input type="text" class="form-control" id="marca" required>
                         </div>
                         <div class="col-md-12 d-flex justify-content-end">
                             <button type="submit" class="btn btn-success" id="btn-agregar">Agregar producto</button>
@@ -242,24 +253,57 @@
         tbody.innerHTML = "";
         productos.forEach(producto => {
             const tr = document.createElement("tr");
+            let extra = "";
+            if (producto.tipo === "platillo") {
+                extra = `<span class='badge bg-${producto.disponible ? "success" : "danger"} ms-2'>${producto.disponible ? "Disponible" : "No disponible"}</span>`;
+            } else if (producto.tipo === "envasado") {
+                extra = `<span class='badge bg-info ms-2'>Stock: ${producto.stock ?? 0}</span> <span class='badge bg-secondary ms-2'>Marca: ${producto.marca ?? ""}</span>`;
+            }
             tr.innerHTML = `
                 <td>${producto.id}</td>
                 <td>${producto.nombre}</td>
                 <td>$${producto.precio.toLocaleString()}</td>
                 <td>${producto.tipo === "platillo" ? "Platillo preparado" : "Producto envasado"}</td>
-                <td>${producto.descripcion}</td>
+                <td>${producto.descripcion} ${extra}</td>
                 <td>
                     <button class="btn btn-warning btn-sm btn-editar">Editar</button>
-                    <button class="btn btn-danger btn-sm btn-eliminar ms-1">Eliminar</button>
                 </td>
             `;
-            // Guardar el id en el tr para edición/eliminación
             tr.dataset.id = producto.id;
             tbody.appendChild(tr);
         });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Mostrar/ocultar campos según tipo
+        const tipoSelect = document.getElementById("tipo");
+        const grupoDisponibilidad = document.getElementById("grupo-disponibilidad");
+        const grupoStock = document.getElementById("grupo-stock");
+        const grupoMarca = document.getElementById("grupo-marca");
+        tipoSelect.addEventListener("change", function() {
+            if (this.value === "platillo") {
+                grupoDisponibilidad.classList.remove("d-none");
+                grupoStock.classList.add("d-none");
+                grupoMarca.classList.add("d-none");
+                document.getElementById("disponible").required = true;
+                document.getElementById("stock").required = false;
+                document.getElementById("marca").required = false;
+            } else if (this.value === "envasado") {
+                grupoDisponibilidad.classList.add("d-none");
+                grupoStock.classList.remove("d-none");
+                grupoMarca.classList.remove("d-none");
+                document.getElementById("disponible").required = false;
+                document.getElementById("stock").required = true;
+                document.getElementById("marca").required = true;
+            } else {
+                grupoDisponibilidad.classList.add("d-none");
+                grupoStock.classList.add("d-none");
+                grupoMarca.classList.add("d-none");
+                document.getElementById("disponible").required = false;
+                document.getElementById("stock").required = false;
+                document.getElementById("marca").required = false;
+            }
+        });
         renderProductos();
 
         const form = document.getElementById("form-producto");
@@ -273,13 +317,25 @@
             const precio = parseInt(document.getElementById("precio").value, 10);
             const tipo = document.getElementById("tipo").value;
             const descripcion = document.getElementById("descripcion").value.trim();
-
-            if (!nombre || isNaN(precio) || !tipo) return;
-
+            let disponible = null, stock = null, marca = null;
+            if (!nombre || isNaN(precio) || !tipo || !descripcion) return;
+            if (tipo === "platillo") {
+                disponible = document.getElementById("disponible").value;
+                if (disponible === "") return;
+                disponible = disponible === "true";
+            }
+            if (tipo === "envasado") {
+                stock = parseInt(document.getElementById("stock").value, 10);
+                marca = document.getElementById("marca").value.trim();
+                if (isNaN(stock) || stock < 0 || !marca) return;
+            }
             if (editandoId === null) {
                 // Añadir producto
                 const nuevoId = productos.length ? Math.max(...productos.map(p => p.id)) + 1 : 1;
-                productos.push({id: nuevoId, nombre, precio, tipo, descripcion});
+                const prod = {id: nuevoId, nombre, precio, tipo, descripcion};
+                if (tipo === "platillo") prod.disponible = disponible;
+                if (tipo === "envasado") { prod.stock = stock; prod.marca = marca; }
+                productos.push(prod);
             } else {
                 // Editar producto
                 const prod = productos.find(p => p.id === editandoId);
@@ -288,6 +344,16 @@
                     prod.precio = precio;
                     prod.tipo = tipo;
                     prod.descripcion = descripcion;
+                    if (tipo === "platillo") {
+                        prod.disponible = disponible;
+                        delete prod.stock;
+                        delete prod.marca;
+                    }
+                    if (tipo === "envasado") {
+                        prod.stock = stock;
+                        prod.marca = marca;
+                        delete prod.disponible;
+                    }
                 }
                 editandoId = null;
                 btnAgregar.classList.remove("d-none");
@@ -295,6 +361,7 @@
                 btnCancelar.classList.add("d-none");
             }
             form.reset();
+            tipoSelect.dispatchEvent(new Event("change"));
             renderProductos();
         });
 
@@ -317,16 +384,18 @@
                     document.getElementById("precio").value = prod.precio;
                     document.getElementById("tipo").value = prod.tipo;
                     document.getElementById("descripcion").value = prod.descripcion;
+                    tipoSelect.dispatchEvent(new Event("change"));
+                    if (prod.tipo === "platillo") {
+                        document.getElementById("disponible").value = prod.disponible ? "true" : "false";
+                    }
+                    if (prod.tipo === "envasado") {
+                        document.getElementById("stock").value = prod.stock ?? 0;
+                        document.getElementById("marca").value = prod.marca ?? "";
+                    }
                     editandoId = id;
                     btnAgregar.classList.add("d-none");
                     btnGuardar.classList.remove("d-none");
                     btnCancelar.classList.remove("d-none");
-                }
-            }
-            if (e.target.classList.contains("btn-eliminar")) {
-                if (confirm("¿Seguro que deseas eliminar este producto?")) {
-                    productos = productos.filter(p => p.id !== id);
-                    renderProductos();
                 }
             }
         });

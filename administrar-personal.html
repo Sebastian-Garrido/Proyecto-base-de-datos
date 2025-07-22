@@ -8,10 +8,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/navbar.css">
     <style>
-        body {
-            min-height: 100vh;
-            background: #fff;
-        }
         .wave {
             position: fixed;
             left: 0;
@@ -65,12 +61,7 @@
                             <span class="small">Personal</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-usuarios.html">
-                            <i class="bi bi-person-gear my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Usuarios</span>
-                        </a>
-                    </li>
+                    
                     <!-- Empresas -->
                     <li class="nav-item">
                         <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
@@ -158,116 +149,104 @@
         <!-- Formulario para agregar personal -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                Agregar/Editar personal
+                Agregar personal
             </div>
             <div class="card-body">
                 <form>
                     <div class="row g-3">
-                        <div class="col-md-3">
-                            <label for="run" class="form-label">RUN</label>
-                            <input type="text" class="form-control" id="run" placeholder="Ej: 12.345.678-9" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="nombres" class="form-label">Nombres</label>
-                            <input type="text" class="form-control" id="nombres" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="apellidoPaterno" class="form-label">Apellido paterno</label>
-                            <input type="text" class="form-control" id="apellidoPaterno" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="apellidoMaterno" class="form-label">Apellido materno</label>
-                            <input type="text" class="form-control" id="apellidoMaterno" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="sexo" class="form-label">Sexo</label>
-                            <select class="form-select" id="sexo" required>
-                                <option value="">Selecciona</option>
-                                <option>Masculino</option>
-                                <option>Femenino</option>
-                                <option>Otro</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="regionCascada" class="form-label">Región</label>
-                            <select class="form-select" id="regionCascada" required>
-                                <option value="">Selecciona región</option>
-                                <option value="tarapaca">Tarapacá</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="comunaCascada" class="form-label">Comuna</label>
-                            <select class="form-select" id="comunaCascada" required>
-                                <option value="">Selecciona comuna</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="calle" class="form-label">Calle</label>
-                            <input type="text" class="form-control" id="calle" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="direccionAdicional" class="form-label">Datos de dirección adicional</label>
-                            <textarea class="form-control" id="direccionAdicional" rows="3" placeholder="Ej: Referencias, indicaciones, etc."></textarea>
-                        </div>
                         <div class="col-md-2">
-                            <label for="numero" class="form-label">Número</label>
-                            <input type="text" class="form-control" id="numero" required>
+                            <label for="run" class="form-label">RUN*</label>
+                            <input type="number" class="form-control" id="run" required>
                         </div>
                         <div class="col-md-2">
                             <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="telefono" required>
+                            <input type="number" class="form-control" id="telefono">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label for="correo" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="correo" required>
+                            <input type="text" class="form-control" id="correo">
                         </div>
-                        <div class="col-md-3">
-                            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
-                            <input type="date" class="form-control" id="fechaNacimiento" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="fechaIngreso" class="form-label">Fecha de ingreso</label>
-                            <input type="date" class="form-control" id="fechaIngreso" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="fechaEgreso" class="form-label">Fecha de egreso</label>
-                            <input type="date" class="form-control" id="fechaEgreso">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="cargo" class="form-label">Cargo</label>
+                        <div class="col-md-2">
+                            <label for="cargo" class="form-label">Cargo*</label>
                             <select class="form-select" id="cargo" required>
-                                <option value="">Selecciona un cargo</option>
-                                <option>Administrador</option>
-                                <option>Garzón</option>
-                                <option>Cocinero</option>
-                                <option>Cajero</option>
+                              <option value="">Selecciona cargo</option>
+                              <option value="Garzón">Garzón</option>
+                              <option value="Cajero">Cajero</option>
+                              <option value="Jefe de cocina">Jefe de cocina</option>
+                              <option value="Cocinero">Cocinero</option>
+                              <option value="Copero">Copero</option>
+                              <option value="Administrador">Administrador</option>
+                              <option value="Bodeguero">Bodeguero</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="sueldo" class="form-label">Sueldo mensual</label>
-                            <input type="number" class="form-control" id="sueldo" required>
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="text" class="form-control" id="password">
                         </div>
-                        <div class="col-md-3">
-                            <label for="vigencia" class="form-label">Vigente</label>
+                        <div class="col-md-2">
+                            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento*</label>
+                            <input type="date" class="form-control" id="fechaNacimiento" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fechaIngreso" class="form-label">Fecha de ingreso*</label>
+                            <input type="date" class="form-control" id="fechaIngreso" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fechaEgreso" class="form-label">Fecha de egreso</label>
+                            <input type="date" class="form-control" id="fechaEgreso">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sueldoHora" class="form-label">Sueldo por hora*</label>
+                            <input type="number" class="form-control" id="sueldoHora" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="nombres" class="form-label">Nombres*</label>
+                            <input type="text" class="form-control" id="nombres" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="apellidoPaterno" class="form-label">Apellido paterno*</label>
+                            <input type="text" class="form-control" id="apellidoPaterno" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="apellidoMaterno" class="form-label">Apellido materno*</label>
+                            <input type="text" class="form-control" id="apellidoMaterno" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="vigencia" class="form-label">Vigente*</label>
                             <select class="form-select" id="vigencia" required>
                                 <option value="si">Sí</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="localCascada" class="form-label">Local</label>
+                        <div class="col-md-2">
+                            <label for="regionCascada" class="form-label">Región*</label>
+                            <select class="form-select" id="regionCascada" required>
+                                <option value="">Selecciona región</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="comunaCascada" class="form-label">Comuna*</label>
+                            <select class="form-select" id="comunaCascada" required>
+                                <option value="">Selecciona comuna</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="localCascada" class="form-label">Local*</label>
                             <select class="form-select" id="localCascada" required>
                                 <option value="">Selecciona local</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <span id="toggleIcon" class="bi bi-eye"></span>
-                                </button>
-                            </div>
+                        <div class="col-md-2">
+                            <label for="calle" class="form-label">Calle*</label>
+                            <input type="text" class="form-control" id="calle" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="numeroCalle" class="form-label">Número Calle*</label>
+                            <input type="text" class="form-control" id="numeroCalle" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="direccionAdicional" class="form-label">Dirección adicional</label>
+                            <input type="text" class="form-control" id="direccionAdicional">
                         </div>
                         <div class="col-md-12 text-end">
                             <button type="submit" class="btn btn-success">Guardar</button>
@@ -277,7 +256,7 @@
             </div>
         </div>
         <!-- Tabla de personal existente -->
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 Personal registrado
             </div>
@@ -286,52 +265,53 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>RUN</th>
                                 <th>Nombres</th>
                                 <th>Apellido paterno</th>
                                 <th>Apellido materno</th>
-                                <th>Sexo</th>
-                                <th>Dirección</th>
                                 <th>Teléfono</th>
-                                <th>Correo</th>
-                                <th>F. Nacimiento</th>
-                                <th>F. Ingreso</th>
-                                <th>F. Egreso</th>
+                                <th>Correo electrónico</th>
                                 <th>Cargo</th>
-                                <th>Sueldo</th>
+                                <th>Fecha de nacimiento</th>
+                                <th>Fechas</th>
+                                <th>Sueldo por hora</th>
                                 <th>Vigente</th>
+                                <th>Región</th>
+                                <th>Comuna</th>
+                                <th>Calle</th>
+                                <th>Número Calle</th>
                                 <th>Local</th>
-                                <th>Contraseña</th>
+                                <th>Dirección adicional</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>12.345.678-9</td>
+                                <td>1</td>
+                                <td>12345678</td>
                                 <td>Juan</td>
                                 <td>Pérez</td>
                                 <td>González</td>
-                                <td>Masculino</td>
-                                <td>Región de Tarapacá, Comuna de Iquique, Iquique, Calle 123, 456</td>
                                 <td>912345678</td>
                                 <td>juan.perez@email.com</td>
-                                <td>1990-01-01</td>
-                                <td>2020-05-01</td>
-                                <td></td>
                                 <td>Garzón</td>
-                                <td>$500.000</td>
-                                <td>Sí</td>
-                                <td>Local 1</td>
+                                <td>1990-01-01</td>
                                 <td>
-                                    <input type="password" value="12345678" class="form-control form-control-sm d-inline w-auto" readonly style="background:transparent; border:none; padding-left:0;">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm ms-2 togglePasswordRow">
-                                        <span class="bi bi-eye"></span>
-                                    </button>
+                                    <button class="btn btn-info btn-sm mostrarFechas" data-id="1">Mostrar fechas</button>
                                 </td>
+                                <td>$5000</td>
+                                <td>Sí</td>
+                                <td>Tarapacá</td>
+                                <td>Iquique</td>
+                                <td>Calle 123</td>
+                                <td>456</td>
+                                <td>Local 1</td>
+                                <td>Depto 2, Edificio Central</td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-warning btn-sm">Editar</button>
-                                        <button class="btn btn-danger btn-sm">Eliminar</button>
+                                        <button class="btn btn-warning btn-sm editarPersonal" data-id="1">Editar</button>
+                                        <button class="btn btn-outline-primary btn-sm cambiarPassword" data-id="1">Cambiar contraseña</button>
                                     </div>
                                 </td>
                             </tr>
@@ -341,52 +321,352 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tabla de fechas de ingreso/egreso dinámica -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Fechas de ingreso y egreso
+            </div>
+            <div class="card-body">
+                <div class="mb-3 d-flex justify-content-between">
+                    <button class="btn btn-success" id="btnAgregarIngreso" disabled>Añadir ingreso</button>
+                    <button class="btn btn-primary" id="btnAgregarEgreso" disabled>Añadir egreso</button>
+                    <button class="btn btn-secondary" id="btnCerrarFechas" disabled>Cerrar fechas</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="fechas-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Fecha de ingreso</th>
+                                <th>Fecha de egreso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- JS rellena aquí las fechas -->
+                        </tbody>
+                    </table>
+                </div>
+                <form id="form-fecha" class="row g-2 mt-3" style="display:none;">
+                <div class="col-md-6">
+                    <input type="date" class="form-control" id="inputFecha" required>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="submit" class="btn btn-success" id="btnGuardarFecha">Guardar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelarFecha">Cancelar</button>
+                </div>
+            </form>
+            <div class="text-center text-muted mt-3" id="fechas-personal-placeholder">Seleccione un usuario para ver sus fechas de ingreso y egreso.</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Onda decorativa inferior -->
+
+    <!-- Modal para editar personal (fuera de main-content) -->
+    <div class="modal fade" id="modalEditarPersonal" tabindex="-1" aria-labelledby="modalEditarPersonalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditarPersonalLabel">Editar datos de personal</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <form id="formEditarPersonal">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-2">
+                  <label class="form-label">ID</label>
+                  <input type="text" class="form-control" id="editId" disabled>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">RUN*</label>
+                  <input type="number" class="form-control" id="editRun" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Teléfono</label>
+                  <input type="number" class="form-control" id="editTelefono">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Correo electrónico</label>
+                  <input type="text" class="form-control" id="editCorreo">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Cargo*</label>
+                  <input type="text" class="form-control" id="editCargo" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Fecha de nacimiento*</label>
+                  <input type="date" class="form-control" id="editFechaNacimiento" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Sueldo por hora*</label>
+                  <input type="number" class="form-control" id="editSueldoHora" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Nombres*</label>
+                  <input type="text" class="form-control" id="editNombres" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Apellido paterno*</label>
+                  <input type="text" class="form-control" id="editApellidoPaterno" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Apellido materno*</label>
+                  <input type="text" class="form-control" id="editApellidoMaterno" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Vigente*</label>
+                  <select class="form-select" id="editVigencia" required>
+                    <option value="si">Sí</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Región*</label>
+                  <select class="form-select" id="editRegion" required>
+                    <option value="">Selecciona región</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Comuna*</label>
+                  <select class="form-select" id="editComuna" required>
+                    <option value="">Selecciona comuna</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Local*</label>
+                  <select class="form-select" id="editLocal" required>
+                    <option value="">Selecciona local</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Calle*</label>
+                  <input type="text" class="form-control" id="editCalle" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Número Calle*</label>
+                  <input type="text" class="form-control" id="editNumeroCalle" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Dirección adicional</label>
+                  <input type="text" class="form-control" id="editDireccionAdicional">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Onda decorativa inferior -->
+    <!-- Modal para cambiar contraseña -->
+    <div class="modal fade" id="modalCambiarPassword" tabindex="-1" aria-labelledby="modalCambiarPasswordLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalCambiarPasswordLabel">Cambiar contraseña</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <form id="formCambiarPassword">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="nuevaPassword" class="form-label">Nueva contraseña</label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="nuevaPassword" required>
+                  <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+                    <i class="bi bi-eye" id="iconPasswordEye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
     </svg>
-
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
     <script>
-        // Toggle para el campo de contraseña del formulario
-        const toggleBtn = document.getElementById('togglePassword');
-        const passwordField = document.getElementById('password');
-        const toggleIcon = document.getElementById('toggleIcon');
-        if (toggleBtn && passwordField && toggleIcon) {
-            toggleBtn.addEventListener('click', function() {
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    toggleIcon.classList.remove('bi-eye');
-                    toggleIcon.classList.add('bi-eye-slash');
-                } else {
-                    passwordField.type = 'password';
-                    toggleIcon.classList.remove('bi-eye-slash');
-                    toggleIcon.classList.add('bi-eye');
-                }
-            });
-        }
+    // --- Modal editar personal ---
+    document.querySelectorAll('.editarPersonal').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Simulación: solo para el usuario 1
+        const id = this.getAttribute('data-id');
+        // Aquí deberías obtener los datos reales del usuario
+        // Simulación con los datos de la tabla
+        document.getElementById('editId').value = id;
+        document.getElementById('editRun').value = '12345678';
+        document.getElementById('editTelefono').value = '912345678';
+        document.getElementById('editCorreo').value = 'juan.perez@email.com';
+        document.getElementById('editCargo').value = 'Garzón';
+        document.getElementById('editFechaNacimiento').value = '1990-01-01';
+        document.getElementById('editSueldoHora').value = '5000';
+        document.getElementById('editNombres').value = 'Juan';
+        document.getElementById('editApellidoPaterno').value = 'Pérez';
+        document.getElementById('editApellidoMaterno').value = 'González';
+        document.getElementById('editVigencia').value = 'si';
+        document.getElementById('editRegion').innerHTML = '<option value="">Selecciona región</option><option value="Tarapacá" selected>Tarapacá</option>';
+        document.getElementById('editComuna').innerHTML = '<option value="">Selecciona comuna</option><option value="Iquique" selected>Iquique</option>';
+        document.getElementById('editLocal').innerHTML = '<option value="">Selecciona local</option><option value="Local 1" selected>Local 1</option>';
+        document.getElementById('editCalle').value = 'Calle 123';
+        document.getElementById('editNumeroCalle').value = '456';
+        document.getElementById('editDireccionAdicional').value = 'Depto 2, Edificio Central';
+        var modal = new bootstrap.Modal(document.getElementById('modalEditarPersonal'));
+        modal.show();
+      });
+    });
+    document.getElementById('formEditarPersonal').onsubmit = function(e) {
+      e.preventDefault();
+      // Aquí iría la lógica para guardar los cambios
+      var modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPersonal'));
+      modal.hide();
+      alert('Cambios guardados (simulado)');
+    };
 
-        // Toggle para las contraseñas en la tabla
-        document.querySelectorAll('.togglePasswordRow').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const input = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
-                const icon = btn.querySelector('.bi');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('bi-eye');
-                    icon.classList.add('bi-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('bi-eye-slash');
-                    icon.classList.add('bi-eye');
-                }
-            });
+    // --- Modal cambiar contraseña ---
+    document.querySelectorAll('.cambiarPassword').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Simulación: solo para el usuario 1
+        document.getElementById('nuevaPassword').value = '';
+        var modal = new bootstrap.Modal(document.getElementById('modalCambiarPassword'));
+        modal.show();
+      });
+    });
+    document.getElementById('formCambiarPassword').onsubmit = function(e) {
+      e.preventDefault();
+      // Aquí iría la lógica para guardar la nueva contraseña
+      var modal = bootstrap.Modal.getInstance(document.getElementById('modalCambiarPassword'));
+      modal.hide();
+      alert('Contraseña cambiada (simulado)');
+    };
+
+    // Mostrar/ocultar contraseña en modal
+    document.getElementById('togglePassword').addEventListener('click', function() {
+      const input = document.getElementById('nuevaPassword');
+      const icon = document.getElementById('iconPasswordEye');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+      }
+    });
+    </script>
+    
+    <script>
+    // --- Gestión de fechas de ingreso/egreso estilo tabla y render tipo mesas ---
+    const fechasPorPersonal = {
+        1: [
+            { ingreso: '2020-05-01', egreso: '2021-01-01' },
+            { ingreso: '2022-03-15', egreso: null }
+        ]
+    };
+    let personalSeleccionado = null;
+    let tipoFecha = null; // 'ingreso' o 'egreso'
+
+    function renderFechas() {
+        const tbody = document.querySelector('#fechas-table tbody');
+        tbody.innerHTML = '';
+        const placeholder = document.getElementById('fechas-personal-placeholder');
+        const btnIngreso = document.getElementById('btnAgregarIngreso');
+        const btnEgreso = document.getElementById('btnAgregarEgreso');
+        const btnCerrar = document.getElementById('btnCerrarFechas');
+
+        if (!personalSeleccionado || !fechasPorPersonal[personalSeleccionado]) {
+            placeholder.style.display = '';
+            btnIngreso.disabled = true;
+            btnEgreso.disabled = true;
+            btnCerrar.disabled = true;
+            tbody.innerHTML = '';
+            return;
+        }
+        placeholder.style.display = 'none';
+        btnCerrar.disabled = false;
+        const fechas = fechasPorPersonal[personalSeleccionado];
+        fechas.forEach((f, idx) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${idx+1}</td>
+                    <td>${f.ingreso || ''}</td>
+                    <td>${f.egreso || ''}</td>
+                </tr>
+            `;
         });
+        // Botones habilitados según estado
+        const puedeAgregarIngreso = fechas.length === 0 || fechas[fechas.length-1].egreso;
+        btnIngreso.disabled = !puedeAgregarIngreso;
+        const idxSinEgreso = fechas.findIndex(f => !f.egreso);
+        btnEgreso.disabled = idxSinEgreso === -1;
+
+        btnIngreso.onclick = function() {
+            tipoFecha = 'ingreso';
+            document.getElementById('form-fecha').style.display = '';
+            document.getElementById('inputFecha').value = '';
+            document.getElementById('btnGuardarFecha').className = 'btn btn-success';
+        };
+        btnEgreso.onclick = function() {
+            tipoFecha = 'egreso';
+            document.getElementById('form-fecha').style.display = '';
+            document.getElementById('inputFecha').value = '';
+            document.getElementById('btnGuardarFecha').className = 'btn btn-primary';
+        };
+        btnCerrar.onclick = function() {
+            personalSeleccionado = null;
+            tipoFecha = null;
+            document.getElementById('form-fecha').style.display = 'none';
+            renderFechas();
+        };
+        document.getElementById('btnCancelarFecha').onclick = function() {
+            tipoFecha = null;
+            document.getElementById('form-fecha').style.display = 'none';
+        };
+        document.getElementById('form-fecha').onsubmit = function(e) {
+            e.preventDefault();
+            const fecha = document.getElementById('inputFecha').value;
+            if (!fecha || !personalSeleccionado) return;
+            if (tipoFecha === 'ingreso') {
+                if (!fechasPorPersonal[personalSeleccionado]) fechasPorPersonal[personalSeleccionado] = [];
+                fechasPorPersonal[personalSeleccionado].push({ ingreso: fecha, egreso: null });
+            } else if (tipoFecha === 'egreso') {
+                const fechas = fechasPorPersonal[personalSeleccionado];
+                const idx = fechas.findIndex(f => !f.egreso);
+                if (idx !== -1) fechas[idx].egreso = fecha;
+            }
+            tipoFecha = null;
+            document.getElementById('form-fecha').style.display = 'none';
+            renderFechas();
+        };
+    }
+
+    // Listener para mostrar fechas
+    function setMostrarFechasListeners() {
+        document.querySelectorAll('.mostrarFechas').forEach(btn => {
+            btn.onclick = function() {
+                personalSeleccionado = this.getAttribute('data-id');
+                tipoFecha = null;
+                document.getElementById('form-fecha').style.display = 'none';
+                renderFechas();
+            };
+        });
+    }
+
+    // Inicializa listeners y tabla vacía
+    setMostrarFechasListeners();
+    renderFechas();
     </script>
 
     <script>
@@ -459,18 +739,17 @@
         const regionSelect = document.getElementById('regionCascada');
         const comunaSelect = document.getElementById('comunaCascada');
         const localSelect = document.getElementById('localCascada');
-        // Inicializar regiones en el select
+
         function cargarRegiones() {
             regionSelect.innerHTML = '<option value="">Selecciona región</option>';
             RegionesYcomunas.regiones.forEach(function(region, idx) {
                 const option = document.createElement('option');
-                option.value = idx; // Usar índice como valor
+                option.value = idx;
                 option.textContent = region.NombreRegion;
                 regionSelect.appendChild(option);
             });
         }
 
-        // Cargar comunas según la región seleccionada
         regionSelect.addEventListener('change', function() {
             comunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
             localSelect.innerHTML = '<option value="">Selecciona local</option>';
@@ -485,7 +764,6 @@
             }
         });
 
-        // Cargar locales al seleccionar comuna
         comunaSelect.addEventListener('change', function() {
             localSelect.innerHTML = '<option value="">Selecciona local</option>';
             locales.forEach(function(local) {
@@ -496,7 +774,6 @@
             });
         });
 
-        // Inicializar selects al cargar la página
         cargarRegiones();
 </script>
 

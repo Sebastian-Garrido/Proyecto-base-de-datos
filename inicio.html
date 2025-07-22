@@ -65,12 +65,7 @@
                             <span class="small">Personal</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-usuarios.html">
-                            <i class="bi bi-person-gear my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Usuarios</span>
-                        </a>
-                    </li>
+                    
                     <!-- Empresas -->
                     <li class="nav-item">
                         <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
@@ -156,40 +151,47 @@
     <div class="container main-content">
         <h1 class="mb-4">Bienvenido a La Pica del Pescador</h1>
         <div class="row">
-            <div class="col-lg-7 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
                         Nuestra Historia
                     </div>
                     <div class="card-body">
                         <p>
-                            Fundada en 1998 en la costa norte de Chile, <strong>La Pica del Pescador</strong> nació como un pequeño local familiar dedicado a ofrecer los más frescos productos del mar. Con el paso de los años, nuestra picada se ha convertido en un punto de encuentro para quienes buscan calidad, tradición y un ambiente acogedor. Hoy, seguimos manteniendo el espíritu original, combinando recetas tradicionales con un servicio moderno y eficiente.
+                            La historia comienza con <strong>Don Cristian Rivera</strong>, un pescador de oficio, quien iba diariamente al mar en busca de los mejores productos del océano.<br>Entre jornadas, mientras que su esposa cocinaba pescados o los demás productos frescos, era bastante común el hecho de que personas se le acercaran para preguntar, sacarse fotos o conversar. Con el tiempo se fue dando que las mismas personas que conversaban o que simplemente se acercaban se interesaban en comprarle directamente los productos que recolectaba.
+                        </p>
+                        <p>
+                            Con este creciente interés por parte de las personas, se dió cuenta de que allí había una gran oportunidad de negocio, la cual no dejó pasar y comenzó a realizar simples sándwiches de pescado y regalarselos a personas de su alrededor. Luego en su casa en Los Verdes, puso una mesa fuera y ofreció estos mismos sándwiches a las personas, procurando que estas tengan una experiencia cercana, hogareña y por sobre todo fresca.
+                        </p>
+                        <p>
+                            Al ver una muy buena recepción por parte de los nuevos visitantes, motivado y buscando mejorar y darle más valor a sus productos, decidió emprender un nuevo negocio llamado La Pica del Pescador el cual es un negocio ubicado en Los Verdes.
+                        </p>
+                        <p>
+                            Así fue como nació su emprendimiento gastronómico, donde no solo se quedó en Los Verdes, si no que también, por motivos de fuerza mayor como lo fue el terremoto ocurrido en 2014, se vio obligado a reubicarse en Iquique y a su vez vió una clara oportunidad de mejorar aún más el valor de sus productos ya que con el cambio de sucursal se le abrieron más puertas como lo puede ser el uso de RedBanc y posibilidad de tener una mayor visibilidad junto con más clientela.
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card shadow">
                     <div class="card-header bg-info text-white">
                         ¿Qué puedes hacer en esta aplicación?
                     </div>
                     <div class="card-body">
                         <ul>
-                            <li><strong>Locales:</strong> Administra la información y configuración de los distintos locales del negocio.</li>
-                            <li><strong>Informes:</strong> Visualiza reportes y estadísticas sobre ventas, productos y desempeño del local.</li>
-                            <li><strong>Personal:</strong> Gestiona los datos y roles de los trabajadores del local.</li>
-                            <li><strong>Usuarios:</strong> Administra las cuentas de acceso al sistema y sus permisos.</li>
+                            <li><strong>Locales:</strong> Administra la información, configuración y mesas de los distintos locales.</li>
+                            <li><strong>Informes:</strong> Genera reportes de ventas y empleados, filtrando por rangos de fechas.</li>
+                            <li><strong>Personal:</strong> Gestiona los datos, roles, fechas de ingreso/egreso, edición y cambio de contraseña de los trabajadores.</li>
                             <li><strong>Empresas:</strong> Registra y edita información de empresas clientes.</li>
                             <li><strong>Tomar orden:</strong> Ingresa nuevas órdenes de clientes de manera rápida y sencilla.</li>
                             <li><strong>Órdenes:</strong> Visualiza y gestiona todas las órdenes en curso.</li>
                             <li><strong>Generar Boleta:</strong> Crea e imprime boletas para los clientes.</li>
                             <li><strong>Boletas anteriores:</strong> Consulta el historial de boletas emitidas.</li>
                             <li><strong>Comanda:</strong> Consulta las comandas activas y su estado en cocina.</li>
-                            <li><strong>Productos:</strong> Agrega nuevos productos al menú o edita los existentes.</li>
+                            <li><strong>Productos:</strong> Agrega nuevos productos al menú, edita los existentes, gestiona disponibilidad, stock y marca según tipo.</li>
                             <li><strong>Inicio:</strong> Vuelve a la página principal del sistema.</li>
                             <li><strong>Usuario:</strong> Accede a tu perfil, cambia el modo oscuro/claro o cierra sesión.</li>
                         </ul>
-                        <p class="mt-3">¡Explora cada sección para aprovechar al máximo el sistema!</p>
                     </div>
                 </div>
             </div>
@@ -197,6 +199,24 @@
     </div>
 
     <!-- Onda decorativa inferior -->
+    <!-- Modal recordatorio marcar entrada -->
+    <div class="modal fade" id="modalRecordatorioEntrada" tabindex="-1" aria-labelledby="modalRecordatorioEntradaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title" id="modalRecordatorioEntradaLabel">¡Recuerda marcar tu entrada!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            Antes de comenzar tu jornada, ve a <strong>Mi cuenta</strong> en tu perfil y marca tu entrada para registrar tu asistencia.
+          </div>
+          <div class="modal-footer">
+            <a href="perfil.html" class="btn btn-primary">Ir a mi perfil</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
@@ -205,6 +225,12 @@
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var modal = new bootstrap.Modal(document.getElementById('modalRecordatorioEntrada'));
+      modal.show();
+    });
+    </script>
 
 </body>
 

@@ -70,12 +70,7 @@
                             <span class="small">Personal</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-usuarios.html">
-                            <i class="bi bi-person-gear my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Usuarios</span>
-                        </a>
-                    </li>
+                    
                     <!-- Empresas -->
                     <li class="nav-item">
                         <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
@@ -207,19 +202,24 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="2" class="text-end">Total</th>
-                                <th class="text-end" id="total-boleta">$15.500</th>
+                                <th colspan="2" class="text-end">Subtotal</th>
+                                <th class="text-end" id="subtotal-boleta">$15.500</th>
+                            </tr>
+                            <tr id="fila-descuento" style="display:none;">
+                                <th colspan="2" class="text-end text-info">Descuento aplicado</th>
+                                <th class="text-end text-info" id="descuento-card">$0</th>
                             </tr>
                             <tr>
                                 <th colspan="2" class="text-end">Propina sugerida (10%)</th>
                                 <th class="text-end" id="propina-sugerida">$1.550</th>
                             </tr>
                             <tr>
-                                <th colspan="2" class="text-end">Total con propina</th>
-                                <th class="text-end" id="total-con-propina">$17.050</th>
+                                <th colspan="2" class="text-end">Total</th>
+                                <th class="text-end" id="total-card">$0</th>
                             </tr>
                         </tfoot>
                     </table>
+                    <div id="info-propina-card" class="mt-2"></div>
                     <div class="mt-2 text-success" id="pago-doc-trib-info" style="display:none;">
                         <div><strong>Total pagado:</strong> $<span id="total-pagado-boleta">0</span></div>
                         <div><strong>Vuelto:</strong> $<span id="vuelto-boleta-monto">0</span></div>
@@ -251,6 +251,22 @@
                                 <label class="form-check-label" for="incluirPropina">
                                     Incluir propina sugerida ($<span id="propina-sugerida-modal"></span>)
                                 </label>
+                            </div>
+                            <div class="row g-2 align-items-end mb-2">
+                                <div class="col-8">
+                                    <label for="descuentoManual" class="form-label">Descuento</label>
+                                    <input type="number" class="form-control" id="descuentoManual" min="0" value="0" placeholder="$">
+                                    <div id="descuento-error" class="text-danger small mt-1" style="display:none;"></div>
+                                </div>
+                                <div class="col-4 d-flex align-items-end">
+                                    <button type="button" class="btn btn-warning w-100" id="btnAgregarDescuento">Agregar descuento</button>
+                                </div>
+                            </div>
+                            <div id="descuento-aplicado" style="display:none;">
+                                <div class="alert alert-info py-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <span>Descuento aplicado: $<span id="descuento-aplicado-monto"></span></span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="btnEliminarDescuento">Eliminar</button>
+                                </div>
                             </div>
                             <div id="lista-abonos"></div>
                             <hr>
@@ -300,13 +316,16 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <script>
         // --- Configuración de totales ---
-        const totalSinPropina = 15500;
+        const subtotalSinPropina = 15500;
         const propinaSugerida = 1550;
-        const totalConPropina = totalSinPropina + propinaSugerida;
+        const subtotalConPropina = subtotalSinPropina + propinaSugerida;
         let abonos = [];
         let incluirPropina = true;
         let modoPago = "boleta"; // "boleta" o "factura"
         let pagoCompleto = false;
+        let descuentoManual = 0;
+        let descuentoAplicado = 0;
+        let descuentoBloqueado = false;
 
         // Empresas
         const empresasData = [
@@ -372,7 +391,8 @@
 
         // --- Pago y totales ---
         function getTotalAPagar() {
-            return incluirPropina ? totalConPropina : totalSinPropina;
+            const base = incluirPropina ? subtotalConPropina : subtotalSinPropina;
+            return Math.max(base - (descuentoAplicado || descuentoManual), 0);
         }
 
         function actualizarBotonesImprimir() {
@@ -415,12 +435,12 @@
             document.getElementById('vuelto').textContent = vuelto > 0 ? `Vuelto: $${vuelto.toLocaleString()}` : '';
 
             // Mostrar info de pago
-            let info = `<span>Total sin propina: <b>$${totalSinPropina.toLocaleString()}</b></span><br>`;
-            info += `<span>Total con propina: <b>$${totalConPropina.toLocaleString()}</b> (propina sugerida $${propinaSugerida.toLocaleString()})</span>`;
-            if (!incluirPropina && total >= totalSinPropina) {
-                info += `<br><span class="text-warning">Has pagado el total sin propina.</span>`;
+            let info = `<span>Subtotal sin propina: <b>$${subtotalSinPropina.toLocaleString()}</b></span><br>`;
+            info += `<span>Subtotal con propina: <b>$${subtotalConPropina.toLocaleString()}</b> (propina sugerida $${propinaSugerida.toLocaleString()})</span>`;
+            if (!incluirPropina && total >= subtotalSinPropina) {
+                info += `<br><span class="text-warning">Has pagado el subtotal sin propina.</span>`;
             }
-            if (incluirPropina && total >= totalConPropina) {
+            if (incluirPropina && total >= subtotalConPropina) {
                 info += `<br><span class="text-success">¡Pago completo incluyendo propina!</span>`;
             }
             document.getElementById('info-pago').innerHTML = info;
@@ -435,12 +455,42 @@
                 document.getElementById('pago-doc-trib-info').style.display = 'none';
             }
 
+            // Mostrar descuento en la card si está aplicado
+            const filaDescuento = document.getElementById('fila-descuento');
+            const descuentoCard = document.getElementById('descuento-card');
+            if (descuentoAplicado > 0) {
+                filaDescuento.style.display = '';
+                descuentoCard.textContent = `$${descuentoAplicado.toLocaleString()}`;
+            } else {
+                filaDescuento.style.display = 'none';
+                descuentoCard.textContent = '$0';
+            }
+            // Mostrar total en la card
+            const totalCard = document.getElementById('total-card');
+            totalCard.textContent = `$${getTotalAPagar().toLocaleString()}`;
+            // Mostrar info de propina pagada en la card (previsualización)
+            const infoPropinaCard = document.getElementById('info-propina-card');
+            if (document.getElementById('incluirPropina').checked) {
+                infoPropinaCard.innerHTML = '<span class="text-success fw-bold">Pago con propina</span>';
+            } else {
+                infoPropinaCard.innerHTML = '<span class="text-warning fw-bold">Pago sin propina</span>';
+            }
+
             actualizarBotonesImprimir();
         }
 
         function eliminarAbono(idx) {
             abonos.splice(idx, 1);
             actualizarAbonos();
+            // Si no hay abonos, permitir nuevamente descuento y propina SOLO si tampoco hay descuento aplicado
+            if (abonos.length === 0 && descuentoAplicado === 0) {
+                document.getElementById('incluirPropina').disabled = false;
+                document.getElementById('descuentoManual').disabled = false;
+                document.getElementById('btnAgregarDescuento').disabled = false;
+            } else {
+                // Si queda algún abono o descuento, mantener la checkbox bloqueada
+                document.getElementById('incluirPropina').disabled = true;
+            }
         }
 
         document.getElementById('empresa-modal').addEventListener('change', function() {
@@ -470,6 +520,41 @@
             document.getElementById('form-abono').reset();
             errorDiv.style.display = 'none';
             actualizarAbonos();
+            // Bloquear propina y descuento al agregar abono
+            document.getElementById('incluirPropina').disabled = true;
+            document.getElementById('descuentoManual').disabled = true;
+            document.getElementById('btnAgregarDescuento').disabled = true;
+        });
+
+        document.getElementById('btnAgregarDescuento').addEventListener('click', function() {
+            const valor = parseInt(document.getElementById('descuentoManual').value, 10) || 0;
+            if (valor > 0) {
+                descuentoAplicado = valor;
+                document.getElementById('descuento-aplicado-monto').textContent = valor.toLocaleString();
+                document.getElementById('descuento-aplicado').style.display = '';
+                document.getElementById('descuentoManual').disabled = true;
+                document.getElementById('btnAgregarDescuento').disabled = true;
+                descuentoBloqueado = true;
+                // Aquí iría la lógica para guardar el descuento en la base de datos con fetch/AJAX
+            }
+            actualizarAbonos();
+        });
+
+        // Botón para eliminar descuento
+        document.getElementById('btnEliminarDescuento').addEventListener('click', function() {
+            descuentoAplicado = 0;
+            descuentoBloqueado = false;
+            document.getElementById('descuento-aplicado').style.display = 'none';
+            document.getElementById('descuentoManual').value = 0;
+            document.getElementById('descuentoManual').disabled = false;
+            document.getElementById('btnAgregarDescuento').disabled = false;
+            // Si no hay abonos, desbloquear la checkbox, si hay abonos mantenerla bloqueada
+            if (abonos.length === 0) {
+                document.getElementById('incluirPropina').disabled = false;
+            } else {
+                document.getElementById('incluirPropina').disabled = true;
+            }
+            actualizarAbonos();
         });
 
         document.getElementById('incluirPropina').addEventListener('change', function() {
@@ -477,13 +562,38 @@
             actualizarAbonos();
         });
 
+        document.getElementById('descuentoManual').addEventListener('input', function() {
+            if (descuentoBloqueado) return;
+            const valor = parseInt(this.value, 10) || 0;
+            const totalBase = incluirPropina ? totalConPropina : totalSinPropina;
+            const errorDiv = document.getElementById('descuento-error');
+            const propinaCheckbox = document.getElementById('incluirPropina');
+            if (this.value !== "" && valor > 0) {
+                propinaCheckbox.disabled = true;
+                // No modificar el estado checked
+            } else {
+                propinaCheckbox.disabled = false;
+            }
+            if (valor < 0) {
+                errorDiv.textContent = "El descuento no puede ser negativo.";
+                errorDiv.style.display = 'block';
+                this.value = 0;
+                descuentoManual = 0;
+            } else if (valor > totalBase) {
+                errorDiv.textContent = "El descuento no puede ser mayor al total.";
+                errorDiv.style.display = 'block';
+                this.value = totalBase;
+                descuentoManual = totalBase;
+            } else {
+                errorDiv.style.display = 'none';
+                descuentoManual = valor;
+            }
+            actualizarAbonos();
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('total-boleta').textContent = `$${totalSinPropina.toLocaleString()}`;
+            document.getElementById('subtotal-boleta').textContent = `$${subtotalSinPropina.toLocaleString()}`;
             document.getElementById('propina-sugerida').textContent = `$${propinaSugerida.toLocaleString()}`;
-            document.getElementById('total-con-propina').textContent = `$${totalConPropina.toLocaleString()}`;
-            document.getElementById('total-factura').textContent = `$${totalSinPropina.toLocaleString()}`;
-            document.getElementById('propina-factura').textContent = `$${propinaSugerida.toLocaleString()}`;
-            document.getElementById('total-con-propina-factura').textContent = `$${totalConPropina.toLocaleString()}`;
             document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
             actualizarAbonos();
         });
