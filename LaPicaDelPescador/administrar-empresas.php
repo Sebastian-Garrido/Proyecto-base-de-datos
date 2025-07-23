@@ -1,5 +1,46 @@
 <?php
-    include "php_scripts\configs_oracle\config_pdo.php"
+    include "php_scripts\configs_oracle\config_pdo.php";
+
+    // Procesar formulario agregar/editar empresa
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $emid = $_POST['emid'] ?? '';
+        $emrut = $_POST['rutEmpresa'] ?? '';
+        $emnombre = $_POST['nombreEmpresa'] ?? '';
+        $emcorreo = $_POST['correoEmpresa'] ?? '';
+        $emtelefono = $_POST['telefonoEmpresa'] ?? '';
+        $emregion = $_POST['regionSucursal'] ?? '';
+        $emcomuna = $_POST['comunaSucursal'] ?? '';
+        $emcalle = $_POST['calleSucursal'] ?? '';
+        $emnumerocalle = $_POST['numeroSucursal'] ?? '';
+        if (isset($_POST['editar_empresa']) && $emid) {
+            $sql = "CALL RTHEARTLESS.EDITAREMPRESA(:P_EMID, :P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':P_EMID', $emid, PDO::PARAM_INT);
+            $stmt->bindParam(':P_EMRUT', $emrut);
+            $stmt->bindParam(':P_EMNOMBRE', $emnombre);
+            $stmt->bindParam(':P_EMCORREO', $emcorreo);
+            $stmt->bindParam(':P_EMTELEFONO', $emtelefono, PDO::PARAM_INT);
+            $stmt->bindParam(':P_EMREGION', $emregion);
+            $stmt->bindParam(':P_EMCOMUNA', $emcomuna);
+            $stmt->bindParam(':P_EMCALLE', $emcalle);
+            $stmt->bindParam(':P_EMNUMEROCALLE', $emnumerocalle);
+            $stmt->execute();
+        } elseif (isset($_POST['agregar_empresa'])) {
+            $sql = "CALL RTHEARTLESS.CREAREMPRESA(:P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':P_EMRUT', $emrut);
+            $stmt->bindParam(':P_EMNOMBRE', $emnombre);
+            $stmt->bindParam(':P_EMCORREO', $emcorreo);
+            $stmt->bindParam(':P_EMTELEFONO', $emtelefono, PDO::PARAM_INT);
+            $stmt->bindParam(':P_EMREGION', $emregion);
+            $stmt->bindParam(':P_EMCOMUNA', $emcomuna);
+            $stmt->bindParam(':P_EMCALLE', $emcalle);
+            $stmt->bindParam(':P_EMNUMEROCALLE', $emnumerocalle);
+            $stmt->execute();
+        }
+        echo '<script>window.location.href = "administrar-empresas.php";</script>';
+        exit;
+    }
 ?>
 
 <?php
@@ -175,47 +216,49 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                 Agregar/Editar empresa
             </div>
             <div class="card-body">
-                <form>
+                <form id="form-empresa" method="post">
+                    <input type="hidden" name="emid" id="emid">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="nombreEmpresa" class="form-label">Nombre empresa</label>
-                            <input type="text" class="form-control" id="nombreEmpresa" required>
+                            <input type="text" class="form-control" id="nombreEmpresa" name="nombreEmpresa" required>
                         </div>
                         <div class="col-md-3">
                             <label for="rutEmpresa" class="form-label">RUT</label>
-                            <input type="text" class="form-control" id="rutEmpresa" placeholder="Ej: 76.123.456-7" required>
+                            <input type="text" class="form-control" id="rutEmpresa" name="rutEmpresa" placeholder="Ej: 76.123.456-7" required>
                         </div>
                         <div class="col-md-3">
                             <label for="correoEmpresa" class="form-label">Correo electrónico</label>
-                            <input type="email" class="form-control" id="correoEmpresa" required>
+                            <input type="email" class="form-control" id="correoEmpresa" name="correoEmpresa" required>
                         </div>
                         <div class="col-md-2">
                             <label for="telefonoEmpresa" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control" id="telefonoEmpresa" required>
+                            <input type="text" class="form-control" id="telefonoEmpresa" name="telefonoEmpresa" required>
                         </div>
                         <div class="col-md-2">
                             <label for="numeroSucursal" class="form-label">N° Sucursal</label>
-                            <input type="text" class="form-control" id="numeroSucursal" required>
+                            <input type="text" class="form-control" id="numeroSucursal" name="numeroSucursal" required>
                         </div>
                         <div class="col-md-3">
                             <label for="calleSucursal" class="form-label">Calle sucursal</label>
-                            <input type="text" class="form-control" id="calleSucursal" required>
+                            <input type="text" class="form-control" id="calleSucursal" name="calleSucursal" required>
                         </div>
                         <div class="col-md-2">
                             <label for="regionSucursal" class="form-label">Región</label>
-                            <select class="form-select" id="regionSucursal" required>
+                            <select class="form-select" id="regionSucursal" name="regionSucursal" required>
                                 <option value="">Selecciona región</option>
-                                <!-- Opciones de región se llenan dinámicamente -->
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="comunaSucursal" class="form-label">Comuna</label>
-                            <select class="form-select" id="comunaSucursal" required>
+                            <select class="form-select" id="comunaSucursal" name="comunaSucursal" required>
                                 <option value="">Selecciona comuna</option>
                             </select>
                         </div>
+                        <input type="hidden" name="agregar_empresa" id="agregar_empresa" value="1">
+                        <input type="hidden" name="editar_empresa" id="editar_empresa" value="">
                         <div class="col-md-12 text-end">
-                            <button type="submit" class="btn btn-success">Guardar</button>
+                            <button type="submit" class="btn btn-success" id="btnGuardarEmpresa">Guardar</button>
                         </div>
                     </div>
                 </form>
@@ -243,23 +286,74 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Mariscos Iquique SpA</td>
-                                <td>76.123.456-7</td>
-                                <td>contacto@mariscos.cl</td>
-                                <td>+56 9 1111 2222</td>
-                                <td>1</td>
-                                <td>Av. Costanera 1234</td>
-                                <td>Iquique</td>
-                                <td>Tarapacá</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-warning btn-sm">Editar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Más filas según empresas registradas -->
+                            <?php
+                            $sql_empresas = "SELECT EMID, EMRUT, EMNOMBRE, EMCORREO, EMTELEFONO, EMREGION, EMCOMUNA, EMCALLE, EMNUMEROCALLE FROM EMPRESA ORDER BY EMID";
+                            $stmt_empresas = $conn->prepare($sql_empresas);
+                            $stmt_empresas->execute();
+                            while ($empresa = $stmt_empresas->fetch(PDO::FETCH_ASSOC)) {
+                                echo '<tr>';
+                                echo '<td>' . htmlspecialchars($empresa['EMNOMBRE']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMRUT']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMCORREO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMTELEFONO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMNUMEROCALLE']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMCALLE']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMCOMUNA']) . '</td>';
+                                echo '<td>' . htmlspecialchars($empresa['EMREGION']) . '</td>';
+                                echo '<td>';
+                                echo '<div class="d-flex gap-2">';
+                                echo '<button class="btn btn-warning btn-sm btn-editar-empresa" data-id="' . htmlspecialchars($empresa['EMID']) . '" data-nombre="' . htmlspecialchars($empresa['EMNOMBRE']) . '" data-rut="' . htmlspecialchars($empresa['EMRUT']) . '" data-correo="' . htmlspecialchars($empresa['EMCORREO']) . '" data-telefono="' . htmlspecialchars($empresa['EMTELEFONO']) . '" data-region="' . htmlspecialchars($empresa['EMREGION']) . '" data-comuna="' . htmlspecialchars($empresa['EMCOMUNA']) . '" data-calle="' . htmlspecialchars($empresa['EMCALLE']) . '" data-numero="' . htmlspecialchars($empresa['EMNUMEROCALLE']) . '">Editar</button>';
+                                echo '</div>';
+                                echo '</td>';
+                                echo '</tr>';
+                            }
+                            ?>
                         </tbody>
+    <script>
+    // ...existing code...
+    // Lógica para edición de empresa
+    document.addEventListener('DOMContentLoaded', function() {
+        const formEmpresa = document.getElementById('form-empresa');
+        const btnGuardarEmpresa = document.getElementById('btnGuardarEmpresa');
+        document.querySelectorAll('.btn-editar-empresa').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.getElementById('emid').value = btn.getAttribute('data-id');
+                document.getElementById('nombreEmpresa').value = btn.getAttribute('data-nombre');
+                document.getElementById('rutEmpresa').value = btn.getAttribute('data-rut');
+                document.getElementById('correoEmpresa').value = btn.getAttribute('data-correo');
+                document.getElementById('telefonoEmpresa').value = btn.getAttribute('data-telefono');
+                document.getElementById('regionSucursal').value = btn.getAttribute('data-region');
+                // Disparar el evento para poblar comunas
+                regionSelect.dispatchEvent(new Event('change'));
+                document.getElementById('comunaSucursal').value = btn.getAttribute('data-comuna');
+                document.getElementById('calleSucursal').value = btn.getAttribute('data-calle');
+                document.getElementById('numeroSucursal').value = btn.getAttribute('data-numero');
+                document.getElementById('agregar_empresa').value = '';
+                document.getElementById('editar_empresa').value = '1';
+                btnGuardarEmpresa.textContent = 'Guardar cambios';
+                btnGuardarEmpresa.classList.remove('btn-success');
+                btnGuardarEmpresa.classList.add('btn-warning');
+                formEmpresa.scrollIntoView({behavior: 'smooth'});
+            });
+        });
+        // Al enviar el formulario, si hay emid, es edición; si no, es agregar
+        formEmpresa.addEventListener('submit', function(e) {
+            if (document.getElementById('emid').value) {
+                document.getElementById('agregar_empresa').value = '';
+                document.getElementById('editar_empresa').value = '1';
+                btnGuardarEmpresa.textContent = 'Guardar cambios';
+                btnGuardarEmpresa.classList.remove('btn-success');
+                btnGuardarEmpresa.classList.add('btn-warning');
+            } else {
+                document.getElementById('agregar_empresa').value = '1';
+                document.getElementById('editar_empresa').value = '';
+                btnGuardarEmpresa.textContent = 'Guardar';
+                btnGuardarEmpresa.classList.remove('btn-warning');
+                btnGuardarEmpresa.classList.add('btn-success');
+            }
+        });
+    });
+    </script>
                     </table>
                 </div>
             </div>
@@ -331,8 +425,8 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                     "comunas": ["Coihaique", "Lago Verde", "Aisén", "Cisnes", "Guaitecas", "Cochrane", "O’Higgins", "Tortel", "Chile Chico", "Río Ibáñez"]
             },
                 {
-                    "NombreRegion": "Región de Magallanes y de la AntárVca Chilena",
-                    "comunas": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "AntárVca", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
+                    "NombreRegion": "Región de Magallanes y de la Antártica Chilena",
+                    "comunas": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio", "Cabo de Hornos (Ex Navarino)", "Antártica", "Porvenir", "Primavera", "Timaukel", "Natales", "Torres del Paine"]
             },
                 {
                     "NombreRegion": "Región Metropolitana de Santiago",
