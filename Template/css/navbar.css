@@ -1,0 +1,96 @@
+/* Transiciones suaves para dark mode */
+body, .navbar, .card {
+    transition: background-color 0.5s, color 0.5s;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    .main-content {
+        margin-top: 80px; /* Para celular/tablet */
+    }
+}
+
+/* Logo en modo oscuro */
+.logo-darkmode {
+    filter: brightness(0) invert(1);
+    transition: filter 0.5s;
+}
+
+/* Dropdown menú y darkmode */
+.dropdown-menu {
+    z-index: 2000;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+/* Placeholders visibles en modo oscuro */
+body.bg-dark ::placeholder {
+    color: #bbb !important;
+    opacity: 1 !important;
+}
+
+.dropdown-menu.darkmode {
+    background-color: #23272b !important;
+    color: #fff !important;
+}
+.dropdown-menu.darkmode .dropdown-item {
+    color: #fff !important;
+}
+.dropdown-menu.darkmode .dropdown-item:hover {
+    background-color: #343a40 !important;
+    color: #fff !important;
+}
+
+/* Animación de íconos en la navbar */
+.nav-link i {
+    transition: transform 0.2s;
+}
+.nav-link:hover i,
+.nav-link:focus i {
+    transform: scale(1.25);
+}
+
+/* Para inputs, selects y textarea en dark mode */
+body.bg-dark input,
+body.bg-dark select,
+body.bg-dark textarea {
+    background-color: #23272b !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+body.bg-dark input:focus,
+body.bg-dark select:focus,
+body.bg-dark textarea:focus {
+    background-color: #23272b !important;
+    color: #fff !important;
+    border-color: #4fc3f7 !important;
+}
+
+/* Para la tabla en dark mode */
+.table-dark th, .table-dark td {
+    color: #fff;
+    background-color: #23272b;
+    border-color: #444;
+}
+
+body.bg-dark .modal-content {
+    background-color: #23272b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+body.bg-dark .list-group-item {
+    background-color: #23272b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+body.bg-dark .list-group-item .badge {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+.list-group-item, .list-group-item .badge {
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+}
