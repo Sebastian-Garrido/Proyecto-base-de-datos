@@ -785,25 +785,25 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20027, 'No se pudo egresar al trabajador: ' || SQLERRM);
 END EgresarFechaDetalle;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarDatoPago
-(
-    p_DaPID     IN INTEGER
-)
-AS
-BEGIN
-    DELETE FROM DatoPago
-    WHERE DaPID = p_DaPID;
+--CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarDatoPago
+--(
+--    p_DaPID     IN INTEGER
+--)
+--AS
+--BEGIN
+--    DELETE FROM DatoPago
+--    WHERE DaPID = p_DaPID;
 
-    IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20009, 'No se encontró el dato de pago con ese ID.');
-    END IF;
+--    IF SQL%ROWCOUNT = 0 THEN
+--        RAISE_APPLICATION_ERROR(-20009, 'No se encontró el dato de pago con ese ID.');
+--    END IF;
 
-    COMMIT;
-EXCEPTION
-    WHEN OTHERS THEN
-        ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20010, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
-END EliminarDatoPago;
+--    COMMIT;
+--EXCEPTION
+--   WHEN OTHERS THEN
+--        ROLLBACK;
+--        RAISE_APPLICATION_ERROR(-20010, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
+--END EliminarDatoPago;
 
 CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarDescuento
 (
