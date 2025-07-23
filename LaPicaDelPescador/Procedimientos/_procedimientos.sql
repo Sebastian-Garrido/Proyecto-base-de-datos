@@ -167,7 +167,9 @@ CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarTrabajador(
     p_Local_LoID           IN INTEGER
 )
 AS
+    v_trid INTEGER;
 BEGIN
+    -- Insertar trabajador
     INSERT INTO Trabajador (
         TrID,
         TrRUN,
@@ -207,6 +209,13 @@ BEGIN
         p_TrDireccionAdicional,
         p_Local_LoID
     );
+
+    -- Obtener el ID recién insertado
+    SELECT MAX(TrID) INTO v_trid FROM Trabajador WHERE TrRUN = p_TrRUN;
+
+    -- Llamar a CrearFechaDetalle con la fecha actual y el ID
+    RTHEARTLESS.CrearFechaDetalle(SYSDATE, v_trid);
+
     COMMIT;
 EXCEPTION
     WHEN OTHERS THEN
