@@ -25,7 +25,6 @@ $garzon_nombre = $_SESSION['TRNOMBRES'] . ' ' . $_SESSION['TRAPELLIDOPATERNO'] .
 $garzon_id = $_SESSION['TRID'];
 
 // Obtener productos del local siempre y cuando esten disponibles segun su tipo
-
 $sql_productos = "
 SELECT P.PRID, P.PRNOMBRE, P.PRTIPO, P.PRPRECIO
 FROM PRODUCTO P
@@ -236,7 +235,7 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
                                 <?php
                                 foreach ($productos as $prod) {
                                     $label = htmlspecialchars($prod['PRNOMBRE']) . ' (' . htmlspecialchars($prod['PRTIPO']) . ') - $' . htmlspecialchars($prod['PRPRECIO']);
-                                    echo '<option value="' . htmlspecialchars($prod['PROID']) . '">' . $label . '</option>';
+                                    echo '<option value="' . htmlspecialchars($prod['PRID']) . '">' . $label . '</option>';
                                 }
                                 ?>
                             </select>
@@ -263,25 +262,12 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
                         <tr>
                             <th>Producto</th>
                             <th>Cantidad</th>
+                            <th>Precio Unitario</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Paila Marina</td>
-                            <td>2</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Empanada de Mariscos</td>
-                            <td>1</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm">Eliminar</button>
-                            </td>
-                        </tr>
-                        <!-- Más filas según productos agregados -->
+                        <!-- JS rellena aquí los productos agregados -->
                     </tbody>
                 </table>
                 <div class="d-flex justify-content-end">
@@ -300,5 +286,157 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
+    <script>
+    // Asegurarse que el DOM esté cargado antes de asignar eventos
+    window.addEventListener('DOMContentLoaded', function() {
+        // --- Gestión local de productos agregados a la orden ---
+        const selectProducto = document.getElementById('producto');
+        const inputCantidad = document.getElementById('cantidad');
+        const btnAgregar = document.querySelector('button.btn-success.w-100');
+        const selectMesa = document.getElementById('mesa');
+        // Buscar la tabla correcta de productos agregados
+        const cards = document.querySelectorAll('.card');
+        let tablaProductos = null;
+        let tbodyProductos = null;
+        for (let i = 0; i < cards.length; i++) {
+            const card = cards[i];
+            const header = card.querySelector('.card-header');
+            if (header && header.textContent.includes('Productos en la Orden')) {
+                tablaProductos = card.querySelector('table');
+                tbodyProductos = tablaProductos ? tablaProductos.querySelector('tbody') : null;
+                break;
+            }
+        }
+
+        // Mapeo de productos: id -> {nombre, precio}
+        const productosMap = {};
+        // --- Generar el select de productos con el id correcto ---
+        // En el PHP, asegúrate que el value del <option> sea el PRID
+        // <option value="<?php echo htmlspecialchars($prod['PRID']); ?>">...</option>
+        // En JS, verifica que los options tengan el value correcto
+        // Además, agrega ENSTOCK si el producto es envasado
+        for (let i = 0; i < selectProducto.options.length; i++) {
+            const opt = selectProducto.options[i];
+            console.log('Option', i, 'value:', opt.value, 'text:', opt.text);
+            if (opt.value) {
+                let nombre = opt.text;
+                let precio = '';
+                let tipo = '';
+                let enstock = null;
+                // Buscar el producto en el array PHP para obtener ENSTOCK si existe
+                <?php
+                // Generar un array JS con los datos de productos y ENSTOCK si existe
+                $jsProductos = [];
+                foreach ($productos as $prod) {
+                    $jsProd = [
+                        'id' => $prod['PRID'],
+                        'nombre' => $prod['PRNOMBRE'],
+                        'tipo' => $prod['PRTIPO'],
+                        'precio' => $prod['PRPRECIO'],
+                    ];
+                    // Buscar ENSTOCK si existe en ENVASADO
+                    $sql_env = "SELECT ENSTOCK FROM ENVASADO WHERE PRID = :prid";
+                    $stmt_env = $conn->prepare($sql_env);
+                    $stmt_env->bindParam(':prid', $prod['PRID'], PDO::PARAM_INT);
+                    $stmt_env->execute();
+                    $enstock = $stmt_env->fetchColumn();
+                    if ($enstock !== false) {
+                        $jsProd['enstock'] = (int)$enstock;
+                    }
+                    $jsProductos[] = $jsProd;
+                }
+                ?>
+                const productosDatos = <?php echo json_encode($jsProductos); ?>;
+                // Buscar el producto por id
+                const datos = productosDatos.find(p => p.id == opt.value);
+                if (datos) {
+                    nombre = datos.nombre;
+                    tipo = datos.tipo;
+                    precio = datos.precio;
+                    if ('enstock' in datos) enstock = datos.enstock;
+                }
+                productosMap[opt.value] = { nombre, tipo, precio, enstock };
+            }
+        }
+
+        // Lista de productos agregados a la orden
+        let productosOrden = [];
+
+        function renderProductosOrden() {
+            if (!tbodyProductos) return;
+            tbodyProductos.innerHTML = '';
+            productosOrden.forEach((prod, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${prod.nombre}</td>
+                    <td>${prod.cantidad}</td>
+                    <td>$${prod.precio}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" data-idx="${idx}">Eliminar</button></td>
+                `;
+                tbodyProductos.appendChild(tr);
+            });
+            selectMesa.disabled = productosOrden.length > 0;
+            // Asignar evento eliminar a los botones
+            if (tbodyProductos) {
+                tbodyProductos.querySelectorAll('button[data-idx]').forEach(btn => {
+                    btn.onclick = function() {
+                        const idx = parseInt(btn.getAttribute('data-idx'));
+                        productosOrden.splice(idx, 1);
+                        renderProductosOrden();
+                        actualizarEstadoAgregar();
+                    };
+                });
+            }
+        }
+
+        function actualizarEstadoAgregar() {
+            btnAgregar.disabled = (selectMesa.selectedIndex <= 0 || selectProducto.selectedIndex <= 0);
+        }
+
+        selectMesa.addEventListener('change', actualizarEstadoAgregar);
+        selectProducto.addEventListener('change', actualizarEstadoAgregar);
+        inputCantidad.addEventListener('input', actualizarEstadoAgregar);
+
+        btnAgregar.addEventListener('click', function(e) {
+            e.preventDefault();
+            // El value del select es el id del producto
+            const prodId = selectProducto.value;
+            console.log('Valor selectProducto.value:', prodId);
+            console.log('selectedIndex:', selectProducto.selectedIndex);
+            if (!prodId) { console.log('No se seleccionó producto'); return; }
+            const cantidad = parseInt(inputCantidad.value);
+            if (isNaN(cantidad) || cantidad < 1 || !selectMesa.value) { console.log('Cantidad inválida o mesa no seleccionada'); return; }
+            const prodData = productosMap[prodId];
+            console.log('prodData:', prodData);
+            if (!prodData) { console.log('Producto no encontrado en el mapeo'); return; }
+            // Validar stock si es envasado
+            if (prodData.tipo && prodData.tipo.toLowerCase().includes('envasado') && prodData.enstock !== null) {
+                // Sumar cantidad si ya existe en la orden
+                let cantidadTotal = cantidad;
+                const existente = productosOrden.find(p => p.id === prodId);
+                if (existente) cantidadTotal += existente.cantidad;
+                if (cantidadTotal > prodData.enstock) {
+                    alert('No puedes agregar más unidades que el stock disponible (' + prodData.enstock + ').');
+                    return;
+                }
+            }
+            // Si ya existe el producto, suma la cantidad
+            const existente = productosOrden.find(p => p.id === prodId);
+            if (existente) {
+                existente.cantidad += cantidad;
+            } else {
+                productosOrden.push({ id: prodId, nombre: prodData.nombre, tipo: prodData.tipo, precio: prodData.precio, cantidad });
+            }
+            console.log('productosOrden:', productosOrden); // <-- Mostrar en consola la lista actual
+            renderProductosOrden();
+            selectProducto.selectedIndex = 0;
+            inputCantidad.value = 1;
+            actualizarEstadoAgregar();
+        });
+
+        actualizarEstadoAgregar();
+        renderProductosOrden();
+    });
+    </script>
 </body>
 </html>
