@@ -1,15 +1,55 @@
 <?php
-    include "php_scripts\configs_oracle\config_pdo.php"
-?>
-
-<?php
+include "php_scripts/configs_oracle/config_pdo.php";
 session_start();
-
-if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !isset($_SESSION['LOCAL_LOID'])) {
     header("Location: index.php");
     exit;
 }
 
+// AJAX: finalizar comanda
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_comanda'])) {
+    $conumero = $_POST['conumero'] ?? '';
+    $horaFinal = date('Y-m-d H:i:s');
+    if ($conumero) {
+        $sql = "CALL RTHEARTLESS.FINALIZARCOMANDA(:P_CONUMERO, TO_DATE(:P_COHORAFINAL, 'YYYY-MM-DD HH24:MI:SS'))";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':P_CONUMERO', $conumero, PDO::PARAM_INT);
+        $stmt->bindParam(':P_COHORAFINAL', $horaFinal);
+        $stmt->execute();
+        echo json_encode(["success" => true]);
+        exit;
+    }
+    echo json_encode(["success" => false]);
+    exit;
+}
+
+// AJAX: obtener comandas activas del local
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
+    $local_loid = $_SESSION['LOCAL_LOID'];
+    // Buscar comandas activas (COESTADO=1) del local
+    $sql = "SELECT C.CONUMERO, C.COHORAINICIO, C.DETALLEPEDIDO_DEPID, D.DEPRODUCTO, D.DECANTIDAD, D.DEMESA, P.PRONOMBRE
+            FROM COMANDA C
+            JOIN DETALLEPEDIDO D ON C.DETALLEPEDIDO_DEPID = D.DEPID
+            JOIN PRODUCTO P ON D.DEPRODUCTO = P.PROID
+            WHERE C.COESTADO = 1 AND P.LOCAL_LOID = :local_loid
+            ORDER BY C.COHORAINICIO";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+    $stmt->execute();
+    $comandas = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $comandas[] = [
+            'CONUMERO' => $row['CONUMERO'],
+            'COHORAINICIO' => $row['COHORAINICIO'],
+            'DEPEDIDO' => $row['DETALLEPEDIDO_DEPID'],
+            'PRODUCTO' => $row['PRONOMBRE'],
+            'CANTIDAD' => $row['DECANTIDAD'],
+            'MESA' => $row['DEMESA'],
+        ];
+    }
+    echo json_encode($comandas);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -185,53 +225,9 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
     <!-- Contenido principal -->
     <div class="container main-content">
         <div class="row g-4" id="comandas-list">
-            <!-- Comanda 1 -->
-            <div class="col-12 col-sm-6 col-md-4">
-                <div class="card comanda-card border-primary" tabindex="0">
-                    <div class="card-header bg-primary text-white">
-                        Orden #12345
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title mb-2">Paila Marina</h5>
-                        <p class="mb-1"><strong>Cantidad:</strong> 2</p>
-                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
-                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
-                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Comanda 2 -->
-            <div class="col-12 col-sm-6 col-md-4">
-                <div class="card comanda-card border-primary" tabindex="0">
-                    <div class="card-header bg-primary text-white">
-                        Orden #12345
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title mb-2">Empanada de Mariscos</h5>
-                        <p class="mb-1"><strong>Cantidad:</strong> 1</p>
-                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
-                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
-                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Comanda 3 -->
-            <div class="col-12 col-sm-6 col-md-4">
-                <div class="card comanda-card border-primary" tabindex="0">
-                    <div class="card-header bg-primary text-white">
-                        Orden #12346
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title mb-2">Reineta Frita</h5>
-                        <p class="mb-1"><strong>Cantidad:</strong> 3</p>
-                        <p class="mb-1"><strong>Mesa:</strong> 2</p>
-                        <p class="mb-1"><strong>Hora pedido:</strong> 13:30</p>
-                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
-                    </div>
-                </div>
-            </div>
-            <!-- Más comandas según platillos preparados -->
+            <!-- Las comandas activas se renderizan aquí por JS -->
         </div>
+        <div class="text-center text-muted" id="comandas-placeholder" style="display:none;">No hay comandas activas para este local.</div>
     </div>
 
     <!-- Onda decorativa inferior -->
@@ -244,59 +240,106 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
     <script>
-    // Botón entregar: elimina la comanda
-    document.querySelectorAll('.entregar-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const card = btn.closest('.col-12');
-            card.style.transition = 'opacity 0.3s';
-            card.style.opacity = 0;
-            setTimeout(() => card.remove(), 300);
+    // --- Renderizar comandas activas del local ---
+    function cargarComandas() {
+        fetch('ver-comanda.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'get_comandas=1'
+        })
+        .then(r => r.json())
+        .then(comandas => {
+            const list = document.getElementById('comandas-list');
+            list.innerHTML = '';
+            if (!comandas.length) {
+                document.getElementById('comandas-placeholder').style.display = '';
+                return;
+            }
+            document.getElementById('comandas-placeholder').style.display = 'none';
+            comandas.forEach((c, idx) => {
+                const hora = c.COHORAINICIO ? new Date(c.COHORAINICIO).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : '';
+                const card = document.createElement('div');
+                card.className = 'col-12 col-sm-6 col-md-4';
+                card.innerHTML = `
+                    <div class="card comanda-card border-primary" tabindex="0" data-idx="${idx}" data-conumero="${c.CONUMERO}">
+                        <div class="card-header bg-primary text-white">
+                            Orden #${c.CONUMERO}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">${c.PRODUCTO}</h5>
+                            <p class="mb-1"><strong>Cantidad:</strong> ${c.CANTIDAD}</p>
+                            <p class="mb-1"><strong>Mesa:</strong> ${c.MESA}</p>
+                            <p class="mb-1"><strong>Hora pedido:</strong> ${hora}</p>
+                            <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+            setListeners();
         });
-    });
-
-    // Selección con teclado
-    const cards = Array.from(document.querySelectorAll('.comanda-card'));
-    let selectedIdx = 0;
-    if (cards.length) {
-        cards[selectedIdx].classList.add('selected');
-        cards[selectedIdx].focus();
     }
 
-    document.addEventListener('keydown', function(e) {
-        if (!cards.length) return;
-        // Flecha derecha o abajo
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-            cards[selectedIdx].classList.remove('selected');
-            selectedIdx = (selectedIdx + 1) % cards.length;
+    function setListeners() {
+        const cards = Array.from(document.querySelectorAll('.comanda-card'));
+        let selectedIdx = 0;
+        if (cards.length) {
             cards[selectedIdx].classList.add('selected');
             cards[selectedIdx].focus();
-            e.preventDefault();
         }
-        // Flecha izquierda o arriba
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            cards[selectedIdx].classList.remove('selected');
-            selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
-            cards[selectedIdx].classList.add('selected');
-            cards[selectedIdx].focus();
-            e.preventDefault();
-        }
-        // Enter: entregar comanda seleccionada
-        if (e.key === 'Enter') {
-            const card = cards[selectedIdx].closest('.col-12');
-            card.style.transition = 'opacity 0.3s';
-            card.style.opacity = 0;
-            setTimeout(() => {
-                card.remove();
-                cards.splice(selectedIdx, 1);
-                if (cards.length) {
-                    selectedIdx = selectedIdx % cards.length;
-                    cards[selectedIdx].classList.add('selected');
-                    cards[selectedIdx].focus();
-                }
-            }, 300);
-            e.preventDefault();
-        }
-    });
+        cards.forEach((card, idx) => {
+            card.querySelector('.entregar-btn').onclick = function() {
+                entregarComanda(card.getAttribute('data-conumero'), card);
+            };
+        });
+        document.addEventListener('keydown', function(e) {
+            if (!cards.length) return;
+            // Flecha derecha o abajo
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                cards[selectedIdx].classList.remove('selected');
+                selectedIdx = (selectedIdx + 1) % cards.length;
+                cards[selectedIdx].classList.add('selected');
+                cards[selectedIdx].focus();
+                e.preventDefault();
+            }
+            // Flecha izquierda o arriba
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                cards[selectedIdx].classList.remove('selected');
+                selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
+                cards[selectedIdx].classList.add('selected');
+                cards[selectedIdx].focus();
+                e.preventDefault();
+            }
+            // Enter: entregar comanda seleccionada
+            if (e.key === 'Enter') {
+                entregarComanda(cards[selectedIdx].getAttribute('data-conumero'), cards[selectedIdx]);
+                e.preventDefault();
+            }
+        });
+    }
+
+    function entregarComanda(conumero, card) {
+        fetch('ver-comanda.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `finalizar_comanda=1&conumero=${encodeURIComponent(conumero)}`
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                card.style.transition = 'opacity 0.3s';
+                card.style.opacity = 0;
+                setTimeout(() => {
+                    card.parentElement.remove();
+                    cargarComandas();
+                }, 300);
+            } else {
+                alert('Error al finalizar la comanda');
+            }
+        });
+    }
+
+    cargarComandas();
     </script>
 </body>
 </html>

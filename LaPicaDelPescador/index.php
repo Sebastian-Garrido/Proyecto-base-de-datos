@@ -12,7 +12,7 @@ session_start();
         $hashed = hash_hmac('sha256', $password, $key);
 
         // Buscar trabajador por RUN y contraseña
-        $sql = "SELECT TrID, TrRUN, TrNombres, TrCargo, Local_LoID FROM Trabajador WHERE TrRUN = :run AND TrContraseña = :pass";
+        $sql = "SELECT TrID, TrRUN, TrNombres, TrCargo, Local_LoID, TrApellidoPaterno, TrApellidoMaterno FROM Trabajador WHERE TrRUN = :run AND TrContraseña = :pass";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':run', $run, PDO::PARAM_INT);
         $stmt->bindParam(':pass', $hashed, PDO::PARAM_STR);
@@ -27,6 +27,8 @@ session_start();
             $_SESSION['TRNOMBRES'] = $trabajador['TRNOMBRES'];
             $_SESSION['TRCARGO'] = $trabajador['TRCARGO'];
             $_SESSION['LOCAL_LOID'] = $trabajador['LOCAL_LOID'];
+            $_SESSION['TRAPELLIDOPATERNO'] = $trabajador['TRAPELLIDOPATERNO'];
+            $_SESSION['TRAPELLIDOMATERNO'] = $trabajador['TRAPELLIDOMATERNO'];
             header("Location: inicio.php");
             exit;
         } else {

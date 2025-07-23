@@ -265,43 +265,7 @@ $fecha_ingreso = ($row_fecha && $row_fecha['FEFECHAINGRESO']) ? $row_fecha['FEFE
         </div>
         </div>
     </div>
-    <!-- Modal Confirmar Entrada -->
-    <div class="modal fade" id="modalConfirmarEntrada" tabindex="-1" aria-labelledby="modalConfirmarEntradaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-        <div class="modal-header bg-success text-white">
-            <h5 class="modal-title" id="modalConfirmarEntradaLabel">Confirmar entrada</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-            ¿Está seguro que desea marcar su entrada laboral?
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-success" id="confirmarEntrada">Sí, marcar entrada</button>
-        </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- Modal Confirmar Salida -->
-    <div class="modal fade" id="modalConfirmarSalida" tabindex="-1" aria-labelledby="modalConfirmarSalidaLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-        <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="modalConfirmarSalidaLabel">Confirmar salida</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-            ¿Está seguro que desea marcar su salida laboral?
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-danger" id="confirmarSalida">Sí, marcar salida</button>
-        </div>
-        </div>
-    </div>
-    </div>
+   
 
     <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>

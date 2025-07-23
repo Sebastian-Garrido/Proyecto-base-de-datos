@@ -1,15 +1,48 @@
 <?php
-    include "php_scripts\configs_oracle\config_pdo.php"
-?>
-
-<?php
+include "php_scripts/configs_oracle/config_pdo.php";
 session_start();
-
-if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !isset($_SESSION['LOCAL_LOID'])) {
     header("Location: index.php");
     exit;
 }
 
+// Obtener el local asociado al trabajador actual
+$trid = $_SESSION['TRID'];
+$sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+$stmt_local = $conn->prepare($sql_local);
+$stmt_local->bindParam(':trid', $trid, PDO::PARAM_INT);
+$stmt_local->execute();
+$local_loid = $stmt_local->fetchColumn();
+// Obtener mesas disponibles del local
+$sql_mesas = "SELECT MEID, MENUMEROINTERNO FROM MESALOCAL WHERE LOCAL_LOID = :local_loid AND MEACTIVO = 1 ORDER BY MENUMEROINTERNO";
+$stmt_mesas = $conn->prepare($sql_mesas);
+$stmt_mesas->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+$stmt_mesas->execute();
+$mesas = $stmt_mesas->fetchAll(PDO::FETCH_ASSOC);
+
+// Nombre y id del garzón actual
+$garzon_nombre = $_SESSION['TRNOMBRES'] . ' ' . $_SESSION['TRAPELLIDOPATERNO'] . ' ' . $_SESSION['TRAPELLIDOMATERNO'];
+$garzon_id = $_SESSION['TRID'];
+
+// Obtener productos del local siempre y cuando esten disponibles segun su tipo
+
+$sql_productos = "
+SELECT P.PRID, P.PRNOMBRE, P.PRTIPO, P.PRPRECIO
+FROM PRODUCTO P
+LEFT JOIN PLATILLO_PREPARADO PP ON P.PRID = PP.PRID
+LEFT JOIN ENVASADO E ON P.PRID = E.PRID
+WHERE P.LOCAL_LOID = :local_loid
+AND (
+    (PP.PRID IS NOT NULL AND PP.PPDISPONIBILIDAD = 1)
+    OR (E.PRID IS NOT NULL AND E.ENSTOCK > 0)
+    OR (PP.PRID IS NULL AND E.PRID IS NULL)
+)
+ORDER BY P.PRNOMBRE
+";
+$stmt_productos = $conn->prepare($sql_productos);
+$stmt_productos->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+$stmt_productos->execute();
+$productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -174,28 +207,23 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                 Nueva Orden
             </div>
             <div class="card-body">
-                <form>
+                <form method="post" id="form-tomar-orden">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="mesa" class="form-label">Mesa</label>
-                            <select class="form-select" id="mesa" required>
+                            <select class="form-select" id="mesa" name="mesa" required>
                                 <option value="">Selecciona mesa</option>
-                                <option value="1">Mesa 1</option>
-                                <option value="2">Mesa 2</option>
-                                <option value="3">Mesa 3</option>
-                                <option value="4">Mesa 4</option>
-                                <option value="5">Mesa 5</option>
-                                <option value="6">Mesa 6</option>
-                                <option value="7">Mesa 7</option>
-                                <option value="8">Mesa 8</option>
-                                <option value="9">Mesa 9</option>
-                                <option value="10">Mesa 10</option>
-                                <!-- Agrega más mesas si es necesario -->
+                                <?php
+                                foreach ($mesas as $mesa) {
+                                    echo '<option value="' . htmlspecialchars($mesa['MEID']) . '">Mesa ' . htmlspecialchars($mesa['MENUMEROINTERNO']) . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label for="garzon" class="form-label">Garzón</label>
-                            <input type="text" class="form-control" id="garzon" readonly>
+                            <input type="text" class="form-control" id="garzon" name="garzon_nombre" value="<?php echo htmlspecialchars($garzon_nombre); ?>" readonly>
+                            <input type="hidden" name="garzon_id" value="<?php echo htmlspecialchars($garzon_id); ?>">
                         </div>
                     </div>
                     <hr>
@@ -203,18 +231,19 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                     <div class="row g-3 align-items-end">
                         <div class="col-md-5">
                             <label for="producto" class="form-label">Producto</label>
-                            <select class="form-select" id="producto">
+                            <select class="form-select" id="producto" name="producto">
                                 <option value="">Selecciona un producto</option>
-                                <option>Paila Marina</option>
-                                <option>Empanada de Mariscos</option>
-                                <option>Jugo Natural</option>
-                                <option>Reineta Frita</option>
-                                <!-- Más productos -->
+                                <?php
+                                foreach ($productos as $prod) {
+                                    $label = htmlspecialchars($prod['PRNOMBRE']) . ' (' . htmlspecialchars($prod['PRTIPO']) . ') - $' . htmlspecialchars($prod['PRPRECIO']);
+                                    echo '<option value="' . htmlspecialchars($prod['PROID']) . '">' . $label . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label for="cantidad" class="form-label">Cantidad</label>
-                            <input type="number" class="form-control" id="cantidad" min="1" value="1">
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" value="1">
                         </div>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-success w-100">Agregar</button>
@@ -271,11 +300,5 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
-    <script>
-    // Simulación: obtener el nombre del garzón desde localStorage (o donde lo guardes al hacer login)
-    // Por ejemplo, al hacer login: localStorage.setItem('nombreGarzon', 'Juan Pérez');
-    const nombreGarzon = localStorage.getItem('nombreGarzon') || 'Juan Pérez';
-    document.getElementById('garzon').value = nombreGarzon;
-</script>
 </body>
 </html>
