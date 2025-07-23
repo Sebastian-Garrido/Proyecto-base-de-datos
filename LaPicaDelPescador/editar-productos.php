@@ -308,46 +308,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- AQUI SE AGREGAN ELEMENTOS DE FORMA DINAMICA -->
                             <?php
                                 $local_loid = $_SESSION['LOCAL_LOID'];
-                                $sql = "SELECT PrID, PrNombre, PrPrecio, PrTipo, PrDescripcion FROM Producto WHERE Local_LoID = :local_loid";
-                                $stmt = $conn->prepare($sql);
-                                $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
-                                $stmt->execute();
+                                // Obtener el LOCAL_LOID real del usuario actual
+                                $sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+                                $stmt_local = $conn->prepare($sql_local);
+                                $stmt_local->bindParam(':trid', $_SESSION['TRID'], PDO::PARAM_INT);
+                                $stmt_local->execute();
+                                $local_row = $stmt_local->fetch(PDO::FETCH_ASSOC);
+                                $local_loid = $local_row ? $local_row['LOCAL_LOID'] : null;
 
-                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                    $prid = $row['PRID'];
-                                    $tipo = $row['PRTIPO'];
-                                    $disponible = null;
-                                    $stock = null;
-                                    $marca = null;
-                                    if ($tipo == 'Preparado') {
-                                        $sqlPrep = "SELECT PPDisponibilidad FROM Platillo_Preparado WHERE PrID = :prid";
-                                        $stmtPrep = $conn->prepare($sqlPrep);
-                                        $stmtPrep->execute([':prid' => $prid]);
-                                        $prep = $stmtPrep->fetch(PDO::FETCH_ASSOC);
-                                        $disponible = $prep ? $prep['PPDISPONIBILIDAD'] : null;
-                                    } elseif ($tipo == 'Envasado') {
-                                        $sqlEnv = "SELECT EnStock, EnMarca FROM Envasado WHERE PrID = :prid";
-                                        $stmtEnv = $conn->prepare($sqlEnv);
-                                        $stmtEnv->execute([':prid' => $prid]);
-                                        $env = $stmtEnv->fetch(PDO::FETCH_ASSOC);
-                                        $stock = $env ? $env['ENSTOCK'] : null;
-                                        $marca = $env ? $env['ENMARCA'] : null;
+                                if ($local_loid !== null) {
+                                    $sql = "SELECT PrID, PrNombre, PrPrecio, PrTipo, PrDescripcion FROM Producto WHERE Local_LoID = :local_loid";
+                                    $stmt = $conn->prepare($sql);
+                                    $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+                                    $stmt->execute();
+
+                                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                        $prid = $row['PRID'];
+                                        $tipo = $row['PRTIPO'];
+                                        $disponible = null;
+                                        $stock = null;
+                                        $marca = null;
+                                        if ($tipo == 'Preparado') {
+                                            $sqlPrep = "SELECT PPDisponibilidad FROM Platillo_Preparado WHERE PrID = :prid";
+                                            $stmtPrep = $conn->prepare($sqlPrep);
+                                            $stmtPrep->execute([':prid' => $prid]);
+                                            $prep = $stmtPrep->fetch(PDO::FETCH_ASSOC);
+                                            $disponible = $prep ? $prep['PPDISPONIBILIDAD'] : null;
+                                        } elseif ($tipo == 'Envasado') {
+                                            $sqlEnv = "SELECT EnStock, EnMarca FROM Envasado WHERE PrID = :prid";
+                                            $stmtEnv = $conn->prepare($sqlEnv);
+                                            $stmtEnv->execute([':prid' => $prid]);
+                                            $env = $stmtEnv->fetch(PDO::FETCH_ASSOC);
+                                            $stock = $env ? $env['ENSTOCK'] : null;
+                                            $marca = $env ? $env['ENMARCA'] : null;
+                                        }
+                                        echo "<tr ";
+                                        // Pasar los datos extra como atributos data-
+                                        if ($tipo == 'Preparado') {
+                                            echo "data-disponible='" . ($disponible ? 'true' : 'false') . "' ";
+                                        } elseif ($tipo == 'Envasado') {
+                                            echo "data-stock='" . htmlspecialchars($stock) . "' data-marca='" . htmlspecialchars($marca) . "' ";
+                                        }
+                                        echo ">";
+                                        echo "<td>{$row['PRID']}</td>";
+                                        echo "<td>{$row['PRNOMBRE']}</td>";
+                                        echo "<td>$" . number_format($row['PRPRECIO'], 0, ',', '.') . "</td>";
+                                        echo "<td>" . ($tipo == 'Preparado' ? 'Platillo preparado' : 'Producto envasado') . "</td>";
+                                        echo "<td>{$row['PRDESCRIPCION']}</td>";
+                                        echo "<td><button class='btn btn-warning btn-sm btn-editar'>Editar</button></td>";
+                                        echo "</tr>";
                                     }
-                                    echo "<tr ";
-                                    // Pasar los datos extra como atributos data-
-                                    if ($tipo == 'Preparado') {
-                                        echo "data-disponible='" . ($disponible ? 'true' : 'false') . "' ";
-                                    } elseif ($tipo == 'Envasado') {
-                                        echo "data-stock='" . htmlspecialchars($stock) . "' data-marca='" . htmlspecialchars($marca) . "' ";
-                                    }
-                                    echo ">";
-                                    echo "<td>{$row['PRID']}</td>";
-                                    echo "<td>{$row['PRNOMBRE']}</td>";
-                                    echo "<td>$" . number_format($row['PRPRECIO'], 0, ',', '.') . "</td>";
-                                    echo "<td>" . ($tipo == 'Preparado' ? 'Platillo preparado' : 'Producto envasado') . "</td>";
-                                    echo "<td>{$row['PRDESCRIPCION']}</td>";
-                                    echo "<td><button class='btn btn-warning btn-sm btn-editar'>Editar</button></td>";
-                                    echo "</tr>";
+                                } else {
+                                    echo '<tr><td colspan="6" class="text-center text-danger">No se encontró el local asociado al usuario.</td></tr>';
                                 }
                             ?>
                         </tbody>

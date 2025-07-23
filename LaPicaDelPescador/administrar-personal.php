@@ -1,5 +1,91 @@
 <?php
-    include "php_scripts\configs_oracle\config_pdo.php"
+    include "php_scripts\configs_oracle\config_pdo.php";
+
+    // Procesar formulario agregar personal
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Agregar trabajador
+        if (isset($_POST['agregar_personal'])) {
+            $run = $_POST['run'] ?? '';
+            $telefono = $_POST['telefono'] ?? null;
+            $correo = $_POST['correo'] ?? null;
+            $cargo = $_POST['cargo'] ?? '';
+            $password = $_POST['password'] ?? null;
+            $fechaNacimiento = $_POST['fechaNacimiento'] ?? '';
+            $sueldoHora = $_POST['sueldoHora'] ?? '';
+            $nombres = $_POST['nombres'] ?? '';
+            $apellidoPaterno = $_POST['apellidoPaterno'] ?? '';
+            $apellidoMaterno = $_POST['apellidoMaterno'] ?? '';
+            $vigente = ($_POST['vigencia'] ?? 'si') == 'si' ? 1 : 0;
+            $region = $_POST['regionCascada'] ?? '';
+            $comuna = $_POST['comunaCascada'] ?? '';
+            $calle = $_POST['calle'] ?? '';
+            $numeroCalle = $_POST['numeroCalle'] ?? '';
+            $direccionAdicional = $_POST['direccionAdicional'] ?? null;
+            $local = $_POST['localCascada'] ?? '';
+            $sql = "CALL RTHEARTLESS.AgregarTrabajador(:p_TrRUN, :p_TrTelefono, :p_TrCorreo, :p_TrCargo, :p_TrContraseña, TO_DATE(:p_TrFechaNacimiento, 'YYYY-MM-DD'), :p_TrSueldoHora, :p_TrNombres, :p_TrApellidoPaterno, :p_TrApellidoMaterno, :p_TrVigente, :p_TrRegion, :p_TrComuna, :p_TrCalle, :p_TrNumeroCalle, :p_TrDireccionAdicional, :p_Local_LoID)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':p_TrRUN', $run, PDO::PARAM_INT);
+            $stmt->bindParam(':p_TrTelefono', $telefono, PDO::PARAM_INT);
+            $stmt->bindParam(':p_TrCorreo', $correo);
+            $stmt->bindParam(':p_TrCargo', $cargo);
+            $stmt->bindParam(':p_TrContraseña', $password);
+            $stmt->bindParam(':p_TrFechaNacimiento', $fechaNacimiento);
+            $stmt->bindParam(':p_TrSueldoHora', $sueldoHora, PDO::PARAM_INT);
+            $stmt->bindParam(':p_TrNombres', $nombres);
+            $stmt->bindParam(':p_TrApellidoPaterno', $apellidoPaterno);
+            $stmt->bindParam(':p_TrApellidoMaterno', $apellidoMaterno);
+            $stmt->bindParam(':p_TrVigente', $vigente, PDO::PARAM_INT);
+            $stmt->bindParam(':p_TrRegion', $region);
+            $stmt->bindParam(':p_TrComuna', $comuna);
+            $stmt->bindParam(':p_TrCalle', $calle);
+            $stmt->bindParam(':p_TrNumeroCalle', $numeroCalle);
+            $stmt->bindParam(':p_TrDireccionAdicional', $direccionAdicional);
+            $stmt->bindParam(':p_Local_LoID', $local, PDO::PARAM_INT);
+            $stmt->execute();
+            echo '<script>window.location.href = "administrar-personal.php";</script>';
+            exit;
+        }
+        // Editar trabajador
+        if (isset($_POST['editar_personal'])) {
+            $trid = $_POST['editId'] ?? '';
+            $run = $_POST['editRun'] ?? '';
+            $telefono = $_POST['editTelefono'] ?? null;
+            $correo = $_POST['editCorreo'] ?? null;
+            $cargo = $_POST['editCargo'] ?? '';
+            $fechaNacimiento = $_POST['editFechaNacimiento'] ?? '';
+            $sueldoHora = $_POST['editSueldoHora'] ?? '';
+            $nombres = $_POST['editNombres'] ?? '';
+            $apellidoPaterno = $_POST['editApellidoPaterno'] ?? '';
+            $apellidoMaterno = $_POST['editApellidoMaterno'] ?? '';
+            $region = $_POST['editRegion'] ?? '';
+            $comuna = $_POST['editComuna'] ?? '';
+            $calle = $_POST['editCalle'] ?? '';
+            $local = $_POST['editLocal'] ?? '';
+            $numeroCalle = $_POST['editNumeroCalle'] ?? '';
+            $direccionAdic = $_POST['editDireccionAdicional'] ?? null;
+            $sql = "CALL RTHEARTLESS.ModificarTrabajador(:p_trid, :p_run, :p_telefono, :p_correo, :p_cargo, TO_DATE(:p_birth, 'YYYY-MM-DD'), :p_sueldo_hora, :p_nombres, :p_apellidop, :p_apellidom, :p_region, :p_comuna, :p_calle, :p_local, :p_numero_calle, :p_direccion_adic)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':p_trid', $trid, PDO::PARAM_INT);
+            $stmt->bindParam(':p_run', $run, PDO::PARAM_INT);
+            $stmt->bindParam(':p_telefono', $telefono, PDO::PARAM_INT);
+            $stmt->bindParam(':p_correo', $correo);
+            $stmt->bindParam(':p_cargo', $cargo);
+            $stmt->bindParam(':p_birth', $fechaNacimiento);
+            $stmt->bindParam(':p_sueldo_hora', $sueldoHora, PDO::PARAM_INT);
+            $stmt->bindParam(':p_nombres', $nombres);
+            $stmt->bindParam(':p_apellidop', $apellidoPaterno);
+            $stmt->bindParam(':p_apellidom', $apellidoMaterno);
+            $stmt->bindParam(':p_region', $region);
+            $stmt->bindParam(':p_comuna', $comuna);
+            $stmt->bindParam(':p_calle', $calle);
+            $stmt->bindParam(':p_local', $local, PDO::PARAM_INT);
+            $stmt->bindParam(':p_numero_calle', $numeroCalle);
+            $stmt->bindParam(':p_direccion_adic', $direccionAdic);
+            $stmt->execute();
+            echo '<script>window.location.href = "administrar-personal.php";</script>';
+            exit;
+        }
+    }
 ?>
 
 <?php
@@ -166,23 +252,23 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                 Agregar personal
             </div>
             <div class="card-body">
-                <form>
+                <form method="post" id="formAgregarPersonal">
                     <div class="row g-3">
                         <div class="col-md-2">
                             <label for="run" class="form-label">RUN*</label>
-                            <input type="number" class="form-control" id="run" required>
+                            <input type="number" class="form-control" id="run" name="run" required>
                         </div>
                         <div class="col-md-2">
                             <label for="telefono" class="form-label">Teléfono</label>
-                            <input type="number" class="form-control" id="telefono">
+                            <input type="number" class="form-control" id="telefono" name="telefono">
                         </div>
                         <div class="col-md-3">
                             <label for="correo" class="form-label">Correo electrónico</label>
-                            <input type="text" class="form-control" id="correo">
+                            <input type="text" class="form-control" id="correo" name="correo">
                         </div>
                         <div class="col-md-2">
                             <label for="cargo" class="form-label">Cargo*</label>
-                            <select class="form-select" id="cargo" required>
+                            <select class="form-select" id="cargo" name="cargo" required>
                               <option value="">Selecciona cargo</option>
                               <option value="Garzón">Garzón</option>
                               <option value="Cajero">Cajero</option>
@@ -195,73 +281,83 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                         </div>
                         <div class="col-md-3">
                             <label for="password" class="form-label">Contraseña</label>
-                            <input type="text" class="form-control" id="password">
+                            <input type="text" class="form-control" id="password" name="password">
                         </div>
                         <div class="col-md-2">
                             <label for="fechaNacimiento" class="form-label">Fecha de nacimiento*</label>
-                            <input type="date" class="form-control" id="fechaNacimiento" required>
+                            <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
                         </div>
                         <div class="col-md-2">
                             <label for="fechaIngreso" class="form-label">Fecha de ingreso*</label>
-                            <input type="date" class="form-control" id="fechaIngreso" required>
+                            <input type="date" class="form-control" id="fechaIngreso" name="fechaIngreso" required>
                         </div>
                         <div class="col-md-2">
                             <label for="fechaEgreso" class="form-label">Fecha de egreso</label>
-                            <input type="date" class="form-control" id="fechaEgreso">
+                            <input type="date" class="form-control" id="fechaEgreso" name="fechaEgreso">
                         </div>
                         <div class="col-md-2">
                             <label for="sueldoHora" class="form-label">Sueldo por hora*</label>
-                            <input type="number" class="form-control" id="sueldoHora" required>
+                            <input type="number" class="form-control" id="sueldoHora" name="sueldoHora" required>
                         </div>
                         <div class="col-md-2">
                             <label for="nombres" class="form-label">Nombres*</label>
-                            <input type="text" class="form-control" id="nombres" required>
+                            <input type="text" class="form-control" id="nombres" name="nombres" required>
                         </div>
                         <div class="col-md-2">
                             <label for="apellidoPaterno" class="form-label">Apellido paterno*</label>
-                            <input type="text" class="form-control" id="apellidoPaterno" required>
+                            <input type="text" class="form-control" id="apellidoPaterno" name="apellidoPaterno" required>
                         </div>
                         <div class="col-md-2">
                             <label for="apellidoMaterno" class="form-label">Apellido materno*</label>
-                            <input type="text" class="form-control" id="apellidoMaterno" required>
+                            <input type="text" class="form-control" id="apellidoMaterno" name="apellidoMaterno" required>
                         </div>
                         <div class="col-md-2">
                             <label for="vigencia" class="form-label">Vigente*</label>
-                            <select class="form-select" id="vigencia" required>
+                            <select class="form-select" id="vigencia" name="vigencia" required>
                                 <option value="si">Sí</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="regionCascada" class="form-label">Región*</label>
-                            <select class="form-select" id="regionCascada" required>
+                            <select class="form-select" id="regionCascada" name="regionCascada" required>
                                 <option value="">Selecciona región</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="comunaCascada" class="form-label">Comuna*</label>
-                            <select class="form-select" id="comunaCascada" required>
+                            <select class="form-select" id="comunaCascada" name="comunaCascada" required>
                                 <option value="">Selecciona comuna</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="localCascada" class="form-label">Local*</label>
-                            <select class="form-select" id="localCascada" required>
+                            <select class="form-select" id="localCascada" name="localCascada" required>
                                 <option value="">Selecciona local</option>
+                                <?php
+                                    $sql_locales = "SELECT LOID, LOREGION, LOCOMUNA, LOCALLE, LONUMEROCALLE FROM LOCAL WHERE LOACTIVO = 1 ORDER BY LOID";
+                                    $stmt_locales = $conn->prepare($sql_locales);
+                                    $stmt_locales->execute();
+                                    while ($local = $stmt_locales->fetch(PDO::FETCH_ASSOC)) {
+                                        $info = 'Local ' . htmlspecialchars($local['LOID']) . ': ' . htmlspecialchars($local['LOREGION']) . ', ' . htmlspecialchars($local['LOCOMUNA']) . ', ' . htmlspecialchars($local['LOCALLE']) . ' ' . htmlspecialchars($local['LONUMEROCALLE']);
+                                        echo '<option value="' . htmlspecialchars($local['LOID']) . '">' . $info . '</option>';
+                                    }
+                                ?>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="calle" class="form-label">Calle*</label>
-                            <input type="text" class="form-control" id="calle" required>
+                            <input type="text" class="form-control" id="calle" name="calle" required>
                         </div>
                         <div class="col-md-2">
                             <label for="numeroCalle" class="form-label">Número Calle*</label>
-                            <input type="text" class="form-control" id="numeroCalle" required>
+                            <input type="text" class="form-control" id="numeroCalle" name="numeroCalle" required>
                         </div>
                         <div class="col-md-4">
                             <label for="direccionAdicional" class="form-label">Dirección adicional</label>
-                            <input type="text" class="form-control" id="direccionAdicional">
+                            <input type="text" class="form-control" id="direccionAdicional" name="direccionAdicional">
                         </div>
+                        <input type="hidden" name="agregar_personal" value="1">
                         <div class="col-md-12 text-end">
                             <button type="submit" class="btn btn-success">Guardar</button>
                         </div>
@@ -301,35 +397,62 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>12345678</td>
-                                <td>Juan</td>
-                                <td>Pérez</td>
-                                <td>González</td>
-                                <td>912345678</td>
-                                <td>juan.perez@email.com</td>
-                                <td>Garzón</td>
-                                <td>1990-01-01</td>
-                                <td>
-                                    <button class="btn btn-info btn-sm mostrarFechas" data-id="1">Mostrar fechas</button>
-                                </td>
-                                <td>$5000</td>
-                                <td>Sí</td>
-                                <td>Tarapacá</td>
-                                <td>Iquique</td>
-                                <td>Calle 123</td>
-                                <td>456</td>
-                                <td>Local 1</td>
-                                <td>Depto 2, Edificio Central</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-warning btn-sm editarPersonal" data-id="1">Editar</button>
-                                        <button class="btn btn-outline-primary btn-sm cambiarPassword" data-id="1">Cambiar contraseña</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Más filas según personal registrado -->
+                            <?php
+                            $sql_trabajadores = "SELECT TRID, TRRUN, TRTELEFONO, TRCORREO, TRCARGO, TRFECHANACIMIENTO, TRSUELDOHORA, TRNOMBRES, TRAPELLIDOPATERNO, TRAPELLIDOMATERNO, TRVIGENTE, TRREGION, TRCOMUNA, TRCALLE, TRNUMEROCALLE, TRDIRECCIONADICIONAL, LOCAL_LOID FROM TRABAJADOR ORDER BY TRID";
+                            $stmt_trabajadores = $conn->prepare($sql_trabajadores);
+                            $stmt_trabajadores->execute();
+                            while ($trabajador = $stmt_trabajadores->fetch(PDO::FETCH_ASSOC)) {
+                                // Formatear fecha de nacimiento correctamente
+                                $fecha_nac = $trabajador['TRFECHANACIMIENTO'];
+                                if ($fecha_nac) {
+                                    // Si viene como YYYY-MM-DD HH:MM:SS.000 o similar, tomar solo los primeros 10 caracteres
+                                    if (preg_match('/^\d{4}-\d{2}-\d{2}/', $fecha_nac)) {
+                                        $fecha_nac = substr($fecha_nac, 0, 10);
+                                    } else if (preg_match('/^(\d{2})\/(\d{2})\/(\d{2,4})$/', $fecha_nac, $matches)) {
+                                        // Si viene como DD/MM/YY o DD/MM/YYYY
+                                        $anio = $matches[3];
+                                        if (strlen($anio) == 2) {
+                                            $anio_int = intval($anio);
+                                            if ($anio_int < 30) {
+                                                $anio = '20' . str_pad($anio, 2, '0', STR_PAD_LEFT);
+                                            } else {
+                                                $anio = '19' . str_pad($anio, 2, '0', STR_PAD_LEFT);
+                                            }
+                                        }
+                                        $fecha_nac = $anio . '-' . str_pad($matches[2],2,'0',STR_PAD_LEFT) . '-' . str_pad($matches[1],2,'0',STR_PAD_LEFT);
+                                    } else {
+                                        // Si es timestamp u otro formato
+                                        $fecha_nac = date('Y-m-d', strtotime($fecha_nac));
+                                    }
+                                }
+                                echo '<tr>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRID']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRRUN']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRNOMBRES']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRAPELLIDOPATERNO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRAPELLIDOMATERNO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRTELEFONO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRCORREO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRCARGO']) . '</td>';
+                                echo '<td>' . htmlspecialchars($fecha_nac) . '</td>';
+                                echo '<td><button class="btn btn-info btn-sm mostrarFechas" data-id="' . htmlspecialchars($trabajador['TRID']) . '">Mostrar fechas</button></td>';
+                                echo '<td>$' . htmlspecialchars($trabajador['TRSUELDOHORA']) . '</td>';
+                                echo '<td>' . ($trabajador['TRVIGENTE'] == 1 ? 'Sí' : 'No') . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRREGION']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRCOMUNA']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRCALLE']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRNUMEROCALLE']) . '</td>';
+                                echo '<td>Local ' . htmlspecialchars($trabajador['LOCAL_LOID']) . '</td>';
+                                echo '<td>' . htmlspecialchars($trabajador['TRDIRECCIONADICIONAL']) . '</td>';
+                                echo '<td>';
+                                echo '<div class="d-flex gap-2">';
+                                echo '<button class="btn btn-warning btn-sm editarPersonal" data-id="' . htmlspecialchars($trabajador['TRID']) . '">Editar</button>';
+                                echo '<button class="btn btn-outline-primary btn-sm cambiarPassword" data-id="' . htmlspecialchars($trabajador['TRID']) . '">Cambiar contraseña</button>';
+                                echo '</div>';
+                                echo '</td>';
+                                echo '</tr>';
+                            }
+                            ?>
                         </tbody>
                     </table>
                 </div>
@@ -385,81 +508,91 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
             <h5 class="modal-title" id="modalEditarPersonalLabel">Editar datos de personal</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
-          <form id="formEditarPersonal">
+          <form id="formEditarPersonal" method="post">
             <div class="modal-body">
               <div class="row g-3">
                 <div class="col-md-2">
                   <label class="form-label">ID</label>
-                  <input type="text" class="form-control" id="editId" disabled>
+                  <input type="text" class="form-control" id="editId" name="editId" readonly>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">RUN*</label>
-                  <input type="number" class="form-control" id="editRun" required>
+                  <input type="number" class="form-control" id="editRun" name="editRun" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Teléfono</label>
-                  <input type="number" class="form-control" id="editTelefono">
+                  <input type="number" class="form-control" id="editTelefono" name="editTelefono">
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Correo electrónico</label>
-                  <input type="text" class="form-control" id="editCorreo">
+                  <input type="text" class="form-control" id="editCorreo" name="editCorreo">
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Cargo*</label>
-                  <input type="text" class="form-control" id="editCargo" required>
+                  <input type="text" class="form-control" id="editCargo" name="editCargo" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Fecha de nacimiento*</label>
-                  <input type="date" class="form-control" id="editFechaNacimiento" required>
+                  <input type="date" class="form-control" id="editFechaNacimiento" name="editFechaNacimiento" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Sueldo por hora*</label>
-                  <input type="number" class="form-control" id="editSueldoHora" required>
+                  <input type="number" class="form-control" id="editSueldoHora" name="editSueldoHora" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Nombres*</label>
-                  <input type="text" class="form-control" id="editNombres" required>
+                  <input type="text" class="form-control" id="editNombres" name="editNombres" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Apellido paterno*</label>
-                  <input type="text" class="form-control" id="editApellidoPaterno" required>
+                  <input type="text" class="form-control" id="editApellidoPaterno" name="editApellidoPaterno" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Apellido materno*</label>
-                  <input type="text" class="form-control" id="editApellidoMaterno" required>
+                  <input type="text" class="form-control" id="editApellidoMaterno" name="editApellidoMaterno" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Región*</label>
-                  <select class="form-select" id="editRegion" required>
+                  <select class="form-select" id="editRegion" name="editRegion" required>
                     <option value="">Selecciona región</option>
                   </select>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Comuna*</label>
-                  <select class="form-select" id="editComuna" required>
+                  <select class="form-select" id="editComuna" name="editComuna" required>
                     <option value="">Selecciona comuna</option>
                   </select>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Local*</label>
-                  <select class="form-select" id="editLocal" required>
+                  <select class="form-select" id="editLocal" name="editLocal" required>
                     <option value="">Selecciona local</option>
+                    <?php
+                        $sql_locales = "SELECT LOID, LOREGION, LOCOMUNA, LOCALLE, LONUMEROCALLE FROM LOCAL WHERE LOACTIVO = 1 ORDER BY LOID";
+                        $stmt_locales = $conn->prepare($sql_locales);
+                        $stmt_locales->execute();
+                        while ($local = $stmt_locales->fetch(PDO::FETCH_ASSOC)) {
+                            $info = 'Local ' . htmlspecialchars($local['LOID']) . ': ' . htmlspecialchars($local['LOREGION']) . ', ' . htmlspecialchars($local['LOCOMUNA']) . ', ' . htmlspecialchars($local['LOCALLE']) . ' ' . htmlspecialchars($local['LONUMEROCALLE']);
+                            echo '<option value="' . htmlspecialchars($local['LOID']) . '">' . $info . '</option>';
+                        }
+                    ?>
                   </select>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Calle*</label>
-                  <input type="text" class="form-control" id="editCalle" required>
+                  <input type="text" class="form-control" id="editCalle" name="editCalle" required>
                 </div>
                 <div class="col-md-2">
                   <label class="form-label">Número Calle*</label>
-                  <input type="text" class="form-control" id="editNumeroCalle" required>
+                  <input type="text" class="form-control" id="editNumeroCalle" name="editNumeroCalle" required>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Dirección adicional</label>
-                  <input type="text" class="form-control" id="editDireccionAdicional">
+                  <input type="text" class="form-control" id="editDireccionAdicional" name="editDireccionAdicional">
                 </div>
               </div>
             </div>
+            <input type="hidden" name="editar_personal" value="1">
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
               <button type="submit" class="btn btn-primary">Guardar cambios</button>
@@ -509,82 +642,107 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
     document.querySelectorAll('.editarPersonal').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
-            // Simulación de datos
-            const regionNombre = 'Tarapacá';
-            const comunaNombre = 'Iquique';
-            const localNombre = 'Local 1';
-
-            document.getElementById('editId').value = id;
-            document.getElementById('editRun').value = '12345678';
-            document.getElementById('editTelefono').value = '912345678';
-            document.getElementById('editCorreo').value = 'juan.perez@email.com';
-            document.getElementById('editCargo').value = 'Garzón';
-            document.getElementById('editFechaNacimiento').value = '1990-01-01';
-            document.getElementById('editSueldoHora').value = '5000';
-            document.getElementById('editNombres').value = 'Juan';
-            document.getElementById('editApellidoPaterno').value = 'Pérez';
-            document.getElementById('editApellidoMaterno').value = 'González';
-
-            // Cargar regiones y seleccionar la correcta
-            cargarRegionesEdicion();
-            const regionIdx = RegionesYcomunas.regiones.findIndex(r => r.NombreRegion === regionNombre);
-            document.getElementById('editRegion').value = regionIdx;
-
-            // Cargar comunas y seleccionar la correcta
-            editComunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
-            if (regionIdx !== -1) {
-            RegionesYcomunas.regiones[regionIdx].comunas.forEach(function(comuna) {
-                const option = document.createElement('option');
-                option.value = comuna;
-                option.textContent = comuna;
-                editComunaSelect.appendChild(option);
-            });
-            document.getElementById('editComuna').value = comunaNombre;
-            }
-
-            // Cargar locales y seleccionar el correcto
-            const editLocalSelect = document.getElementById('editLocal');
-            editLocalSelect.innerHTML = '<option value="">Selecciona local</option>';
-            locales.forEach(function(local) {
-            const option = document.createElement('option');
-            option.value = local;
-            option.textContent = local;
-            editLocalSelect.appendChild(option);
-            });
-            editLocalSelect.value = localNombre;
-
-            document.getElementById('editCalle').value = 'Calle 123';
-            document.getElementById('editNumeroCalle').value = '456';
-            document.getElementById('editDireccionAdicional').value = 'Depto 2, Edificio Central';
-
-            var modal = new bootstrap.Modal(document.getElementById('modalEditarPersonal'));
-            modal.show();
+            fetch('php_scripts/obtener_trabajador.php?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    // Verificar que el id recibido corresponde al solicitado (o filtrar por RUN si lo prefieres)
+                    if (String(data.TRID) === String(id)) {
+                        document.getElementById('editId').value = data.TRID;
+                        document.getElementById('editRun').value = data.TRRUN;
+                        document.getElementById('editTelefono').value = data.TRTELEFONO;
+                        document.getElementById('editCorreo').value = data.TRCORREO;
+                        document.getElementById('editCargo').value = data.TRCARGO;
+                        // Formateo robusto para input type='date'
+                        let fechaNac = data.TRFECHANACIMIENTO;
+                        let fechaFinal = '';
+                        if (fechaNac) {
+                            let d = new Date(fechaNac);
+                            if (!isNaN(d.getTime())) {
+                                fechaFinal = d.toISOString().slice(0,10);
+                            } else if (/^\d{4}-\d{2}-\d{2}/.test(fechaNac)) {
+                                fechaFinal = fechaNac.substring(0, 10);
+                            } else if (/^\d{2}\/\d{2}\/\d{2,4}$/.test(fechaNac)) {
+                                const matches = fechaNac.match(/^(\d{2})\/(\d{2})\/(\d{2,4})$/);
+                                let anio = matches[3];
+                                if (anio.length === 2) {
+                                    const anioInt = parseInt(anio, 10);
+                                    if (anioInt < 30) {
+                                        anio = '20' + anio.padStart(2, '0');
+                                    } else {
+                                        anio = '19' + anio.padStart(2, '0');
+                                    }
+                                }
+                                fechaFinal = anio + '-' + matches[2].padStart(2,'0') + '-' + matches[1].padStart(2,'0');
+                            }
+                        }
+                        document.getElementById('editFechaNacimiento').value = fechaFinal;
+                        document.getElementById('editSueldoHora').value = data.TRSUELDOHORA;
+                        document.getElementById('editNombres').value = data.TRNOMBRES;
+                        document.getElementById('editApellidoPaterno').value = data.TRAPELLIDOPATERNO;
+                        document.getElementById('editApellidoMaterno').value = data.TRAPELLIDOMATERNO;
+                        cargarRegionesEdicion();
+                        document.getElementById('editRegion').value = data.TRREGION;
+                        const regionObj = RegionesYcomunas.regiones.find(r => r.NombreRegion === data.TRREGION);
+                        editComunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
+                        if (regionObj) {
+                            regionObj.comunas.forEach(function(comuna) {
+                                const option = document.createElement('option');
+                                option.value = comuna;
+                                option.textContent = comuna;
+                                editComunaSelect.appendChild(option);
+                            });
+                            document.getElementById('editComuna').value = data.TRCOMUNA;
+                        }
+                        const editLocalSelect = document.getElementById('editLocal');
+                        // El select de locales se llena por PHP, solo se debe seleccionar el valor correcto
+                        editLocalSelect.value = data.LOCAL_LOID;
+                        document.getElementById('editCalle').value = data.TRCALLE;
+                        document.getElementById('editNumeroCalle').value = data.TRNUMEROCALLE;
+                        document.getElementById('editDireccionAdicional').value = data.TRDIRECCIONADICIONAL;
+                        var modal = new bootstrap.Modal(document.getElementById('modalEditarPersonal'));
+                        modal.show();
+                    } else {
+                        alert('Error: los datos recibidos no corresponden al trabajador seleccionado.');
+                    }
+                });
         });
-        });
-
-    document.getElementById('formEditarPersonal').onsubmit = function(e) {
-      e.preventDefault();
-      // Aquí iría la lógica para guardar los cambios
-      var modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPersonal'));
-      modal.hide();
-      alert('Cambios guardados (simulado)');
-    };
+    });
 
     // --- Modal cambiar contraseña ---
+    let trabajadorIdCambio = null;
     document.querySelectorAll('.cambiarPassword').forEach(btn => {
-      btn.addEventListener('click', function() {
-        // Simulación: solo para el usuario 1
-        document.getElementById('nuevaPassword').value = '';
-        var modal = new bootstrap.Modal(document.getElementById('modalCambiarPassword'));
-        modal.show();
-      });
+        btn.addEventListener('click', function() {
+            trabajadorIdCambio = this.getAttribute('data-id');
+            document.getElementById('nuevaPassword').value = '';
+            var modal = new bootstrap.Modal(document.getElementById('modalCambiarPassword'));
+            modal.show();
+        });
     });
-    document.getElementById('formCambiarPassword').onsubmit = function(e) {
-      e.preventDefault();
-      // Aquí iría la lógica para guardar la nueva contraseña
-      var modal = bootstrap.Modal.getInstance(document.getElementById('modalCambiarPassword'));
-      modal.hide();
-      alert('Contraseña cambiada (simulado)');
+    document.getElementById('formCambiarPassword').onsubmit = async function(e) {
+        e.preventDefault();
+        const password = document.getElementById('nuevaPassword').value;
+        if (!password || !trabajadorIdCambio) return;
+        // Obtener la key
+        const keyResp = await fetch('php_scripts/key.txt');
+        const key = await keyResp.text();
+        // Hashear la contraseña
+        const encoder = new TextEncoder();
+        const keyBytes = encoder.encode(key.trim());
+        const passwordBytes = encoder.encode(password);
+        const cryptoKey = await window.crypto.subtle.importKey(
+            'raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+        );
+        const signature = await window.crypto.subtle.sign('HMAC', cryptoKey, passwordBytes);
+        const hashHex = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+        // Enviar al backend
+        const formData = new FormData();
+        formData.append('cambiar_contraseña', '1');
+        formData.append('trid', trabajadorIdCambio);
+        formData.append('password', hashHex);
+        await fetch('php_scripts/cambiar_contraseña.php', { method: 'POST', body: formData });
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalCambiarPassword'));
+        modal.hide();
+        alert('Contraseña cambiada correctamente');
     };
 
     // Mostrar/ocultar contraseña en modal
@@ -770,7 +928,7 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
             }]
         };
 
-        const locales = ["Local 1", "Local 2", "Local 3"];
+        // Los locales se cargan dinámicamente desde la base de datos en el select del formulario, no por array JS.
 
         const regionSelect = document.getElementById('regionCascada');
         const comunaSelect = document.getElementById('comunaCascada');
@@ -778,9 +936,9 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
         function cargarRegiones() {
             regionSelect.innerHTML = '<option value="">Selecciona región</option>';
-            RegionesYcomunas.regiones.forEach(function(region, idx) {
+            RegionesYcomunas.regiones.forEach(function(region) {
                 const option = document.createElement('option');
-                option.value = idx;
+                option.value = region.NombreRegion;
                 option.textContent = region.NombreRegion;
                 regionSelect.appendChild(option);
             });
@@ -788,10 +946,10 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
         regionSelect.addEventListener('change', function() {
             comunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
-            localSelect.innerHTML = '<option value="">Selecciona local</option>';
-            const regionIdx = regionSelect.value;
-            if (regionIdx !== "" && RegionesYcomunas.regiones[regionIdx]) {
-                RegionesYcomunas.regiones[regionIdx].comunas.forEach(function(comuna) {
+            const regionNombre = regionSelect.value;
+            const regionObj = RegionesYcomunas.regiones.find(r => r.NombreRegion === regionNombre);
+            if (regionObj) {
+                regionObj.comunas.forEach(function(comuna) {
                     const option = document.createElement('option');
                     option.value = comuna;
                     option.textContent = comuna;
@@ -801,13 +959,7 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         });
 
         comunaSelect.addEventListener('change', function() {
-            localSelect.innerHTML = '<option value="">Selecciona local</option>';
-            locales.forEach(function(local) {
-                const option = document.createElement('option');
-                option.value = local;
-                option.textContent = local;
-                localSelect.appendChild(option);
-            });
+            // El select de locales se llena por PHP, no por JS
         });
 
         cargarRegiones();
@@ -819,9 +971,9 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         // Cargar regiones en el select de edición
         function cargarRegionesEdicion() {
             editRegionSelect.innerHTML = '<option value="">Selecciona región</option>';
-            RegionesYcomunas.regiones.forEach(function(region, idx) {
+            RegionesYcomunas.regiones.forEach(function(region) {
                 const option = document.createElement('option');
-                option.value = idx;
+                option.value = region.NombreRegion;
                 option.textContent = region.NombreRegion;
                 editRegionSelect.appendChild(option);
             });
@@ -830,9 +982,10 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         // Cargar comunas según la región seleccionada en edición
         editRegionSelect.addEventListener('change', function() {
             editComunaSelect.innerHTML = '<option value="">Selecciona comuna</option>';
-            const regionIdx = editRegionSelect.value;
-            if (regionIdx !== "" && RegionesYcomunas.regiones[regionIdx]) {
-                RegionesYcomunas.regiones[regionIdx].comunas.forEach(function(comuna) {
+            const regionNombre = editRegionSelect.value;
+            const regionObj = RegionesYcomunas.regiones.find(r => r.NombreRegion === regionNombre);
+            if (regionObj) {
+                regionObj.comunas.forEach(function(comuna) {
                     const option = document.createElement('option');
                     option.value = comuna;
                     option.textContent = comuna;
@@ -843,7 +996,7 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
         // Inicializar regiones en edición al cargar la página
         cargarRegionesEdicion();
-</script>
+    </script>
 
 </body>
 </html>
