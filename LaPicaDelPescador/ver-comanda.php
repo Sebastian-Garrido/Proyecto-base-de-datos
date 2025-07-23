@@ -1,16 +1,30 @@
+<?php
+    include "php_scripts\configs_oracle\config_pdo.php"
+?>
+
+<?php
+session_start();
+
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
+    header("Location: index.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Órdenes Activas - La Pica del Pescador</title>
+    <title>Ver Comanda - La Pica del Pescador</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/navbar.css">
     <style>
         body {
             min-height: 100vh;
-            overflow-x: hidden;
+            background: #fff;
         }
         .wave {
             position: fixed;
@@ -23,9 +37,30 @@
             pointer-events: none;
         }
         .main-content {
-            margin-top: 100px;
+            margin-top: 120px;
             z-index: 10;
             position: relative;
+        }
+        .navbar .btn:hover, .navbar .btn:focus {
+            background-color: #1976d2;
+            color: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+        .comanda-card {
+            min-width: 250px;
+            max-width: 350px;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.07);
+            outline: none;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .comanda-card.selected, .comanda-card:focus {
+            box-shadow: 0 0 0 4px #4fc3f7;
+            border-color: #1976d2 !important;
+        }
+        .comanda-card .card-header {
+            font-weight: bold;
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -46,21 +81,21 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.php">
                             <i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Locales</span>
                         </a>
                     </li>
                     <!-- Informes -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="informes.html">
+                        <a class="nav-link d-flex flex-column text-center" href="informes.php">
                             <i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Informes</span>
                         </a>
                     </li>
                     <!-- Personal y Usuarios -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center " href="administrar-personal.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.php">
                             <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Personal</span>
                         </a>
@@ -68,53 +103,53 @@
                     
                     <!-- Empresas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php">
                             <i class="bi bi-building my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Empresas</span>
                         </a>
                     </li>
                     <!-- Tomar orden y Órdenes activas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.html">
+                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.php">
                             <i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Tomar orden</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center active" href="ordenes-activas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php">
                             <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Órdenes</span>
                         </a>
                     </li>
                     <!-- Boleta y Boletas anteriores -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.html">
+                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php">
                             <i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Generar Boleta</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-boletas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ver-boletas.php">
                             <i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Boletas anteriores</span>
                         </a>
                     </li>
                     <!-- Comanda y Productos -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.html">
+                        <a class="nav-link d-flex flex-column text-center active" href="ver-comanda.php">
                             <i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Comanda</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="editar-productos.html">
+                        <a class="nav-link d-flex flex-column text-center" href="editar-productos.php">
                             <i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Productos</span>
                         </a>
                     </li>
                     <!-- Inicio (al final o al principio, según prefieras) -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="inicio.html">
+                        <a class="nav-link d-flex flex-column text-center" href="inicio.php">
                             <i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Inicio</span>
                         </a>
@@ -132,7 +167,7 @@
                             />
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="perfil.html"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
+                            <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
                             <li>
                                 <button class="dropdown-item" id="toggle-darkmode" type="button">
                                     <i class="bi bi-moon me-2" id="darkmode-icon"></i>Modo oscuro/claro
@@ -149,80 +184,54 @@
 
     <!-- Contenido principal -->
     <div class="container main-content">
-        <h1 class="mb-4">Órdenes Activas</h1>
-        <div class="row" id="ordenes-container">
-            <!-- Card de ejemplo -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
+        <div class="row g-4" id="comandas-list">
+            <!-- Comanda 1 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
                     <div class="card-header bg-primary text-white">
-                        Orden #12345 - Mesa 5 - Juan Pérez
+                        Orden #12345
                     </div>
                     <div class="card-body">
-                        <ul class="list-group mb-3">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Paila Marina
-                                <span class="badge bg-secondary rounded-pill">2</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Empanada de Mariscos
-                                <span class="badge bg-secondary rounded-pill">1</span>
-                            </li>
-                        </ul>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>
-                            <button class="btn btn-success" type="button">Finalizar pedido</button>
-                        </div>
+                        <h5 class="card-title mb-2">Paila Marina</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 2</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
                     </div>
                 </div>
             </div>
-            <!-- Puedes duplicar este bloque para más órdenes -->
-        </div>
-    </div>
-
-    <!-- Modal para editar orden -->
-    <div class="modal fade" id="editarOrdenModal" tabindex="-1" aria-labelledby="editarOrdenModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="editarOrdenModalLabel">Editar Orden #12345 - Mesa 5</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <!-- Comanda 2 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
+                    <div class="card-header bg-primary text-white">
+                        Orden #12345
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Empanada de Mariscos</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 1</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 7</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:25</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                    </div>
                 </div>
-          <div class="modal-body">
-            <h6>Platillos en la orden</h6>
-            <ul class="list-group mb-3" id="platillos-lista">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Paila Marina
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">2</span>
-                    </span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Empanada de Mariscos
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">1</span>
-                    </span>
-                </li>
-            </ul>
-            <hr>
-            <h6>Añadir platillo</h6>
-            <div class="input-group mb-3">
-                <select class="form-select" id="nuevo-platillo">
-                    <option value="">Selecciona un platillo</option>
-                    <option>Paila Marina</option>
-                    <option>Empanada de Mariscos</option>
-                    <option>Jugo Natural</option>
-                    <option>Reineta Frita</option>
-                </select>
-                <input type="number" class="form-control" id="cantidad-platillo" min="1" value="1" style="max-width: 80px;">
-                <button class="btn btn-success" type="button">Añadir</button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary">Guardar Cambios</button>
-          </div>
+            <!-- Comanda 3 -->
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="card comanda-card border-primary" tabindex="0">
+                    <div class="card-header bg-primary text-white">
+                        Orden #12346
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-2">Reineta Frita</h5>
+                        <p class="mb-1"><strong>Cantidad:</strong> 3</p>
+                        <p class="mb-1"><strong>Mesa:</strong> 2</p>
+                        <p class="mb-1"><strong>Hora pedido:</strong> 13:30</p>
+                        <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Más comandas según platillos preparados -->
         </div>
-      </div>
     </div>
 
     <!-- Onda decorativa inferior -->
@@ -234,5 +243,60 @@
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
+    <script>
+    // Botón entregar: elimina la comanda
+    document.querySelectorAll('.entregar-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const card = btn.closest('.col-12');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = 0;
+            setTimeout(() => card.remove(), 300);
+        });
+    });
+
+    // Selección con teclado
+    const cards = Array.from(document.querySelectorAll('.comanda-card'));
+    let selectedIdx = 0;
+    if (cards.length) {
+        cards[selectedIdx].classList.add('selected');
+        cards[selectedIdx].focus();
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (!cards.length) return;
+        // Flecha derecha o abajo
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            cards[selectedIdx].classList.remove('selected');
+            selectedIdx = (selectedIdx + 1) % cards.length;
+            cards[selectedIdx].classList.add('selected');
+            cards[selectedIdx].focus();
+            e.preventDefault();
+        }
+        // Flecha izquierda o arriba
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            cards[selectedIdx].classList.remove('selected');
+            selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
+            cards[selectedIdx].classList.add('selected');
+            cards[selectedIdx].focus();
+            e.preventDefault();
+        }
+        // Enter: entregar comanda seleccionada
+        if (e.key === 'Enter') {
+            const card = cards[selectedIdx].closest('.col-12');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = 0;
+            setTimeout(() => {
+                card.remove();
+                cards.splice(selectedIdx, 1);
+                if (cards.length) {
+                    selectedIdx = selectedIdx % cards.length;
+                    cards[selectedIdx].classList.add('selected');
+                    cards[selectedIdx].focus();
+                }
+            }, 300);
+            e.preventDefault();
+        }
+    });
+    </script>
 </body>
 </html>

@@ -106,6 +106,20 @@
     </style>
 </head>
 <body>
+
+
+<?php if (isset($_GET['exito'])): ?>
+  <div class="alert alert-success alert-dismissible fade show position-fixed w-100" style="top:0;left:0;z-index:9999;" role="alert">
+    ¡Registro exitoso! La contraseña fue registrada correctamente.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+<?php elseif (isset($_GET['error'])): ?>
+  <div class="alert alert-danger alert-dismissible fade show position-fixed w-100" style="top:0;left:0;z-index:9999;" role="alert">
+    Error: No se pudo registrar la contraseña. Verifica el RUT o si ya existe una contraseña.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+<?php endif; ?>
+
 <div class="bg-blur"></div>
 <section class="vh-100 d-flex align-items-center justify-content-center">
   <div class="h-custom">
@@ -117,7 +131,7 @@
         <!-- RUT input -->
         <div class="form-outline mb-3">
           <label class="form-label" for="rut" style="font-weight:500;">RUT</label>
-          <input type="text" id="rut" name="rut" class="form-control" placeholder="12345678" required />
+          <input type="number" id="rut" name="rut" class="form-control" placeholder="12345678" required />
         </div>
         <!-- Password input -->
         <div class="form-outline mb-3">
@@ -126,7 +140,7 @@
         </div>
         <div class="text-center mt-4 pt-2">
           <button type="submit" class="btn btn-success w-100" style="font-size:1.1rem;">Registrarse</button>
-          <p class="small fw-bold mt-2 pt-1 mb-0">¿Ya tienes cuenta? <a href="index.html" class="link-primary">Inicia sesión</a></p>
+          <p class="small fw-bold mt-2 pt-1 mb-0">¿Ya tienes cuenta? <a href="index.php" class="link-primary">Inicia sesión</a></p>
         </div>
       </form>
     </div>

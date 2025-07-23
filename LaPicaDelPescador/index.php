@@ -1,3 +1,49 @@
+<?php
+    include "php_scripts\configs_oracle\config_pdo.php"
+?>
+
+<?php
+session_start();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $run = $_POST['run'];
+        $password = $_POST['password'];
+        $key = file_get_contents('php_scripts/key.txt');
+        $hashed = hash_hmac('sha256', $password, $key);
+
+        // Buscar trabajador por RUN y contraseña
+        $sql = "SELECT TrID, TrRUN, TrNombres, TrCargo, Local_LoID FROM Trabajador WHERE TrRUN = :run AND TrContraseña = :pass";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':run', $run, PDO::PARAM_INT);
+        $stmt->bindParam(':pass', $hashed, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $trabajador = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($trabajador) {
+            // Guardar datos en sesión
+            $_SESSION['TRID'] = $trabajador['TRID'];
+            $_SESSION['TRRUN'] = $trabajador['TRRUN'];
+            $_SESSION['TRNOMBRES'] = $trabajador['TRNOMBRES'];
+            $_SESSION['TRCARGO'] = $trabajador['TRCARGO'];
+            $_SESSION['LOCAL_LOID'] = $trabajador['LOCAL_LOID'];
+            header("Location: inicio.php");
+            exit;
+        } else {
+            $error = "RUN o contraseña incorrectos.";
+        }
+    }
+?>
+
+<?php
+
+if (isset($_SESSION['TRID']) || isset($_SESSION['TRRUN']) || isset($_SESSION['TRNOMBRES']) || isset($_SESSION['TRCARGO']) || ISSET($_SESSION['LOCAL_LOID'])) {
+    header("Location: inicio.php");
+    exit;
+}
+?>
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,6 +104,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
+
+<?php if (isset($error)): ?>
+  <div class="alert alert-danger alert-dismissible fade show position-fixed w-100" style="top:0;left:0;z-index:9999;" role="alert">
+    <?php echo $error; ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+<?php endif; ?>
+
 <div class="bg-blur"></div>
 <section class="vh-100 d-flex align-items-center justify-content-center">
   <div class="container h-custom">
@@ -70,19 +124,19 @@
       </div>
       <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-0">
         <div class="login-card">
-          <form>
+          <form method="POST">
             <div class="text-center mb-4">
               <h2>La Pica del Pescador</h2>
             </div>
             <!-- RUN input -->
             <div class="form-outline mb-4">
-              <input type="text" id="form3Example3" class="form-control form-control-lg"
+              <input type="number" id="form3Example3" name="run" class="form-control form-control-lg"
                 placeholder="12345678" required />
               <label class="form-label" for="form3Example3">RUN (sin puntos ni número verificador)</label>
             </div>
             <!-- Password input -->
             <div class="form-outline mb-3">
-              <input type="password" id="form3Example4" class="form-control form-control-lg"
+              <input type="password" id="form3Example4" name="password" class="form-control form-control-lg"
                 placeholder="Contraseña" required />
               <label class="form-label" for="form3Example4">Contraseña</label>
             </div>
@@ -92,7 +146,7 @@
             <div class="text-center text-lg-start mt-4 pt-2">
               <button type="submit" class="btn btn-primary btn-lg w-100"
                 style="padding-left: 2.5rem; padding-right: 2.5rem;">Entrar</button>
-              <p class="small fw-bold mt-2 pt-1 mb-0">¿No tienes cuenta? <a href="registro.html"
+              <p class="small fw-bold mt-2 pt-1 mb-0">¿No tienes cuenta? <a href="registro.php"
                   class="link-danger">Regístrate</a></p>
             </div>
           </form>
@@ -128,11 +182,5 @@
   </svg>
 </section>
 <script src="js/bootstrap.bundle.min.js"></script>
-<script>
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    window.location.href = 'inicio.html';
-});
-</script>
 </body>
 </html>

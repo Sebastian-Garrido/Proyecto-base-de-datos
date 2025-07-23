@@ -2,6 +2,82 @@
     include "php_scripts\configs_oracle\config_pdo.php"
 ?>
 
+<?php
+session_start();
+
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
+    header("Location: index.php");
+    exit;
+}
+
+// --- MANEJO DE FORMULARIO PARA AGREGAR/EDITAR PRODUCTO ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $accion = isset($_POST['accion']) ? $_POST['accion'] : '';
+    $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : '';
+    $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : '';
+    $precio = isset($_POST['precio']) ? intval($_POST['precio']) : 0;
+    $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : '';
+    $local_loid = $_SESSION['LOCAL_LOID'];
+    $msg = '';
+    try {
+        if ($accion === 'agregar') {
+            $enstock = $enmarca = $disponibilidad = null;
+            if ($tipo === 'envasado') {
+                $enstock = isset($_POST['stock']) ? intval($_POST['stock']) : null;
+                $enmarca = isset($_POST['marca']) ? $_POST['marca'] : null;
+                $tipo_oracle = 'Envasado';
+            } elseif ($tipo === 'platillo') {
+                $disponibilidad = (isset($_POST['disponible']) && $_POST['disponible'] === 'true') ? 1 : 0;
+                $tipo_oracle = 'Preparado';
+            } else {
+                throw new Exception('Tipo de producto no válido');
+            }
+            $sql = "CALL RTHEARTLESS.AGREGARPRODUCTO(:P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD, :P_LOCAL_ID)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':P_NOMBRE', $nombre);
+            $stmt->bindParam(':P_DESCRIPCION', $descripcion);
+            $stmt->bindParam(':P_PRECIO', $precio);
+            $stmt->bindParam(':P_TIPO', $tipo_oracle);
+            $stmt->bindParam(':P_ENSTOCK', $enstock);
+            $stmt->bindParam(':P_ENMARCA', $enmarca);
+            $stmt->bindParam(':P_DISPONIBILIDAD', $disponibilidad);
+            $stmt->bindParam(':P_LOCAL_ID', $local_loid);
+            $stmt->execute();
+            $msg = 'Producto agregado correctamente.';
+        } elseif ($accion === 'editar') {
+            $prid = isset($_POST['id']) ? intval($_POST['id']) : null;
+            $enstock = $enmarca = $disponibilidad = null;
+            if ($tipo === 'envasado') {
+                $enstock = isset($_POST['stock']) ? intval($_POST['stock']) : null;
+                $enmarca = isset($_POST['marca']) ? $_POST['marca'] : null;
+                $tipo_oracle = 'Envasado';
+            } elseif ($tipo === 'platillo') {
+                $disponibilidad = (isset($_POST['disponible']) && $_POST['disponible'] === 'true') ? 1 : 0;
+                $tipo_oracle = 'Preparado';
+            } else {
+                throw new Exception('Tipo de producto no válido');
+            }
+            $sql = "CALL RTHEARTLESS.EDITARPRODUCTO(:P_PRID, :P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':P_PRID', $prid);
+            $stmt->bindParam(':P_NOMBRE', $nombre);
+            $stmt->bindParam(':P_DESCRIPCION', $descripcion);
+            $stmt->bindParam(':P_PRECIO', $precio);
+            $stmt->bindParam(':P_TIPO', $tipo_oracle);
+            $stmt->bindParam(':P_ENSTOCK', $enstock);
+            $stmt->bindParam(':P_ENMARCA', $enmarca);
+            $stmt->bindParam(':P_DISPONIBILIDAD', $disponibilidad);
+            $stmt->execute();
+            $msg = 'Producto editado correctamente.';
+        }
+    } catch (Exception $e) {
+        $msg = 'Error: ' . $e->getMessage();
+    }
+    echo "<script>alert('{$msg}'); window.location.href='editar-productos.php';</script>";
+    exit;
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -51,21 +127,21 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.php">
                             <i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Locales</span>
                         </a>
                     </li>
                     <!-- Informes -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="informes.html">
+                        <a class="nav-link d-flex flex-column text-center" href="informes.php">
                             <i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Informes</span>
                         </a>
                     </li>
                     <!-- Personal y Usuarios -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.php">
                             <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Personal</span>
                         </a>
@@ -73,53 +149,53 @@
                     
                     <!-- Empresas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php">
                             <i class="bi bi-building my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Empresas</span>
                         </a>
                     </li>
                     <!-- Tomar orden y Órdenes activas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.html">
+                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.php">
                             <i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Tomar orden</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php">
                             <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Órdenes</span>
                         </a>
                     </li>
                     <!-- Boleta y Boletas anteriores -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.html">
+                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php">
                             <i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Generar Boleta</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-boletas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ver-boletas.php">
                             <i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Boletas anteriores</span>
                         </a>
                     </li>
                     <!-- Comanda y Productos -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.php">
                             <i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Comanda</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center active" href="editar-productos.html">
+                        <a class="nav-link d-flex flex-column text-center active" href="editar-productos.php">
                             <i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Productos</span>
                         </a>
                     </li>
                     <!-- Inicio (al final o al principio, según prefieras) -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="inicio.html">
+                        <a class="nav-link d-flex flex-column text-center" href="inicio.php">
                             <i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Inicio</span>
                         </a>
@@ -137,7 +213,7 @@
                             />
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="perfil.html"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
+                            <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
                             <li>
                                 <button class="dropdown-item" id="toggle-darkmode" type="button">
                                     <i class="bi bi-moon me-2" id="darkmode-icon"></i>Modo oscuro/claro
@@ -161,19 +237,21 @@
                 Añadir nuevo producto
             </div>
             <div class="card-body">
-                <form id="form-producto">
+                <form id="form-producto" method="POST">
+                    <input type="hidden" name="accion" id="accion" value="agregar">
+                    <input type="hidden" name="id" id="producto-id" value="">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="nombre" class="form-label">Nombre*</label>
-                            <input type="text" class="form-control" id="nombre" placeholder="Nombre del producto" required>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del producto" required>
                         </div>
                         <div class="col-md-4">
                             <label for="precio" class="form-label">Precio ($)*</label>
-                            <input type="number" class="form-control" id="precio" placeholder="Precio" min="0" required>
+                            <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio" min="0" required>
                         </div>
                         <div class="col-md-4">
                             <label for="tipo" class="form-label">Tipo*</label>
-                            <select class="form-select" id="tipo" required>
+                            <select class="form-select" id="tipo" name="tipo" required>
                                 <option value="">Selecciona tipo</option>
                                 <option value="platillo">Platillo preparado</option>
                                 <option value="envasado">Producto envasado</option>
@@ -181,11 +259,11 @@
                         </div>
                         <div class="col-md-12">
                             <label for="descripcion" class="form-label">Descripción*</label>
-                            <textarea class="form-control" id="descripcion" rows="2" placeholder="Descripción del producto" required></textarea>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="2" placeholder="Descripción del producto" required></textarea>
                         </div>
                         <div class="col-md-4 d-none" id="grupo-disponibilidad">
                             <label for="disponible" class="form-label">¿Disponible?*</label>
-                            <select class="form-select" id="disponible" required>
+                            <select class="form-select" id="disponible" name="disponible" required>
                                 <option value="">Selecciona</option>
                                 <option value="true">Sí</option>
                                 <option value="false">No</option>
@@ -193,11 +271,11 @@
                         </div>
                         <div class="col-md-4 d-none" id="grupo-stock">
                             <label for="stock" class="form-label">Stock*</label>
-                            <input type="number" class="form-control" id="stock" min="0" required>
+                            <input type="number" class="form-control" id="stock" name="stock" min="0" required>
                         </div>
                         <div class="col-md-4 d-none" id="grupo-marca">
                             <label for="marca" class="form-label">Marca*</label>
-                            <input type="text" class="form-control" id="marca" required>
+                            <input type="text" class="form-control" id="marca" name="marca" required>
                         </div>
                         <div class="col-md-12 d-flex justify-content-end">
                             <button type="submit" class="btn btn-success" id="btn-agregar">Agregar producto</button>
@@ -229,8 +307,10 @@
                         <tbody>
                             <!-- AQUI SE AGREGAN ELEMENTOS DE FORMA DINAMICA -->
                             <?php
-                                $sql = "SELECT PrID, PrNombre, PrPrecio, PrTipo, PrDescripcion FROM Producto";
+                                $local_loid = $_SESSION['LOCAL_LOID'];
+                                $sql = "SELECT PrID, PrNombre, PrPrecio, PrTipo, PrDescripcion FROM Producto WHERE Local_LoID = :local_loid";
                                 $stmt = $conn->prepare($sql);
+                                $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
                                 $stmt->execute();
 
                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -289,6 +369,7 @@
     <script>
     let productos = [];
     document.addEventListener("DOMContentLoaded", () => {
+
         // Obtener productos desde el tbody generado por PHP
         document.querySelectorAll("#tabla-productos tbody tr").forEach(tr => {
             const tds = tr.querySelectorAll("td");
@@ -366,10 +447,14 @@
                     </td>
                 `;
                 tr.dataset.id = producto.id;
+                tr.dataset.disponible = producto.disponible;
+                tr.dataset.stock = producto.stock;
+                tr.dataset.marca = producto.marca;
                 tbody.appendChild(tr);
             });
         }
 
+        // Quitar renderProductos() inicial, la tabla se llenará cuando cargarProductos() termine
         renderProductos();
 
         const form = document.getElementById("form-producto");
@@ -395,40 +480,31 @@
                 marca = document.getElementById("marca").value.trim();
                 if (isNaN(stock) || stock < 0 || !marca) return;
             }
-            if (editandoId === null) {
-                // Añadir producto
-                const nuevoId = productos.length ? Math.max(...productos.map(p => p.id)) + 1 : 1;
-                const prod = {id: nuevoId, nombre, precio, tipo, descripcion};
-                if (tipo === "platillo") prod.disponible = disponible;
-                if (tipo === "envasado") { prod.stock = stock; prod.marca = marca; }
-                productos.push(prod);
-            } else {
-                // Editar producto
-                const prod = productos.find(p => p.id === editandoId);
-                if (prod) {
-                    prod.nombre = nombre;
-                    prod.precio = precio;
-                    prod.tipo = tipo;
-                    prod.descripcion = descripcion;
-                    if (tipo === "platillo") {
-                        prod.disponible = disponible;
-                        delete prod.stock;
-                        delete prod.marca;
-                    }
-                    if (tipo === "envasado") {
-                        prod.stock = stock;
-                        prod.marca = marca;
-                        delete prod.disponible;
-                    }
-                }
-                editandoId = null;
-                btnAgregar.classList.remove("d-none");
-                btnGuardar.classList.add("d-none");
-                btnCancelar.classList.add("d-none");
+            // Enviar al backend
+            const formData = new FormData();
+            formData.append('nombre', nombre);
+            formData.append('precio', precio);
+            formData.append('tipo', tipo);
+            formData.append('descripcion', descripcion);
+            if (tipo === "platillo") formData.append('disponible', disponible ? 'true' : 'false');
+            if (tipo === "envasado") {
+                formData.append('stock', stock);
+                formData.append('marca', marca);
             }
-            form.reset();
-            tipoSelect.dispatchEvent(new Event("change"));
-            renderProductos();
+            if (editandoId === null) {
+                formData.append('accion', 'agregar');
+            } else {
+                formData.append('accion', 'editar');
+                formData.append('id', editandoId);
+            }
+            fetch(window.location.pathname, {
+                method: 'POST',
+                body: formData
+            })
+            .then(() => {
+                alert('Operación realizada correctamente.');
+                window.location.reload();
+            });
         });
 
         btnCancelar.addEventListener("click", function() {
@@ -467,7 +543,7 @@
         });
 
         btnGuardar.addEventListener("click", function() {
-            form.dispatchEvent(new Event("submit"));
+            form.requestSubmit();
         });
     });
     </script>

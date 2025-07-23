@@ -1,3 +1,17 @@
+<?php
+    include "php_scripts\configs_oracle\config_pdo.php"
+?>
+
+<?php
+session_start();
+
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
+    header("Location: index.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -50,21 +64,21 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.php">
                             <i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Locales</span>
                         </a>
                     </li>
                     <!-- Informes -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="informes.html">
+                        <a class="nav-link d-flex flex-column text-center" href="informes.php">
                             <i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Informes</span>
                         </a>
                     </li>
                     <!-- Personal y Usuarios -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-personal.php">
                             <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Personal</span>
                         </a>
@@ -72,53 +86,53 @@
                     
                     <!-- Empresas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php">
                             <i class="bi bi-building my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Empresas</span>
                         </a>
                     </li>
                     <!-- Tomar orden y Órdenes activas -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.html">
+                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.php">
                             <i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Tomar orden</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php">
                             <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Órdenes</span>
                         </a>
                     </li>
                     <!-- Boleta y Boletas anteriores -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.html">
+                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php">
                             <i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Generar Boleta</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center active" href="ver-boletas.html">
+                        <a class="nav-link d-flex flex-column text-center active" href="ver-boletas.php">
                             <i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Boletas anteriores</span>
                         </a>
                     </li>
                     <!-- Comanda y Productos -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.html">
+                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.php">
                             <i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Comanda</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="editar-productos.html">
+                        <a class="nav-link d-flex flex-column text-center" href="editar-productos.php">
                             <i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Productos</span>
                         </a>
                     </li>
                     <!-- Inicio (al final o al principio, según prefieras) -->
                     <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="inicio.html">
+                        <a class="nav-link d-flex flex-column text-center" href="inicio.php">
                             <i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i>
                             <span class="small">Inicio</span>
                         </a>
@@ -136,7 +150,7 @@
                             />
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="perfil.html"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
+                            <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
                             <li>
                                 <button class="dropdown-item" id="toggle-darkmode" type="button">
                                     <i class="bi bi-moon me-2" id="darkmode-icon"></i>Modo oscuro/claro
