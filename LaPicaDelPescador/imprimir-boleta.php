@@ -174,19 +174,28 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                 Buscar Orden
             </div>
             <div class="card-body">
-                <form class="row g-3">
+                <form class="row g-3 mb-2" method="get" action="imprimir-boleta.php">
                     <div class="col-md-6">
                         <label for="numeroOrden" class="form-label">Número de Orden</label>
-                        <input type="text" class="form-control" id="numeroOrden" placeholder="Ingrese número de orden" required>
+                        <input type="text" class="form-control" id="numeroOrden" name="numeroOrden" placeholder="Ingrese número de orden" value="<?php echo isset($_GET['numeroOrden']) ? htmlspecialchars($_GET['numeroOrden']) : ''; ?>">
                     </div>
                     <div class="col-md-4 align-self-end">
-                        <button type="submit" class="btn btn-success w-100">Buscar</button>
+                        <button type="submit" class="btn btn-success w-100">Buscar por Orden</button>
+                    </div>
+                </form>
+                <form class="row g-3" method="get" action="imprimir-boleta.php">
+                    <div class="col-md-6">
+                        <label for="numeroMesa" class="form-label">Número interno de Mesa</label>
+                        <input type="text" class="form-control" id="numeroMesa" name="numeroMesa" placeholder="Ingrese número interno de mesa" value="<?php echo isset($_GET['numeroMesa']) ? htmlspecialchars($_GET['numeroMesa']) : ''; ?>">
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <button type="submit" class="btn btn-info w-100">Buscar por Mesa</button>
                     </div>
                 </form>
             </div>
         </div>
         <!-- Vista previa de Documento tributario -->
-        <div class="d-flex justify-content-center mb-4">
+        <div class="container-fluid px-0">
             <?php
             // Obtener el local del trabajador en sesión
             $sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
@@ -195,20 +204,32 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
             $stmt_local->execute();
             $local_loid = $stmt_local->fetchColumn();
 
-            // Buscar boletas pendientes del local
+            // Buscar boletas pendientes del local, filtrando por número de orden y/o número interno de mesa si se ingresan
             $sql_boletas = "
                 SELECT D.*
                 FROM DOCTRIB D
                 JOIN PEDIDO P ON D.PEDIDO_PENUMERO = P.PENUMERO
                 JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID
-                WHERE D.DTCOMPLETADA = 0 AND M.LOCAL_LOID = :local_loid
-                ORDER BY D.DTFECHAEMISION DESC
-            ";
+                WHERE D.DTCOMPLETADA = 0 AND M.LOCAL_LOID = :local_loid";
+            $params = array(':local_loid' => $local_loid);
+            if (isset($_GET['numeroOrden']) && $_GET['numeroOrden'] !== '') {
+                $sql_boletas .= " AND D.PEDIDO_PENUMERO = :numeroOrden";
+                $params[':numeroOrden'] = $_GET['numeroOrden'];
+            }
+            if (isset($_GET['numeroMesa']) && $_GET['numeroMesa'] !== '') {
+                $sql_boletas .= " AND M.MENUMEROINTERNO = :numeroMesa";
+                $params[':numeroMesa'] = $_GET['numeroMesa'];
+            }
+            $sql_boletas .= " ORDER BY D.DTFECHAEMISION DESC";
             $stmt_boletas = $conn->prepare($sql_boletas);
-            $stmt_boletas->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+            foreach ($params as $key => $value) {
+                $stmt_boletas->bindValue($key, $value, PDO::PARAM_INT);
+            }
             $stmt_boletas->execute();
             $boletas = $stmt_boletas->fetchAll(PDO::FETCH_ASSOC);
             if ($boletas && count($boletas) > 0) {
+                $colCount = 0;
+                echo '<div class="row justify-content-center mb-4">';
                 foreach ($boletas as $boleta) {
                     $pedido_numero = $boleta['PEDIDO_PENUMERO'];
                     // Mesa
@@ -238,53 +259,60 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                     $propina = round($subtotal * 0.10);
                     $total = ($boleta['DTPAGOPROPINA'] == 1) ? $subtotal + $propina : $subtotal;
             ?>
-            <div id="doc-tributario" class="card boleta-preview shadow-lg mb-4">
-                <div class="card-header bg-primary text-white text-center fs-4">
-                    Documento Tributario N° <?php echo htmlspecialchars($pedido_numero); ?>
-                </div>
-                <div class="card-body">
-                    <p><strong>Mesa:</strong> <?php echo htmlspecialchars($mesa); ?></p>
-                    <p><strong>Garzón:</strong> <?php echo htmlspecialchars($garzon_nombre); ?></p>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th class="text-end">Cantidad</th>
-                                <th class="text-end">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($detalles as $d) { ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($d['PRNOMBRE']); ?></td>
-                                <td class="text-end"><?php echo htmlspecialchars($d['DEPCANTIDAD']); ?></td>
-                                <td class="text-end">$<?php echo number_format($d['DEPPRECIOUNITARIO'], 0, ',', '.'); ?></td>
-                            </tr>
-                            <?php } ?>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th colspan="2" class="text-end">Subtotal</th>
-                                <th class="text-end" id="subtotal-boleta">$<?php echo number_format($subtotal, 0, ',', '.'); ?></th>
-                            </tr>
-                            <tr>
-                                <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                                <th class="text-end" id="propina-sugerida">$<?php echo number_format($propina, 0, ',', '.'); ?></th>
-                            </tr>
-                            <tr>
-                                <th colspan="2" class="text-end">Total</th>
-                                <th class="text-end" id="total-card">$<?php echo number_format($total, 0, ',', '.'); ?></th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-outline-primary me-2" id="btnPagarBoleta" onclick="abrirModalPago('boleta')">Boleta</button>
-                        <button class="btn btn-outline-secondary" id="btnPagarFactura" onclick="abrirModalPago('factura')">Factura</button>
+            <div class="col-md-4 d-flex align-items-stretch mb-4">
+                <div id="doc-tributario" class="card boleta-preview shadow-lg w-100">
+                    <div class="card-header bg-primary text-white text-center fs-4">
+                        Documento Tributario N° <?php echo htmlspecialchars($pedido_numero); ?>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Mesa:</strong> <?php echo htmlspecialchars($mesa); ?></p>
+                        <p><strong>Garzón:</strong> <?php echo htmlspecialchars($garzon_nombre); ?></p>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($detalles as $d) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($d['PRNOMBRE']); ?></td>
+                                    <td class="text-end"><?php echo htmlspecialchars($d['DEPCANTIDAD']); ?></td>
+                                    <td class="text-end">$<?php echo number_format($d['DEPPRECIOUNITARIO'], 0, ',', '.'); ?></td>
+                                </tr>
+                                <?php } ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="2" class="text-end">Subtotal</th>
+                                    <th class="text-end" id="subtotal-boleta">$<?php echo number_format($subtotal, 0, ',', '.'); ?></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" class="text-end">Propina sugerida (10%)</th>
+                                    <th class="text-end" id="propina-sugerida">$<?php echo number_format($propina, 0, ',', '.'); ?></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2" class="text-end">Total</th>
+                                    <th class="text-end" id="total-card">$<?php echo number_format($total, 0, ',', '.'); ?></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-primary me-2" id="btnPagarBoleta" onclick="abrirModalPago('boleta')">Boleta</button>
+                            <button class="btn btn-outline-secondary" id="btnPagarFactura" onclick="abrirModalPago('factura')">Factura</button>
+                        </div>
                     </div>
                 </div>
             </div>
             <?php
+                    $colCount++;
+                    if ($colCount % 3 == 0) {
+                        echo '</div><div class="row justify-content-center mb-4">';
+                    }
                 }
+                echo '</div>';
             } else {
                 echo '<div class="alert alert-info">No hay boletas pendientes por imprimir en este local.</div>';
             }
