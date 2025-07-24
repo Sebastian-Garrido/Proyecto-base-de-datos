@@ -1,5 +1,25 @@
+
 <?php
-    include "php_scripts\configs_oracle\config_pdo.php"
+    include "php_scripts\configs_oracle\config_pdo.php";
+
+    // Procesar entrega de comanda
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['entregar_conumero'])) {
+        $conumero = intval($_POST['entregar_conumero']);
+        $hora_final = date('Y-m-d H:i:s');
+        try {
+            $sql_update = "UPDATE COMANDA SET COESTADO = 1, COHORAFINAL = TO_DATE(:hofinal, 'YYYY-MM-DD HH24:MI:SS') WHERE CONUMERO = :conumero";
+            $stmt_update = $conn->prepare($sql_update);
+            $stmt_update->bindParam(':hofinal', $hora_final);
+            $stmt_update->bindParam(':conumero', $conumero, PDO::PARAM_INT);
+            $stmt_update->execute();
+            header("Location: ver-comanda.php?entregada=1");
+            exit;
+        } catch (Exception $e) {
+            $errorMsg = urlencode('Error al entregar comanda: ' . $e->getMessage());
+            header("Location: ver-comanda.php?error=$errorMsg");
+            exit;
+        }
+    }
 ?>
 
 <?php
@@ -237,7 +257,10 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                     echo '      <p class="mb-1"><strong>Cantidad:</strong> ' . htmlspecialchars($comanda['DEPCANTIDAD']) . '</p>';
                     echo '      <p class="mb-1"><strong>Mesa:</strong> ' . htmlspecialchars($comanda['MENUMEROINTERNO']) . '</p>';
                     echo '      <p class="mb-1"><strong>Hora pedido:</strong> ' . htmlspecialchars($hora) . '</p>';
-                    echo '      <button class="btn btn-success mt-3 w-100 entregar-btn" type="button" disabled>Entregar</button>';
+                    echo '      <form method="POST" action="ver-comanda.php" class="d-grid">';
+                    echo '        <input type="hidden" name="entregar_conumero" value="' . htmlspecialchars($comanda['CONUMERO']) . '">';
+                    echo '        <button class="btn btn-success mt-3 w-100 entregar-btn" type="submit" onclick="return confirm(\'¿Marcar esta comanda como entregada?\')">Entregar</button>';
+                    echo '      </form>';
                     echo '    </div>';
                     echo '  </div>';
                     echo '</div>';
