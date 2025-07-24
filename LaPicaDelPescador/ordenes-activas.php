@@ -7,6 +7,22 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
     exit;
 }
 
+// Procesar POST para finalizar pedido
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_pedido'])) {
+    $pedido_finalizar = intval($_POST['finalizar_pedido']);
+    try {
+        $stmt = $conn->prepare("UPDATE PEDIDO SET PEESTADO = 1 WHERE PENUMERO = :pedido");
+        $stmt->bindParam(':pedido', $pedido_finalizar, PDO::PARAM_INT);
+        $stmt->execute();
+        header("Location: ordenes-activas.php?finalizado=1");
+        exit;
+    } catch (Exception $e) {
+        $errorMsg = urlencode('Error al finalizar pedido: ' . $e->getMessage());
+        header("Location: ordenes-activas.php?error=$errorMsg");
+        exit;
+    }
+}
+
 // Procesar POST para agregar nuevos detalles a una orden
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pedido']) && isset($_POST['productos_json'])) {
     $pedido = intval($_POST['pedido']);
@@ -283,13 +299,17 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
                 echo '      </ul>';
                 echo '      <div class="d-grid gap-2">';
-                echo '        <button class="btn btn-warning btn-editar-orden" data-bs-toggle="modal" data-bs-target="#editarOrdenModal"'
+                echo '        <button class="btn btn-warning btn-editar-orden w-100" data-bs-toggle="modal" data-bs-target="#editarOrdenModal"'
                     . ' data-pedido="' . htmlspecialchars($pedido['PENUMERO']) . '"'
                     . ' data-mesa="' . htmlspecialchars($pedido['MENUMEROINTERNO']) . '"'
                     . ' data-trabajador="' . htmlspecialchars($nombre_trabajador) . '"'
                     . ' data-productos=\'' . htmlspecialchars(json_encode($productos)) . '\''
                     . '>Editar</button>';
-                echo '        <button class="btn btn-success" type="button">Finalizar pedido</button>';
+                // Botón finalizar pedido: formulario POST, ancho completo
+                echo '        <form method="POST" action="ordenes-activas.php" class="d-grid gap-2 mt-2">';
+                echo '          <input type="hidden" name="finalizar_pedido" value="' . htmlspecialchars($pedido['PENUMERO']) . '">';
+                echo '          <button class="btn btn-success w-100" type="submit" onclick="return confirm(\'¿Finalizar este pedido?\')">Finalizar pedido</button>';
+                echo '        </form>';
                 echo '      </div>';
                 echo '    </div>';
                 echo '  </div>';
