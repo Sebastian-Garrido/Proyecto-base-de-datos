@@ -203,9 +203,9 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $stmt_det->execute();
                 $productos = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
 
-                // Renderiza la card:
                 $nombre_trabajador = $pedido['TRNOMBRES'] . ' ' . $pedido['TRAPELLIDOPATERNO'] . ' ' . $pedido['TRAPELLIDOMATERNO'];
                 $header = "Orden #{$pedido['PENUMERO']} - Mesa {$pedido['MENUMEROINTERNO']} - $nombre_trabajador";
+                // Botón Editar con data-*
                 echo '<div class="col-md-4 mb-4">';
                 echo '  <div class="card shadow">';
                 echo '    <div class="card-header bg-primary text-white">' . htmlspecialchars($header) . '</div>';
@@ -218,7 +218,12 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
                 echo '      </ul>';
                 echo '      <div class="d-grid gap-2">';
-                echo '        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>';
+                echo '        <button class="btn btn-warning btn-editar-orden" data-bs-toggle="modal" data-bs-target="#editarOrdenModal"'
+                    . ' data-pedido="' . htmlspecialchars($pedido['PENUMERO']) . '"'
+                    . ' data-mesa="' . htmlspecialchars($pedido['MENUMEROINTERNO']) . '"'
+                    . ' data-trabajador="' . htmlspecialchars($nombre_trabajador) . '"'
+                    . ' data-productos=\'' . htmlspecialchars(json_encode($productos)) . '\''
+                    . '>Editar</button>';
                 echo '        <button class="btn btn-success" type="button">Finalizar pedido</button>';
                 echo '      </div>';
                 echo '    </div>';
@@ -226,7 +231,7 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 echo '</div>';
             }
             ?>
-            <!-- Puedes duplicar este bloque para más órdenes -->
+            <!-- SE AÑADIRAN MÁS ORDENES DE FORMA DINAMICA (CREO QUE AL RECARGAR LA PAGINA) -->
         </div>
     </div>
 
@@ -235,25 +240,12 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="editarOrdenModalLabel">Editar Orden #12345 - Mesa 5</h5>
+                    <h5 class="modal-title" id="editarOrdenModalLabel">Editar Orden</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
           <div class="modal-body">
             <h6>Platillos en la orden</h6>
-            <ul class="list-group mb-3" id="platillos-lista">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Paila Marina
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">2</span>
-                    </span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Empanada de Mariscos
-                    <span>
-                        <span class="badge bg-secondary rounded-pill me-2">1</span>
-                    </span>
-                </li>
-            </ul>
+            <ul class="list-group mb-3" id="platillos-lista"></ul>
             <hr>
             <h6>Añadir platillo</h6>
             <div class="input-group mb-3">
@@ -285,5 +277,32 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const editarModal = document.getElementById('editarOrdenModal');
+        editarModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
+            const pedido = button.getAttribute('data-pedido');
+            const mesa = button.getAttribute('data-mesa');
+            const trabajador = button.getAttribute('data-trabajador');
+            const productos = JSON.parse(button.getAttribute('data-productos'));
+
+            // Cambia el título del modal
+            const modalTitle = editarModal.querySelector('.modal-title');
+            modalTitle.textContent = `Editar Orden #${pedido} - Mesa ${mesa} - ${trabajador}`;
+
+            // Llena la lista de platillos
+            const lista = editarModal.querySelector('#platillos-lista');
+            lista.innerHTML = '';
+            productos.forEach(prod => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `${prod.PRNOMBRE}<span><span class="badge bg-secondary rounded-pill me-2">${prod.DEPCANTIDAD}</span></span>`;
+                lista.appendChild(li);
+            });
+        });
+    });
+    </script>
 </body>
 </html>
