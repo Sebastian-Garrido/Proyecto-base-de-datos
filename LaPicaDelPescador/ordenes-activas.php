@@ -251,10 +251,30 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="input-group mb-3">
                 <select class="form-select" id="nuevo-platillo">
                     <option value="">Selecciona un platillo</option>
-                    <option>Paila Marina</option>
-                    <option>Empanada de Mariscos</option>
-                    <option>Jugo Natural</option>
-                    <option>Reineta Frita</option>
+                    <?php
+                    // Obtener productos disponibles del local (misma lógica que en tomar-orden.php)
+                    $sql_productos = "
+                    SELECT P.PRID, P.PRNOMBRE, P.PRTIPO, P.PRPRECIO
+                    FROM PRODUCTO P
+                    LEFT JOIN PLATILLO_PREPARADO PP ON P.PRID = PP.PRID
+                    LEFT JOIN ENVASADO E ON P.PRID = E.PRID
+                    WHERE P.LOCAL_LOID = :local_loid
+                    AND (
+                        (PP.PRID IS NOT NULL AND PP.PPDISPONIBILIDAD = 1)
+                        OR (E.PRID IS NOT NULL AND E.ENSTOCK > 0)
+                        OR (PP.PRID IS NULL AND E.PRID IS NULL)
+                    )
+                    ORDER BY P.PRNOMBRE
+                    ";
+                    $stmt_productos = $conn->prepare($sql_productos);
+                    $stmt_productos->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+                    $stmt_productos->execute();
+                    $productos_local = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($productos_local as $prod) {
+                        $label = htmlspecialchars($prod['PRNOMBRE']) . ' (' . htmlspecialchars($prod['PRTIPO']) . ') - $' . htmlspecialchars($prod['PRPRECIO']);
+                        echo '<option value="' . htmlspecialchars($prod['PRID']) . '">' . $label . '</option>';
+                    }
+                    ?>
                 </select>
                 <input type="number" class="form-control" id="cantidad-platillo" min="1" value="1" style="max-width: 80px;">
                 <button class="btn btn-success" type="button">Añadir</button>
