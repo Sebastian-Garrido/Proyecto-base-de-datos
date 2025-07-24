@@ -188,41 +188,57 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         <!-- Vista previa de Documento tributario -->
         <div class="d-flex justify-content-center mb-4">
             <?php
-            // Buscar la boleta pendiente (DTCOMPLETADA = 0)
-            $sql_boleta = "SELECT * FROM DOCTRIB WHERE DTCOMPLETADA = 0 ORDER BY DTFECHAEMISION DESC FETCH FIRST 1 ROWS ONLY";
-            $stmt_boleta = $conn->prepare($sql_boleta);
-            $stmt_boleta->execute();
-            $boleta = $stmt_boleta->fetch(PDO::FETCH_ASSOC);
-            if ($boleta) {
-                $pedido_numero = $boleta['PEDIDO_PENUMERO'];
-                // Mesa
-                $sql_mesa = "SELECT M.MENUMEROINTERNO FROM PEDIDO P JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID WHERE P.PENUMERO = :pedido";
-                $stmt_mesa = $conn->prepare($sql_mesa);
-                $stmt_mesa->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
-                $stmt_mesa->execute();
-                $mesa = $stmt_mesa->fetchColumn();
-                // Garzón
-                $sql_garzon = "SELECT TRNOMBRES, TRAPELLIDOPATERNO, TRAPELLIDOMATERNO FROM TRABAJADOR WHERE TRID = :trid";
-                $stmt_garzon = $conn->prepare($sql_garzon);
-                $stmt_garzon->bindParam(':trid', $boleta['TRABAJADOR_TRID'], PDO::PARAM_INT);
-                $stmt_garzon->execute();
-                $garzon = $stmt_garzon->fetch(PDO::FETCH_ASSOC);
-                $garzon_nombre = $garzon ? $garzon['TRNOMBRES'] . ' ' . $garzon['TRAPELLIDOPATERNO'] . ' ' . $garzon['TRAPELLIDOMATERNO'] : '--';
-                // Detalles de productos
-                $sql_detalles = "SELECT DP.DEPCANTIDAD, DP.DEPPRECIOUNITARIO, PR.PRNOMBRE FROM DETALLEPEDIDO DP JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID WHERE DP.PEDIDO_PENUMERO = :pedido";
-                $stmt_detalles = $conn->prepare($sql_detalles);
-                $stmt_detalles->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
-                $stmt_detalles->execute();
-                $detalles = $stmt_detalles->fetchAll(PDO::FETCH_ASSOC);
-                // Calcular subtotal
-                $subtotal = 0;
-                foreach ($detalles as $d) {
-                    $subtotal += $d['DEPCANTIDAD'] * $d['DEPPRECIOUNITARIO'];
-                }
-                $propina = round($subtotal * 0.10);
-                $total = ($boleta['DTPAGOPROPINA'] == 1) ? $subtotal + $propina : $subtotal;
+            // Obtener el local del trabajador en sesión
+            $sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+            $stmt_local = $conn->prepare($sql_local);
+            $stmt_local->bindParam(':trid', $_SESSION['TRID'], PDO::PARAM_INT);
+            $stmt_local->execute();
+            $local_loid = $stmt_local->fetchColumn();
+
+            // Buscar boletas pendientes del local
+            $sql_boletas = "
+                SELECT D.*
+                FROM DOCTRIB D
+                JOIN PEDIDO P ON D.PEDIDO_PENUMERO = P.PENUMERO
+                JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID
+                WHERE D.DTCOMPLETADA = 0 AND M.LOCAL_LOID = :local_loid
+                ORDER BY D.DTFECHAEMISION DESC
+            ";
+            $stmt_boletas = $conn->prepare($sql_boletas);
+            $stmt_boletas->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+            $stmt_boletas->execute();
+            $boletas = $stmt_boletas->fetchAll(PDO::FETCH_ASSOC);
+            if ($boletas && count($boletas) > 0) {
+                foreach ($boletas as $boleta) {
+                    $pedido_numero = $boleta['PEDIDO_PENUMERO'];
+                    // Mesa
+                    $sql_mesa = "SELECT M.MENUMEROINTERNO FROM PEDIDO P JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID WHERE P.PENUMERO = :pedido";
+                    $stmt_mesa = $conn->prepare($sql_mesa);
+                    $stmt_mesa->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
+                    $stmt_mesa->execute();
+                    $mesa = $stmt_mesa->fetchColumn();
+                    // Garzón
+                    $sql_garzon = "SELECT TRNOMBRES, TRAPELLIDOPATERNO, TRAPELLIDOMATERNO FROM TRABAJADOR WHERE TRID = :trid";
+                    $stmt_garzon = $conn->prepare($sql_garzon);
+                    $stmt_garzon->bindParam(':trid', $boleta['TRABAJADOR_TRID'], PDO::PARAM_INT);
+                    $stmt_garzon->execute();
+                    $garzon = $stmt_garzon->fetch(PDO::FETCH_ASSOC);
+                    $garzon_nombre = $garzon ? $garzon['TRNOMBRES'] . ' ' . $garzon['TRAPELLIDOPATERNO'] . ' ' . $garzon['TRAPELLIDOMATERNO'] : '--';
+                    // Detalles de productos
+                    $sql_detalles = "SELECT DP.DEPCANTIDAD, DP.DEPPRECIOUNITARIO, PR.PRNOMBRE FROM DETALLEPEDIDO DP JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID WHERE DP.PEDIDO_PENUMERO = :pedido";
+                    $stmt_detalles = $conn->prepare($sql_detalles);
+                    $stmt_detalles->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
+                    $stmt_detalles->execute();
+                    $detalles = $stmt_detalles->fetchAll(PDO::FETCH_ASSOC);
+                    // Calcular subtotal
+                    $subtotal = 0;
+                    foreach ($detalles as $d) {
+                        $subtotal += $d['DEPCANTIDAD'] * $d['DEPPRECIOUNITARIO'];
+                    }
+                    $propina = round($subtotal * 0.10);
+                    $total = ($boleta['DTPAGOPROPINA'] == 1) ? $subtotal + $propina : $subtotal;
             ?>
-            <div id="doc-tributario" class="card boleta-preview shadow-lg">
+            <div id="doc-tributario" class="card boleta-preview shadow-lg mb-4">
                 <div class="card-header bg-primary text-white text-center fs-4">
                     Documento Tributario N° <?php echo htmlspecialchars($pedido_numero); ?>
                 </div>
@@ -261,11 +277,18 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                             </tr>
                         </tfoot>
                     </table>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-primary me-2" id="btnPagarBoleta" onclick="abrirModalPago('boleta')">Boleta</button>
+                        <button class="btn btn-outline-secondary" id="btnPagarFactura" onclick="abrirModalPago('factura')">Factura</button>
+                    </div>
                 </div>
             </div>
-            <?php } else { ?>
-            <div class="alert alert-info">No hay boletas pendientes por imprimir.</div>
-            <?php } ?>
+            <?php
+                }
+            } else {
+                echo '<div class="alert alert-info">No hay boletas pendientes por imprimir en este local.</div>';
+            }
+            ?>
         </div>
     </div>
 
