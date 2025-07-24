@@ -244,9 +244,9 @@ $fecha_ingreso = ($row_fecha && $row_fecha['FEFECHAINGRESO']) ? $row_fecha['FEFE
                     </thead>
                     <tbody>
                         <?php
-                        // Mostrar las horas de entrada del día actual para el trabajador
+                        // Mostrar solo las horas del día actual para el trabajador
                         $registros = [];
-                        $sql_horas = "SELECT TO_CHAR(HOINGRESO, 'HH24:MI:SS') AS HOINGRESO, TO_CHAR(HOEGRESO, 'HH24:MI:SS') AS HOEGRESO FROM HORASTRABAJADAS WHERE TRABAJADOR_TRID = :trid ORDER BY HOINGRESO";
+                        $sql_horas = "SELECT TO_CHAR(HOINGRESO, 'HH24:MI:SS') AS HOINGRESO, TO_CHAR(HOEGRESO, 'HH24:MI:SS') AS HOEGRESO FROM HORASTRABAJADAS WHERE TRABAJADOR_TRID = :trid AND TRUNC(HOINGRESO) = TRUNC(SYSDATE) ORDER BY HOINGRESO";
                         $stmt_horas = $conn->prepare($sql_horas);
                         $stmt_horas->bindParam(':trid', $trid, PDO::PARAM_INT);
                         $stmt_horas->execute();

@@ -392,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
     </div>
 
     <!-- Onda decorativa inferior -->
-    <svg class="wave" viewBox="0="0 1440 180" preserveAspectRatio="none">
+    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
@@ -431,7 +431,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
         // Además, agrega ENSTOCK si el producto es envasado
         for (let i = 0; i < selectProducto.options.length; i++) {
             const opt = selectProducto.options[i];
-            console.log('Option', i, 'value:', opt.value, 'text:', opt.text);
             if (opt.value) {
                 let nombre = opt.text;
                 let precio = '';
@@ -515,13 +514,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
             e.preventDefault();
             // El value del select es el id del producto
             const prodId = selectProducto.value;
-            console.log('Valor selectProducto.value:', prodId);
-            console.log('selectedIndex:', selectProducto.selectedIndex);
             if (!prodId) { console.log('No se seleccionó producto'); return; }
             const cantidad = parseInt(inputCantidad.value);
             if (isNaN(cantidad) || cantidad < 1 || !selectMesa.value) { console.log('Cantidad inválida o mesa no seleccionada'); return; }
             const prodData = productosMap[prodId];
-            console.log('prodData:', prodData);
             if (!prodData) { console.log('Producto no encontrado en el mapeo'); return; }
             // Validar stock si es envasado
             if (prodData.tipo && prodData.tipo.toLowerCase().includes('envasado') && prodData.enstock !== null) {
@@ -541,7 +537,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
             } else {
                 productosOrden.push({ id: prodId, nombre: prodData.nombre, tipo: prodData.tipo, precio: prodData.precio, cantidad });
             }
-            console.log('productosOrden:', productosOrden); // <-- Mostrar en consola la lista actual
             renderProductosOrden();
             selectProducto.selectedIndex = 0;
             inputCantidad.value = 1;
@@ -563,23 +558,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
                 // Copiar el valor de la mesa seleccionada al input oculto
                 document.getElementById('mesa-real').value = selectMesa.value;
                 document.getElementById('debug-mesa-js').value = selectMesa.value;
-                console.log('Valor enviado de mesa:', selectMesa.value);
             });
         }
 
-        // Mostrar en consola todas las opciones de la cascada de mesa al cargar la página
-        console.log('Opciones de mesa:');
-        for (let i = 0; i < selectMesa.options.length; i++) {
-            const opt = selectMesa.options[i];
-            console.log('Mesa option', i, 'value:', opt.value, 'text:', opt.text);
-        }
-        // Mostrar el valor seleccionado al entrar
-        console.log('Valor inicial de selectMesa.value:', selectMesa.value);
-
-        // Mostrar el valor seleccionado cada vez que cambie la mesa
-        selectMesa.addEventListener('change', function() {
-            console.log('Mesa seleccionada:', selectMesa.value);
-        });
+        
     });
     </script>
 
