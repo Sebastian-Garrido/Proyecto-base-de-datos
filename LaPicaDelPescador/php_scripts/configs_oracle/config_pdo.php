@@ -3,9 +3,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$username = "RTHEARTLESS";
-$password = "admin";
-$connection_string = "oci:dbname=//localhost:1521/XEPDB1;charset=UTF8";
+$username = "sgarridoa";
+$password = "sgarridoa_DB2025";
+$connection_string = "oci:dbname=//magallanes.icci-unap.cl:1521/FREEPDB1;charset=UTF8";
 
 try {
     $conn = new PDO($connection_string, $username, $password);
