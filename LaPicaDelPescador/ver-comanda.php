@@ -27,10 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_comanda']))
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
     $local_loid = $_SESSION['LOCAL_LOID'];
     // Buscar comandas activas (COESTADO=1) del local
-    $sql = "SELECT C.CONUMERO, C.COHORAINICIO, C.DETALLEPEDIDO_DEPID, D.DEPRODUCTO, D.DECANTIDAD, D.DEMESA, P.PRONOMBRE
+    $sql = "SELECT C.CONUMERO, C.COHORAINICIO, C.DETALLEPEDIDO_DEPID, D.PRODUCTO_PRID, D.DEPCANTIDAD, D.DEMESA, P.PRNOMBRE
             FROM COMANDA C
             JOIN DETALLEPEDIDO D ON C.DETALLEPEDIDO_DEPID = D.DEPID
-            JOIN PRODUCTO P ON D.DEPRODUCTO = P.PROID
+            JOIN PRODUCTO P ON D.PRODUCTO_PRID = P.PRID
             WHERE C.COESTADO = 1 AND P.LOCAL_LOID = :local_loid
             ORDER BY C.COHORAINICIO";
     $stmt = $conn->prepare($sql);
@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
             'CONUMERO' => $row['CONUMERO'],
             'COHORAINICIO' => $row['COHORAINICIO'],
             'DEPEDIDO' => $row['DETALLEPEDIDO_DEPID'],
-            'PRODUCTO' => $row['PRONOMBRE'],
-            'CANTIDAD' => $row['DECANTIDAD'],
+            'PRODUCTO' => $row['PRNOMBRE'],
+            'CANTIDAD' => $row['DEPCANTIDAD'],
             'MESA' => $row['DEMESA'],
         ];
     }

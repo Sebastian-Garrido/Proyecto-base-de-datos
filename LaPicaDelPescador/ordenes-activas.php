@@ -30,52 +30,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pedido']) && isset($_
     $errores = [];
     $conn->beginTransaction();
     try {
-        // 1. Insertar detallepedido para cada producto
         foreach ($productos as $prod) {
             $cantidad = intval($prod['cantidad']);
             $precio_unitario = intval($prod['precio']);
             $prid = intval($prod['id']);
+            $tipo = isset($prod['tipo']) ? $prod['tipo'] : '';
 
-            // Insertar detallepedido (ajustar nombre de procedimiento según tu BD)
+            // 1. Insertar detallepedido
             $stmt_det = $conn->prepare("CALL RTHEARTLESS.CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
             $stmt_det->bindParam(':p_DePCantidad', $cantidad, PDO::PARAM_INT);
             $stmt_det->bindParam(':p_DePPrecioUnitario', $precio_unitario, PDO::PARAM_INT);
             $stmt_det->bindParam(':p_PeNumero', $pedido, PDO::PARAM_INT);
             $stmt_det->bindParam(':p_PrID', $prid, PDO::PARAM_INT);
             $stmt_det->execute();
-        }
 
-        // 2. Crear comandas solo para productos de tipo 'Preparado'
-        $sql_comandas = "
-            SELECT DP.DePID
-            FROM DetallePedido DP
-            JOIN Producto P ON DP.Producto_PrID = P.PRID
-            JOIN Platillo_Preparado PP ON P.PRID = PP.PRID
-            WHERE DP.Pedido_PeNumero = :pe_numero
-            AND P.PRTIPO = 'Preparado'
-            AND DP.Pedido_PeNumero = :pedido_actual
-        ";
-        $stmt_comandas = $conn->prepare($sql_comandas);
-        $stmt_comandas->bindParam(':pe_numero', $pedido, PDO::PARAM_INT);
-        $stmt_comandas->bindParam(':pedido_actual', $pedido, PDO::PARAM_INT);
-        $stmt_comandas->execute();
-        $detalles_preparados = $stmt_comandas->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($detalles_preparados as $detalle) {
-            $depid = $detalle['DEPID'];
-            $hora_inicio = date('Y-m-d H:i:s');
-            $stmt_comanda = $conn->prepare("CALL RTHEARTLESS.CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
-            $stmt_comanda->bindParam(':p_CoHoraInicio', $hora_inicio);
-            $stmt_comanda->bindParam(':p_DePID', $depid, PDO::PARAM_INT);
-            $stmt_comanda->execute();
-        }
+            // 2. Obtener el DePID recién insertado
+            // Suponiendo que DePID es generado por una secuencia y es el último insertado para ese pedido y producto
+            $sql_last_depid = "SELECT MAX(DEPid) AS DEPID FROM DETALLEPEDIDO WHERE PEDIDO_PENUMERO = :pedido AND PRODUCTO_PRID = :prid";
+            $stmt_last_depid = $conn->prepare($sql_last_depid);
+            $stmt_last_depid->bindParam(':pedido', $pedido, PDO::PARAM_INT);
+            $stmt_last_depid->bindParam(':prid', $prid, PDO::PARAM_INT);
+            $stmt_last_depid->execute();
+            $depid_row = $stmt_last_depid->fetch(PDO::FETCH_ASSOC);
+            $depid = $depid_row ? $depid_row['DEPID'] : null;
 
-        // 3. Bajar el stock de todos los productos de tipo 'Envasado' que se hayan pedido
-        foreach ($productos as $prod) {
-            if (isset($prod['tipo']) && $prod['tipo'] === 'Envasado') {
+            // 3. Si es preparado, crear comanda solo para este detalle
+            if ($tipo === 'Preparado' && $depid) {
+                $hora_inicio = date('Y-m-d H:i:s');
+                $stmt_comanda = $conn->prepare("CALL RTHEARTLESS.CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
+                $stmt_comanda->bindParam(':p_CoHoraInicio', $hora_inicio);
+                $stmt_comanda->bindParam(':p_DePID', $depid, PDO::PARAM_INT);
+                $stmt_comanda->execute();
+            }
+
+            // 4. Si es envasado, bajar stock
+            if ($tipo === 'Envasado') {
                 $sql_update_stock = "UPDATE ENVASADO SET ENSTOCK = ENSTOCK - :cantidad WHERE PRID = :prid";
                 $stmt_update_stock = $conn->prepare($sql_update_stock);
-                $stmt_update_stock->bindParam(':cantidad', $prod['cantidad'], PDO::PARAM_INT);
-                $stmt_update_stock->bindParam(':prid', $prod['id'], PDO::PARAM_INT);
+                $stmt_update_stock->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+                $stmt_update_stock->bindParam(':prid', $prid, PDO::PARAM_INT);
                 $stmt_update_stock->execute();
             }
         }
