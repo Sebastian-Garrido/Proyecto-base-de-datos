@@ -198,7 +198,7 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
             $sql = "
             SELECT
                 C.CONUMERO,
-                C.COHORAINICIO,
+                TO_CHAR(C.COHORAINICIO, 'YYYY-MM-DD HH24:MI:SS') AS COHORAINICIO,
                 DP.PEDIDO_PENUMERO,
                 DP.DEPCANTIDAD,
                 DP.PRODUCTO_PRID,
@@ -223,7 +223,12 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                 echo '<div class="col-12"><div class="alert alert-info text-center">No hay comandas activas para este local.</div></div>';
             } else {
                 foreach ($comandas as $comanda) {
-                    $hora = date('H:i', strtotime($comanda['COHORAINICIO']));
+                    // Extraer hora real desde el string
+                    $hora = '';
+                    if (!empty($comanda['COHORAINICIO'])) {
+                        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $comanda['COHORAINICIO']);
+                        $hora = $dt ? $dt->format('H:i') : htmlspecialchars($comanda['COHORAINICIO']);
+                    }
                     echo '<div class="col-12 col-sm-6 col-md-4">';
                     echo '  <div class="card comanda-card border-primary" tabindex="0">';
                     echo '    <div class="card-header bg-primary text-white">Orden #' . htmlspecialchars($comanda['PEDIDO_PENUMERO']) . '</div>';
