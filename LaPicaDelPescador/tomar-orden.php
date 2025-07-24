@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
 
         //4.- Bajar el stock de todos los productos de tipo 'Envasados' que se hayan pedido
         foreach ($productos_orden as $prod) {
-        if (isset($prod['tipo']) && strtolower($prod['tipo']) === 'Envasado') {
+        if (isset($prod['tipo']) && $prod['tipo'] === 'Envasado') {
             $sql_update_stock = "UPDATE ENVASADO SET ENSTOCK = ENSTOCK - :cantidad WHERE PRID = :prid";
             $stmt_update_stock = $conn->prepare($sql_update_stock);
             $stmt_update_stock->bindParam(':cantidad', $prod['cantidad'], PDO::PARAM_INT);
