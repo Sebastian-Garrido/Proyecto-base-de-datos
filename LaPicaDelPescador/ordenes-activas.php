@@ -11,12 +11,45 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_pedido'])) {
     $pedido_finalizar = intval($_POST['finalizar_pedido']);
     try {
+        $conn->beginTransaction();
+        // Cambiar estado del pedido
         $stmt = $conn->prepare("UPDATE PEDIDO SET PEESTADO = 1 WHERE PENUMERO = :pedido");
         $stmt->bindParam(':pedido', $pedido_finalizar, PDO::PARAM_INT);
         $stmt->execute();
+
+        // Obtener el trabajador que generó el pedido
+        $sql_trabajador = "SELECT TRABAJADOR_TRID FROM PEDIDO WHERE PENUMERO = :pedido";
+        $stmt_trabajador = $conn->prepare($sql_trabajador);
+        $stmt_trabajador->bindParam(':pedido', $pedido_finalizar, PDO::PARAM_INT);
+        $stmt_trabajador->execute();
+        $trabajador_id = $stmt_trabajador->fetchColumn();
+
+        // Crear boleta (doctrib) usando el procedimiento
+        $fecha_emision = date('Y-m-d');
+        $hora_emision = date('Y-m-d H:i:s');
+        $vuelto = 0;
+        $pago_propina = 1;
+        $descuento = 0;
+        $tipo = 'Boleta';
+        $empresa_id = null;
+
+        $stmt_boleta = $conn->prepare("CALL RTHEARTLESS.CREARDOCTRIB(TO_DATE(:P_FECHA_EMISION, 'YYYY-MM-DD'), TO_DATE(:P_HORA_EMISION, 'YYYY-MM-DD HH24:MI:SS'), :P_VUELTO, :P_PAGO_PROPINA, :P_DESCUENTO, :P_TIPO, :P_PEDIDO_NUMERO, :P_TRABAJADOR_ID, :P_EMPRESA_ID)");
+        $stmt_boleta->bindParam(':P_FECHA_EMISION', $fecha_emision);
+        $stmt_boleta->bindParam(':P_HORA_EMISION', $hora_emision);
+        $stmt_boleta->bindParam(':P_VUELTO', $vuelto, PDO::PARAM_INT);
+        $stmt_boleta->bindParam(':P_PAGO_PROPINA', $pago_propina, PDO::PARAM_INT);
+        $stmt_boleta->bindParam(':P_DESCUENTO', $descuento, PDO::PARAM_INT);
+        $stmt_boleta->bindParam(':P_TIPO', $tipo);
+        $stmt_boleta->bindParam(':P_PEDIDO_NUMERO', $pedido_finalizar, PDO::PARAM_INT);
+        $stmt_boleta->bindParam(':P_TRABAJADOR_ID', $trabajador_id, PDO::PARAM_INT);
+        $stmt_boleta->bindParam(':P_EMPRESA_ID', $empresa_id);
+        $stmt_boleta->execute();
+
+        $conn->commit();
         header("Location: ordenes-activas.php?finalizado=1");
         exit;
     } catch (Exception $e) {
+        $conn->rollBack();
         $errorMsg = urlencode('Error al finalizar pedido: ' . $e->getMessage());
         header("Location: ordenes-activas.php?error=$errorMsg");
         exit;
