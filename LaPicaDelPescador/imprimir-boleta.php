@@ -187,13 +187,48 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         </div>
         <!-- Vista previa de Documento tributario -->
         <div class="d-flex justify-content-center mb-4">
+            <?php
+            // Buscar la boleta pendiente (DTCOMPLETADA = 0)
+            $sql_boleta = "SELECT * FROM DOCTRIB WHERE DTCOMPLETADA = 0 ORDER BY DTFECHAEMISION DESC FETCH FIRST 1 ROWS ONLY";
+            $stmt_boleta = $conn->prepare($sql_boleta);
+            $stmt_boleta->execute();
+            $boleta = $stmt_boleta->fetch(PDO::FETCH_ASSOC);
+            if ($boleta) {
+                $pedido_numero = $boleta['PEDIDO_PENUMERO'];
+                // Mesa
+                $sql_mesa = "SELECT M.MENUMEROINTERNO FROM PEDIDO P JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID WHERE P.PENUMERO = :pedido";
+                $stmt_mesa = $conn->prepare($sql_mesa);
+                $stmt_mesa->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
+                $stmt_mesa->execute();
+                $mesa = $stmt_mesa->fetchColumn();
+                // Garzón
+                $sql_garzon = "SELECT TRNOMBRES, TRAPELLIDOPATERNO, TRAPELLIDOMATERNO FROM TRABAJADOR WHERE TRID = :trid";
+                $stmt_garzon = $conn->prepare($sql_garzon);
+                $stmt_garzon->bindParam(':trid', $boleta['TRABAJADOR_TRID'], PDO::PARAM_INT);
+                $stmt_garzon->execute();
+                $garzon = $stmt_garzon->fetch(PDO::FETCH_ASSOC);
+                $garzon_nombre = $garzon ? $garzon['TRNOMBRES'] . ' ' . $garzon['TRAPELLIDOPATERNO'] . ' ' . $garzon['TRAPELLIDOMATERNO'] : '--';
+                // Detalles de productos
+                $sql_detalles = "SELECT DP.DEPCANTIDAD, DP.DEPPRECIOUNITARIO, PR.PRNOMBRE FROM DETALLEPEDIDO DP JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID WHERE DP.PEDIDO_PENUMERO = :pedido";
+                $stmt_detalles = $conn->prepare($sql_detalles);
+                $stmt_detalles->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
+                $stmt_detalles->execute();
+                $detalles = $stmt_detalles->fetchAll(PDO::FETCH_ASSOC);
+                // Calcular subtotal
+                $subtotal = 0;
+                foreach ($detalles as $d) {
+                    $subtotal += $d['DEPCANTIDAD'] * $d['DEPPRECIOUNITARIO'];
+                }
+                $propina = round($subtotal * 0.10);
+                $total = ($boleta['DTPAGOPROPINA'] == 1) ? $subtotal + $propina : $subtotal;
+            ?>
             <div id="doc-tributario" class="card boleta-preview shadow-lg">
                 <div class="card-header bg-primary text-white text-center fs-4">
-                    Documento Tributario N° 12345
+                    Documento Tributario N° <?php echo htmlspecialchars($pedido_numero); ?>
                 </div>
                 <div class="card-body">
-                    <p><strong>Mesa:</strong> 7</p>
-                    <p><strong>Garzón:</strong> Juan Pérez</p>
+                    <p><strong>Mesa:</strong> <?php echo htmlspecialchars($mesa); ?></p>
+                    <p><strong>Garzón:</strong> <?php echo htmlspecialchars($garzon_nombre); ?></p>
                     <table class="table table-sm">
                         <thead>
                             <tr>
@@ -203,122 +238,35 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach ($detalles as $d) { ?>
                             <tr>
-                                <td>Paila Marina</td>
-                                <td class="text-end">2</td>
-                                <td class="text-end">$12.000</td>
+                                <td><?php echo htmlspecialchars($d['PRNOMBRE']); ?></td>
+                                <td class="text-end"><?php echo htmlspecialchars($d['DEPCANTIDAD']); ?></td>
+                                <td class="text-end">$<?php echo number_format($d['DEPPRECIOUNITARIO'], 0, ',', '.'); ?></td>
                             </tr>
-                            <tr>
-                                <td>Empanada de Mariscos</td>
-                                <td class="text-end">1</td>
-                                <td class="text-end">$3.500</td>
-                            </tr>
+                            <?php } ?>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="2" class="text-end">Subtotal</th>
-                                <th class="text-end" id="subtotal-boleta">$15.500</th>
-                            </tr>
-                            <tr id="fila-descuento" style="display:none;">
-                                <th colspan="2" class="text-end text-info">Descuento aplicado</th>
-                                <th class="text-end text-info" id="descuento-card">$0</th>
+                                <th class="text-end" id="subtotal-boleta">$<?php echo number_format($subtotal, 0, ',', '.'); ?></th>
                             </tr>
                             <tr>
                                 <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                                <th class="text-end" id="propina-sugerida">$1.550</th>
+                                <th class="text-end" id="propina-sugerida">$<?php echo number_format($propina, 0, ',', '.'); ?></th>
                             </tr>
                             <tr>
                                 <th colspan="2" class="text-end">Total</th>
-                                <th class="text-end" id="total-card">$0</th>
+                                <th class="text-end" id="total-card">$<?php echo number_format($total, 0, ',', '.'); ?></th>
                             </tr>
                         </tfoot>
                     </table>
-                    <div id="info-propina-card" class="mt-2"></div>
-                    <div class="mt-2 text-success" id="pago-doc-trib-info" style="display:none;">
-                        <div><strong>Total pagado:</strong> $<span id="total-pagado-boleta">0</span></div>
-                        <div><strong>Vuelto:</strong> $<span id="vuelto-boleta-monto">0</span></div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-outline-primary me-2" id="btnPagarBoleta">Boleta</button>
-                        <button class="btn btn-outline-secondary" id="btnPagarFactura">Factura</button>
-                    </div>
-                    <!-- Modal de Pago Unificado (ahora dentro de la carta) -->
-                    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
-                      <div class="modal-dialog">
-                        <div class="modal-content modal-pago">
-                          <div class="modal-header">
-                            <h5 class="modal-title text-primary" id="modalPagoLabel">Registrar Pago</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div id="empresa-select-modal" style="display:none;">
-                                <label for="empresa-modal" class="form-label">Empresa</label>
-                                <select class="form-select mb-3" id="empresa-modal">
-                                    <option value="">Selecciona empresa</option>
-                                    <option value="0">Mariscos Iquique SpA</option>
-                                    <option value="1">Mariscos Alto Hospicio Ltda.</option>
-                                    <option value="2">Pescados del Norte S.A.</option>
-                                </select>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="incluirPropina" checked>
-                                <label class="form-check-label" for="incluirPropina">
-                                    Incluir propina sugerida ($<span id="propina-sugerida-modal"></span>)
-                                </label>
-                            </div>
-                            <div class="row g-2 align-items-end mb-2">
-                                <div class="col-8">
-                                    <label for="descuentoManual" class="form-label">Descuento</label>
-                                    <input type="number" class="form-control" id="descuentoManual" min="0" value="0" placeholder="$">
-                                    <div id="descuento-error" class="text-danger small mt-1" style="display:none;"></div>
-                                </div>
-                                <div class="col-4 d-flex align-items-end">
-                                    <button type="button" class="btn btn-warning w-100" id="btnAgregarDescuento">Agregar descuento</button>
-                                </div>
-                            </div>
-                            <div id="descuento-aplicado" style="display:none;">
-                                <div class="alert alert-info py-2 mb-2 d-flex justify-content-between align-items-center">
-                                    <span>Descuento aplicado: $<span id="descuento-aplicado-monto"></span></span>
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="btnEliminarDescuento">Eliminar</button>
-                                </div>
-                            </div>
-                            <div id="lista-abonos"></div>
-                            <hr>
-                            <form id="form-abono" class="row g-2 align-items-end">
-                                <div class="col-6">
-                                    <label for="metodo-pago" class="form-label mb-0">Método de pago</label>
-                                    <select class="form-select" id="metodo-pago" required>
-                                        <option value="">Selecciona...</option>
-                                        <option value="Efectivo">Efectivo</option>
-                                        <option value="Tarjeta">Tarjeta</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label for="monto-abono" class="form-label mb-0">Monto</label>
-                                    <input type="number" class="form-control" id="monto-abono" min="1" placeholder="$" required>
-                                    <div id="monto-error" class="text-danger small mt-1" style="display:none;"></div>
-                                </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-success mt-2">Agregar Abono</button>
-                                </div>
-                            </form>
-                            <div class="mt-3">
-                                <strong>Total abonado:</strong> $<span id="total-abonado">0</span><br>
-                                <strong>Restante:</strong> $<span id="restante"></span><br>
-                                <span id="vuelto" class="text-success"></span>
-                                <div class="mt-2 small">
-                                    <span id="info-pago"></span>
-                                </div>
-                            </div>
-                            <div class="text-center mt-3">
-                                <button class="btn btn-primary" id="btnImprimirModal" disabled>Imprimir</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                 </div>
             </div>
+            <?php } else { ?>
+            <div class="alert alert-info">No hay boletas pendientes por imprimir.</div>
+            <?php } ?>
+        </div>
     </div>
 
     <!-- ...onda decorativa... -->
