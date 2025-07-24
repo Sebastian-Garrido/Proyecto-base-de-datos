@@ -12,6 +12,29 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
 ?>
 
+<?php
+// Obtener el local del trabajador en sesión
+$sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+$stmt_local = $conn->prepare($sql_local);
+$stmt_local->bindParam(':trid', $_SESSION['TRID'], PDO::PARAM_INT);
+$stmt_local->execute();
+$local_loid = $stmt_local->fetchColumn();
+
+// Consultar solo los pedidos activos del local correspondiente
+$sql = "
+SELECT P.PENUMERO, P.MESALOCAL_MEID, M.MENUMEROINTERNO, M.LOCAL_LOID, P.TRABAJADOR_TRID, T.TRNOMBRES, T.TRAPELLIDOPATERNO, T.TRAPELLIDOMATERNO
+FROM PEDIDO P
+JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID
+JOIN TRABAJADOR T ON P.TRABAJADOR_TRID = T.TRID
+WHERE P.PEESTADO = 0 AND M.LOCAL_LOID = :local_loid
+ORDER BY P.PENUMERO DESC
+";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+$stmt->execute();
+$pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -166,29 +189,43 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         <h1 class="mb-4">Órdenes Activas</h1>
         <div class="row" id="ordenes-container">
             <!-- Card de ejemplo -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        Orden #12345 - Mesa 5 - Juan Pérez
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group mb-3">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Paila Marina
-                                <span class="badge bg-secondary rounded-pill">2</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Empanada de Mariscos
-                                <span class="badge bg-secondary rounded-pill">1</span>
-                            </li>
-                        </ul>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>
-                            <button class="btn btn-success" type="button">Finalizar pedido</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php
+            foreach ($pedidos as $pedido) {
+                $pe_numero = $pedido['PENUMERO'];
+                $sql_det = "
+                    SELECT DP.DEPCANTIDAD, PR.PRNOMBRE
+                    FROM DETALLEPEDIDO DP
+                    JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID
+                    WHERE DP.PEDIDO_PENUMERO = :pe_numero
+                ";
+                $stmt_det = $conn->prepare($sql_det);
+                $stmt_det->bindParam(':pe_numero', $pe_numero, PDO::PARAM_INT);
+                $stmt_det->execute();
+                $productos = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
+
+                // Renderiza la card:
+                $nombre_trabajador = $pedido['TRNOMBRES'] . ' ' . $pedido['TRAPELLIDOPATERNO'] . ' ' . $pedido['TRAPELLIDOMATERNO'];
+                $header = "Orden #{$pedido['PENUMERO']} - Mesa {$pedido['MENUMEROINTERNO']} - $nombre_trabajador";
+                echo '<div class="col-md-4 mb-4">';
+                echo '  <div class="card shadow">';
+                echo '    <div class="card-header bg-primary text-white">' . htmlspecialchars($header) . '</div>';
+                echo '    <div class="card-body">';
+                echo '      <ul class="list-group mb-3">';
+                foreach ($productos as $prod) {
+                    echo '<li class="list-group-item d-flex justify-content-between align-items-center">'
+                        . htmlspecialchars($prod['PRNOMBRE']) .
+                        '<span class="badge bg-secondary rounded-pill">' . htmlspecialchars($prod['DEPCANTIDAD']) . '</span></li>';
+                }
+                echo '      </ul>';
+                echo '      <div class="d-grid gap-2">';
+                echo '        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editarOrdenModal">Editar</button>';
+                echo '        <button class="btn btn-success" type="button">Finalizar pedido</button>';
+                echo '      </div>';
+                echo '    </div>';
+                echo '  </div>';
+                echo '</div>';
+            }
+            ?>
             <!-- Puedes duplicar este bloque para más órdenes -->
         </div>
     </div>
