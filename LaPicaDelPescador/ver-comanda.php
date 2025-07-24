@@ -279,6 +279,43 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
-    <!-- El JS de selección y animación se puede reimplementar si se desea, pero ahora la entrega es por POST -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = Array.from(document.querySelectorAll('.comanda-card'));
+        let selectedIdx = 0;
+        if (cards.length) {
+            cards[selectedIdx].classList.add('selected');
+            cards[selectedIdx].focus();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (!cards.length) return;
+            // Flecha derecha o abajo
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                cards[selectedIdx].classList.remove('selected');
+                selectedIdx = (selectedIdx + 1) % cards.length;
+                cards[selectedIdx].classList.add('selected');
+                cards[selectedIdx].focus();
+                e.preventDefault();
+            }
+            // Flecha izquierda o arriba
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                cards[selectedIdx].classList.remove('selected');
+                selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
+                cards[selectedIdx].classList.add('selected');
+                cards[selectedIdx].focus();
+                e.preventDefault();
+            }
+            // Enter: entregar comanda seleccionada
+            if (e.key === 'Enter') {
+                const form = cards[selectedIdx].querySelector('form');
+                if (form) {
+                    form.submit();
+                }
+                e.preventDefault();
+            }
+        });
+    });
+    </script>
 </body>
 </html>
