@@ -343,10 +343,9 @@ BEGIN
         p_PeNumero,
         p_PrID
     );
-    COMMIT;
+    -- NO COMMIT NI ROLLBACK AQUÍ
 EXCEPTION
     WHEN OTHERS THEN
-        ROLLBACK;
         RAISE_APPLICATION_ERROR(-20043, 'No se pudo añadir detalle de pedido: ' || SQLERRM);
 END CrearDetallePedido;
 
@@ -664,9 +663,6 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20033, 'No se pudo editar la mesa: ' || SQLERRM);
 END EditarMesa;
 
-
--- PARECE QUE TODAS ESTAS FUNCIONES ESTAN LISTAS;
-
 CREATE OR REPLACE PROCEDURE EditarMetodoPago
 (
     p_MPID IN INTEGER,
@@ -710,7 +706,7 @@ BEGIN
     SET PrNombre = p_nombre,
         PrDescripcion = p_descripcion,
         PrPrecio = p_precio,
-        PrTipo = p_tipo,
+        PrTipo = p_tipo
     WHERE PrID = p_prid;
 
     IF SQL%ROWCOUNT = 0 THEN
@@ -784,26 +780,6 @@ EXCEPTION
         ROLLBACK;
         RAISE_APPLICATION_ERROR(-20027, 'No se pudo egresar al trabajador: ' || SQLERRM);
 END EgresarFechaDetalle;
-
---CREATE OR REPLACE PROCEDURE EliminarDatoPago
---(
---    p_DaPID     IN INTEGER
---)
---AS
---BEGIN
---    DELETE FROM DatoPago
---    WHERE DaPID = p_DaPID;
-
---    IF SQL%ROWCOUNT = 0 THEN
---        RAISE_APPLICATION_ERROR(-20009, 'No se encontró el dato de pago con ese ID.');
---    END IF;
-
---    COMMIT;
---EXCEPTION
---   WHEN OTHERS THEN
---        ROLLBACK;
---        RAISE_APPLICATION_ERROR(-20010, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
---END EliminarDatoPago;
 
 CREATE OR REPLACE PROCEDURE EliminarDescuento
 (
@@ -1039,29 +1015,6 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20051, 'No se pudo modificar el trabajador: ' || SQLERRM);
 END ModificarTrabajador;
 
-CREATE OR REPLACE PROCEDURE SeleccionarEmpresa
-(
-    p_DTNumeroOrden     IN INTEGER,
-    p_EmID              IN INTEGER
-)
-AS
-BEGIN
-    UPDATE DocTrib
-    SET Empresa_EmID = p_EmID
-    WHERE DTNumeroOrden = p_DTNumeroOrden;
-
-    IF SQL%ROWCOUNT = 0 THEN
-        RAISE_APPLICATION_ERROR(-20015, 'No se encontró el documento tributario con ese número de orden.');
-    END IF;
-
-    COMMIT;
-EXCEPTION
-    WHEN OTHERS THEN
-        ROLLBACK;
-        RAISE_APPLICATION_ERROR(-20016, 'No se pudo seleccionar la empresa: ' || SQLERRM);
-END SeleccionarEmpresa;
-
---CAMBIAR CONTRASEÑA
 CREATE OR REPLACE PROCEDURE RegistrarContraseña
 (
     p_TrRUN IN INTEGER,
@@ -1093,3 +1046,25 @@ EXCEPTION
         ROLLBACK;
         RAISE_APPLICATION_ERROR(-20058, 'No se pudo registrar la contraseña para este trabajador: ' || SQLERRM);
 END RegistrarContraseña;
+
+CREATE OR REPLACE PROCEDURE SeleccionarEmpresa
+(
+    p_DTNumeroOrden     IN INTEGER,
+    p_EmID              IN INTEGER
+)
+AS
+BEGIN
+    UPDATE DocTrib
+    SET Empresa_EmID = p_EmID
+    WHERE DTNumeroOrden = p_DTNumeroOrden;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20015, 'No se encontró el documento tributario con ese número de orden.');
+    END IF;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE_APPLICATION_ERROR(-20016, 'No se pudo seleccionar la empresa: ' || SQLERRM);
+END SeleccionarEmpresa;
