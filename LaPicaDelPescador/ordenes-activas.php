@@ -189,91 +189,52 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Menú colapsable -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-local.php">
-                            <i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Locales</span>
-                        </a>
-                    </li>
-                    <!-- Informes -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="informes.php">
-                            <i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Informes</span>
-                        </a>
-                    </li>
-                    <!-- Personal y Usuarios -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center " href="administrar-personal.php">
-                            <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Personal</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Empresas -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php">
-                            <i class="bi bi-building my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Empresas</span>
-                        </a>
-                    </li>
-                    <!-- Tomar orden y Órdenes activas -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="tomar-orden.php">
-                            <i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Tomar orden</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center active" href="ordenes-activas.php">
-                            <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Órdenes</span>
-                        </a>
-                    </li>
-                    <!-- Boleta y Boletas anteriores -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php">
-                            <i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Generar Boleta</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-boletas.php">
-                            <i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Boletas anteriores</span>
-                        </a>
-                    </li>
-                    <!-- Comanda y Productos -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="ver-comanda.php">
-                            <i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Comanda</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="editar-productos.php">
-                            <i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Productos</span>
-                        </a>
-                    </li>
-                    <!-- Inicio (al final o al principio, según prefieras) -->
-                    <li class="nav-item">
-                        <a class="nav-link d-flex flex-column text-center" href="inicio.php">
-                            <i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i>
-                            <span class="small">Inicio</span>
-                        </a>
-                    </li>
-                    <!-- Dropdown de usuario -->
+                    <?php
+                    $cargo = isset($_SESSION['TRCARGO']) ? $_SESSION['TRCARGO'] : '';
+                    // Elementos para administrador (todo)
+                    if ($cargo === 'Administrador') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-local.php"><i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i><span class="small">Locales</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="informes.php"><i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i><span class="small">Informes</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-personal.php"><i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i><span class="small">Personal</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php"><i class="bi bi-building my-2" style="font-size:1.2rem;"></i><span class="small">Empresas</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="tomar-orden.php"><i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i><span class="small">Tomar orden</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php"><i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i><span class="small">Órdenes</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php"><i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i><span class="small">Generar Boleta</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-boletas.php"><i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i><span class="small">Boletas anteriores</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-comanda.php"><i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i><span class="small">Comanda</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="editar-productos.php"><i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i><span class="small">Productos</span></a></li>
+                    <?php
+                    }
+                    // Garzón: Tomar orden y Órdenes
+                    if ($cargo === 'Garzón') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="tomar-orden.php"><i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i><span class="small">Tomar orden</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php"><i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i><span class="small">Órdenes</span></a></li>
+                    <?php }
+                    // Cocinero, Copero, Jefe de cocina: Comanda
+                    if (in_array($cargo, ['Cocinero', 'Copero', 'Jefe de cocina'])) {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-comanda.php"><i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i><span class="small">Comanda</span></a></li>
+                    <?php }
+                    // Cajero: Generar boleta y boletas anteriores
+                    if ($cargo === 'Cajero') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php"><i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i><span class="small">Generar Boleta</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-boletas.php"><i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i><span class="small">Boletas anteriores</span></a></li>
+                    <?php }
+                    // Bodeguero: Productos
+                    if ($cargo === 'Bodeguero') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="editar-productos.php"><i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i><span class="small">Productos</span></a></li>
+                    <?php }
+                    // SIEMPRE: Inicio y usuario
+                    ?>
+                    <li class="nav-item"><a class="nav-link d-flex flex-column text-center active" href="inicio.php"><i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i><span class="small">Inicio</span></a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img
-                                src="https://ui-avatars.com/api/?name=Usuario"
-                                class="rounded-circle me-1"
-                                height="28"
-                                alt="usuario"
-                                loading="lazy"
-                            />
+                            <img src="https://ui-avatars.com/api/?name=Usuario" class="rounded-circle me-1" height="28" alt="usuario" loading="lazy" />
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                             <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
@@ -295,54 +256,56 @@ $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container main-content">
         <h1 class="mb-4">Órdenes Activas</h1>
         <div class="row" id="ordenes-container">
-            <!-- Card de ejemplo -->
             <?php
-            foreach ($pedidos as $pedido) {
-                $pe_numero = $pedido['PENUMERO'];
-                $sql_det = "
-                    SELECT DP.DEPCANTIDAD, PR.PRNOMBRE
-                    FROM DETALLEPEDIDO DP
-                    JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID
-                    WHERE DP.PEDIDO_PENUMERO = :pe_numero
-                ";
-                $stmt_det = $conn->prepare($sql_det);
-                $stmt_det->bindParam(':pe_numero', $pe_numero, PDO::PARAM_INT);
-                $stmt_det->execute();
-                $productos = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($pedidos)) {
+                echo '<div class="col-12"><div class="alert alert-info text-center">No hay órdenes activas en este local.</div></div>';
+            } else {
+                foreach ($pedidos as $pedido) {
+                    $pe_numero = $pedido['PENUMERO'];
+                    $sql_det = "
+                        SELECT DP.DEPCANTIDAD, PR.PRNOMBRE
+                        FROM DETALLEPEDIDO DP
+                        JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID
+                        WHERE DP.PEDIDO_PENUMERO = :pe_numero
+                    ";
+                    $stmt_det = $conn->prepare($sql_det);
+                    $stmt_det->bindParam(':pe_numero', $pe_numero, PDO::PARAM_INT);
+                    $stmt_det->execute();
+                    $productos = $stmt_det->fetchAll(PDO::FETCH_ASSOC);
 
-                $nombre_trabajador = $pedido['TRNOMBRES'] . ' ' . $pedido['TRAPELLIDOPATERNO'] . ' ' . $pedido['TRAPELLIDOMATERNO'];
-                $header = "Orden #{$pedido['PENUMERO']} - Mesa {$pedido['MENUMEROINTERNO']} - $nombre_trabajador";
-                // Botón Editar con data-*
-                echo '<div class="col-md-4 mb-4">';
-                echo '  <div class="card shadow">';
-                echo '    <div class="card-header bg-primary text-white">' . htmlspecialchars($header) . '</div>';
-                echo '    <div class="card-body">';
-                echo '      <ul class="list-group mb-3">';
-                foreach ($productos as $prod) {
-                    echo '<li class="list-group-item d-flex justify-content-between align-items-center">'
-                        . htmlspecialchars($prod['PRNOMBRE']) .
-                        '<span class="badge bg-secondary rounded-pill">' . htmlspecialchars($prod['DEPCANTIDAD']) . '</span></li>';
+                    $nombre_trabajador = $pedido['TRNOMBRES'] . ' ' . $pedido['TRAPELLIDOPATERNO'] . ' ' . $pedido['TRAPELLIDOMATERNO'];
+                    $header = "Orden #{$pedido['PENUMERO']} - Mesa {$pedido['MENUMEROINTERNO']} - $nombre_trabajador";
+                    // Botón Editar con data-*
+                    echo '<div class="col-md-4 mb-4">';
+                    echo '  <div class="card shadow">';
+                    echo '    <div class="card-header bg-primary text-white">' . htmlspecialchars($header) . '</div>';
+                    echo '    <div class="card-body">';
+                    echo '      <ul class="list-group mb-3">';
+                    foreach ($productos as $prod) {
+                        echo '<li class="list-group-item d-flex justify-content-between align-items-center">'
+                            . htmlspecialchars($prod['PRNOMBRE']) .
+                            '<span class="badge bg-secondary rounded-pill">' . htmlspecialchars($prod['DEPCANTIDAD']) . '</span></li>';
+                    }
+                    echo '      </ul>';
+                    echo '      <div class="d-grid gap-2">';
+                    echo '        <button class="btn btn-warning btn-editar-orden w-100" data-bs-toggle="modal" data-bs-target="#editarOrdenModal"'
+                        . ' data-pedido="' . htmlspecialchars($pedido['PENUMERO']) . '"'
+                        . ' data-mesa="' . htmlspecialchars($pedido['MENUMEROINTERNO']) . '"'
+                        . ' data-trabajador="' . htmlspecialchars($nombre_trabajador) . '"'
+                        . ' data-productos=\'' . htmlspecialchars(json_encode($productos)) . '\''
+                        . '>Editar</button>';
+                    // Botón finalizar pedido: formulario POST, ancho completo
+                    echo '        <form method="POST" action="ordenes-activas.php" class="d-grid gap-2 mt-2">';
+                    echo '          <input type="hidden" name="finalizar_pedido" value="' . htmlspecialchars($pedido['PENUMERO']) . '">';
+                    echo '          <button class="btn btn-success w-100" type="submit" onclick="return confirm(\'¿Finalizar este pedido?\')">Finalizar pedido</button>';
+                    echo '        </form>';
+                    echo '      </div>';
+                    echo '    </div>';
+                    echo '  </div>';
+                    echo '</div>';
                 }
-                echo '      </ul>';
-                echo '      <div class="d-grid gap-2">';
-                echo '        <button class="btn btn-warning btn-editar-orden w-100" data-bs-toggle="modal" data-bs-target="#editarOrdenModal"'
-                    . ' data-pedido="' . htmlspecialchars($pedido['PENUMERO']) . '"'
-                    . ' data-mesa="' . htmlspecialchars($pedido['MENUMEROINTERNO']) . '"'
-                    . ' data-trabajador="' . htmlspecialchars($nombre_trabajador) . '"'
-                    . ' data-productos=\'' . htmlspecialchars(json_encode($productos)) . '\''
-                    . '>Editar</button>';
-                // Botón finalizar pedido: formulario POST, ancho completo
-                echo '        <form method="POST" action="ordenes-activas.php" class="d-grid gap-2 mt-2">';
-                echo '          <input type="hidden" name="finalizar_pedido" value="' . htmlspecialchars($pedido['PENUMERO']) . '">';
-                echo '          <button class="btn btn-success w-100" type="submit" onclick="return confirm(\'¿Finalizar este pedido?\')">Finalizar pedido</button>';
-                echo '        </form>';
-                echo '      </div>';
-                echo '    </div>';
-                echo '  </div>';
-                echo '</div>';
             }
             ?>
-            <!-- SE AÑADIRAN MÁS ORDENES DE FORMA DINAMICA (CREO QUE AL RECARGAR LA PAGINA) -->
         </div>
     </div>
 

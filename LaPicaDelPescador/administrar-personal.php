@@ -162,121 +162,82 @@
     </head>
     <body>
         <!-- Navbar superior -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-            <div class="container">
-                <!-- Marca -->
-                <a class="navbar-brand" href="#">
-                    <img src="icon.png" alt="Logo" style="height: 2.5rem;" id="logo-navbar">
-                </a>
-                <!-- Botón de menú responsive -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <!-- Menú colapsable -->
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="administrar-local.php">
-                                <i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Locales</span>
-                            </a>
-                        </li>
-                        <!-- Informes -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="informes.php">
-                                <i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Informes</span>
-                            </a>
-                        </li>
-                        <!-- Personal y Usuarios -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center active" href="administrar-personal.php">
-                                <i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Personal</span>
-                            </a>
-                        </li>
-                        
-                        <!-- Empresas -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php">
-                                <i class="bi bi-building my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Empresas</span>
-                            </a>
-                        </li>
-                        <!-- Tomar orden y Órdenes activas -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="tomar-orden.php">
-                                <i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Tomar orden</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php">
-                                <i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Órdenes</span>
-                            </a>
-                        </li>
-                        <!-- Boleta y Boletas anteriores -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php">
-                                <i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Generar Boleta</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="ver-boletas.php">
-                                <i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Boletas anteriores</span>
-                            </a>
-                        </li>
-                        <!-- Comanda y Productos -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="ver-comanda.php">
-                                <i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Comanda</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="editar-productos.php">
-                                <i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Productos</span>
-                            </a>
-                        </li>
-                        <!-- Inicio (al final o al principio, según prefieras) -->
-                        <li class="nav-item">
-                            <a class="nav-link d-flex flex-column text-center" href="inicio.php">
-                                <i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i>
-                                <span class="small">Inicio</span>
-                            </a>
-                        </li>
-                        <!-- Dropdown de usuario -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img
-                                    src="https://ui-avatars.com/api/?name=Usuario"
-                                    class="rounded-circle me-1"
-                                    height="28"
-                                    alt="usuario"
-                                    loading="lazy"
-                                />
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
-                                <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
-                                <li>
-                                    <button class="dropdown-item" id="toggle-darkmode" type="button">
-                                        <i class="bi bi-moon me-2" id="darkmode-icon"></i>Modo oscuro/claro
-                                    </button>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <!-- Marca -->
+            <a class="navbar-brand" href="#">
+                <img src="icon.png" alt="Logo" style="height: 2.5rem;" id="logo-navbar">
+            </a>
+            <!-- Botón de menú responsive -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Menú colapsable -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <?php
+                    $cargo = isset($_SESSION['TRCARGO']) ? $_SESSION['TRCARGO'] : '';
+                    // Elementos para administrador (todo)
+                    if ($cargo === 'Administrador') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-local.php"><i class="bi bi-gear-wide-connected my-2" style="font-size:1.2rem;"></i><span class="small">Locales</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="informes.php"><i class="bi bi-bar-chart-line-fill my-2" style="font-size:1.2rem;"></i><span class="small">Informes</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-personal.php"><i class="bi bi-people-fill my-2" style="font-size:1.2rem;"></i><span class="small">Personal</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="administrar-empresas.php"><i class="bi bi-building my-2" style="font-size:1.2rem;"></i><span class="small">Empresas</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="tomar-orden.php"><i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i><span class="small">Tomar orden</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php"><i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i><span class="small">Órdenes</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php"><i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i><span class="small">Generar Boleta</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-boletas.php"><i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i><span class="small">Boletas anteriores</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-comanda.php"><i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i><span class="small">Comanda</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="editar-productos.php"><i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i><span class="small">Productos</span></a></li>
+                    <?php
+                    }
+                    // Garzón: Tomar orden y Órdenes
+                    if ($cargo === 'Garzón') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="tomar-orden.php"><i class="bi bi-journal-plus my-2" style="font-size:1.2rem;"></i><span class="small">Tomar orden</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ordenes-activas.php"><i class="bi bi-list-check my-2" style="font-size:1.2rem;"></i><span class="small">Órdenes</span></a></li>
+                    <?php }
+                    // Cocinero, Copero, Jefe de cocina: Comanda
+                    if (in_array($cargo, ['Cocinero', 'Copero', 'Jefe de cocina'])) {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-comanda.php"><i class="bi bi-card-list my-2" style="font-size:1.2rem;"></i><span class="small">Comanda</span></a></li>
+                    <?php }
+                    // Cajero: Generar boleta y boletas anteriores
+                    if ($cargo === 'Cajero') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="imprimir-boleta.php"><i class="bi bi-printer-fill my-2" style="font-size:1.2rem;"></i><span class="small">Generar Boleta</span></a></li>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="ver-boletas.php"><i class="bi bi-receipt my-2" style="font-size:1.2rem;"></i><span class="small">Boletas anteriores</span></a></li>
+                    <?php }
+                    // Bodeguero: Productos
+                    if ($cargo === 'Bodeguero') {
+                    ?>
+                        <li class="nav-item"><a class="nav-link d-flex flex-column text-center" href="editar-productos.php"><i class="bi bi-pencil-square my-2" style="font-size:1.2rem;"></i><span class="small">Productos</span></a></li>
+                    <?php }
+                    // SIEMPRE: Inicio y usuario
+                    ?>
+                    <li class="nav-item"><a class="nav-link d-flex flex-column text-center active" href="inicio.php"><i class="bi bi-house-door-fill my-2" style="font-size:1.2rem;"></i><span class="small">Inicio</span></a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdownMenuLink"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://ui-avatars.com/api/?name=Usuario" class="rounded-circle me-1" height="28" alt="usuario" loading="lazy" />
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="perfil.php"><i class="bi bi-person me-2"></i>Mi cuenta</a></li>
+                            <li>
+                                <button class="dropdown-item" id="toggle-darkmode" type="button">
+                                    <i class="bi bi-moon me-2" id="darkmode-icon"></i>Modo oscuro/claro
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a></li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-        </nav>
+        </div>
+    </nav>
 
         <!-- Contenido principal -->
         <div class="container main-content">
