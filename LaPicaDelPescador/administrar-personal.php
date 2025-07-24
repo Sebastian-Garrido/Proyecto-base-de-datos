@@ -525,7 +525,16 @@
                     </div>
                     <div class="col-md-2">
                     <label class="form-label">Cargo*</label>
-                    <input type="text" class="form-control" id="editCargo" name="editCargo" required>
+                    <select class="form-select" id="editCargo" name="editCargo" required>
+                        <option value="">Selecciona cargo</option>
+                        <option value="Garzón">Garzón</option>
+                        <option value="Cajero">Cajero</option>
+                        <option value="Jefe de cocina">Jefe de cocina</option>
+                        <option value="Cocinero">Cocinero</option>
+                        <option value="Copero">Copero</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Bodeguero">Bodeguero</option>
+                    </select>
                     </div>
                     <div class="col-md-2">
                     <label class="form-label">Fecha de nacimiento*</label>
