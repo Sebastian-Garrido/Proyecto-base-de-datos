@@ -94,11 +94,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
             $stmt_det->bindParam(':p_PrID', $prid);
             $stmt_det->execute();
         }
+
+        //3.- Crear comandas solo para productos de tipo 'Preparado'
+
+        $sql_comandas = "
+            SELECT DP.DePID
+            FROM DetallePedido DP
+            JOIN Producto P ON DP.Producto_PrID = P.PRID
+            JOIN Platillo_Preparado PP ON P.PRID = PP.PRID
+            WHERE DP.Pedido_PeNumero = :pe_numero
+            AND P.PRTIPO = 'Preparado'
+        ";
+        $stmt_comandas = $conn->prepare($sql_comandas);
+        $stmt_comandas->bindParam(':pe_numero', $pe_numero, PDO::PARAM_INT);
+        $stmt_comandas->execute();
+        $detalles_preparados = $stmt_comandas->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($detalles_preparados as $detalle) {
+            $depid = $detalle['DEPID'];
+            $hora_inicio = date('Y-m-d H:i:s');
+            // Llamar al procedimiento CrearComanda
+            $stmt_comanda = $conn->prepare("CALL RTHEARTLESS.CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
+            $stmt_comanda->bindParam(':p_CoHoraInicio', $hora_inicio);
+            $stmt_comanda->bindParam(':p_DePID', $depid, PDO::PARAM_INT);
+            $stmt_comanda->execute();
+        }
+
+        //4.- Bajar el stock de todos los productos de tipo 'Envasados' que se hayan pedido
+        foreach ($productos_orden as $prod) {
+        if (isset($prod['tipo']) && strtolower($prod['tipo']) === 'Envasado') {
+            $sql_update_stock = "UPDATE ENVASADO SET ENSTOCK = ENSTOCK - :cantidad WHERE PRID = :prid";
+            $stmt_update_stock = $conn->prepare($sql_update_stock);
+            $stmt_update_stock->bindParam(':cantidad', $prod['cantidad'], PDO::PARAM_INT);
+            $stmt_update_stock->bindParam(':prid', $prod['id'], PDO::PARAM_INT);
+            $stmt_update_stock->execute();
+        }
+}
+
+
         $mensaje = 'Orden creada exitosamente. Número de pedido: ' . $pe_numero;
+        header("Location: tomar-orden.php?exito=1&pedido=$pe_numero");
     } catch (Exception $ex) {
-        $mensaje = 'Error al crear la orden: ' . $ex->getMessage();
+        header("Location: tomar-orden.php?error=" . urlencode($ex->getMessage()));
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -258,6 +298,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
     <!-- Contenido principal -->
     <div class="container main-content">
         <h1 class="mb-4">Tomar Orden</h1>
+        <?php
+        if (isset($_GET['exito'])) {
+            echo '<div class="alert alert-success mt-3">Orden creada exitosamente. Número de pedido: ' . htmlspecialchars($_GET['pedido']) . '</div>';
+        }
+        if (isset($_GET['error'])) {
+            echo '<div class="alert alert-danger mt-3">Error al crear la orden: ' . htmlspecialchars($_GET['error']) . '</div>';
+        }
+        ?>
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 Nueva Orden
