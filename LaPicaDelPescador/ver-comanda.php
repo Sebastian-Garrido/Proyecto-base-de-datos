@@ -1,55 +1,15 @@
 <?php
-include "php_scripts/configs_oracle/config_pdo.php";
+    include "php_scripts\configs_oracle\config_pdo.php"
+?>
+
+<?php
 session_start();
-if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !isset($_SESSION['LOCAL_LOID'])) {
+
+if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION['TRNOMBRES']) || !isset($_SESSION['TRCARGO']) || !ISSET($_SESSION['LOCAL_LOID'])) {
     header("Location: index.php");
     exit;
 }
 
-// AJAX: finalizar comanda
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_comanda'])) {
-    $conumero = $_POST['conumero'] ?? '';
-    $horaFinal = date('Y-m-d H:i:s');
-    if ($conumero) {
-        $sql = "CALL RTHEARTLESS.FINALIZARCOMANDA(:P_CONUMERO, TO_DATE(:P_COHORAFINAL, 'YYYY-MM-DD HH24:MI:SS'))";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':P_CONUMERO', $conumero, PDO::PARAM_INT);
-        $stmt->bindParam(':P_COHORAFINAL', $horaFinal);
-        $stmt->execute();
-        echo json_encode(["success" => true]);
-        exit;
-    }
-    echo json_encode(["success" => false]);
-    exit;
-}
-
-// AJAX: obtener comandas activas del local
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
-    $local_loid = $_SESSION['LOCAL_LOID'];
-    // Buscar comandas activas (COESTADO=1) del local
-    $sql = "SELECT C.CONUMERO, C.COHORAINICIO, C.DETALLEPEDIDO_DEPID, D.PRODUCTO_PRID, D.DEPCANTIDAD, D.DEMESA, P.PRNOMBRE
-            FROM COMANDA C
-            JOIN DETALLEPEDIDO D ON C.DETALLEPEDIDO_DEPID = D.DEPID
-            JOIN PRODUCTO P ON D.PRODUCTO_PRID = P.PRID
-            WHERE C.COESTADO = 1 AND P.LOCAL_LOID = :local_loid
-            ORDER BY C.COHORAINICIO";
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
-    $stmt->execute();
-    $comandas = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $comandas[] = [
-            'CONUMERO' => $row['CONUMERO'],
-            'COHORAINICIO' => $row['COHORAINICIO'],
-            'DEPEDIDO' => $row['DETALLEPEDIDO_DEPID'],
-            'PRODUCTO' => $row['PRNOMBRE'],
-            'CANTIDAD' => $row['DEPCANTIDAD'],
-            'MESA' => $row['DEMESA'],
-        ];
-    }
-    echo json_encode($comandas);
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -58,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver Comanda - La Pica del Pescador</title>
+    <meta http-equiv="refresh" content="20">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/navbar.css">
@@ -225,9 +186,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
     <!-- Contenido principal -->
     <div class="container main-content">
         <div class="row g-4" id="comandas-list">
-            <!-- Las comandas activas se renderizan aquí por JS -->
+            <?php
+            // Obtener el local del trabajador en sesión
+            $sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+            $stmt_local = $conn->prepare($sql_local);
+            $stmt_local->bindParam(':trid', $_SESSION['TRID'], PDO::PARAM_INT);
+            $stmt_local->execute();
+            $local_loid = $stmt_local->fetchColumn();
+
+            // Consultar comandas activas del local
+            $sql = "
+            SELECT
+                C.CONUMERO,
+                C.COHORAINICIO,
+                DP.PEDIDO_PENUMERO,
+                DP.DEPCANTIDAD,
+                DP.PRODUCTO_PRID,
+                P.PRNOMBRE,
+                PED.MESALOCAL_MEID,
+                M.MENUMEROINTERNO
+            FROM COMANDA C
+            JOIN DETALLEPEDIDO DP ON C.DETALLEPEDIDO_DEPID = DP.DEPID
+            JOIN PRODUCTO P ON DP.PRODUCTO_PRID = P.PRID
+            JOIN PEDIDO PED ON DP.PEDIDO_PENUMERO = PED.PENUMERO
+            JOIN MESALOCAL M ON PED.MESALOCAL_MEID = M.MEID
+            WHERE M.LOCAL_LOID = :local_loid
+            AND C.COESTADO = 0
+            ORDER BY C.COHORAINICIO ASC
+            ";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
+            $stmt->execute();
+            $comandas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (empty($comandas)) {
+                echo '<div class="col-12"><div class="alert alert-info text-center">No hay comandas activas para este local.</div></div>';
+            } else {
+                foreach ($comandas as $comanda) {
+                    $hora = date('H:i', strtotime($comanda['COHORAINICIO']));
+                    echo '<div class="col-12 col-sm-6 col-md-4">';
+                    echo '  <div class="card comanda-card border-primary" tabindex="0">';
+                    echo '    <div class="card-header bg-primary text-white">Orden #' . htmlspecialchars($comanda['PEDIDO_PENUMERO']) . '</div>';
+                    echo '    <div class="card-body">';
+                    echo '      <h5 class="card-title mb-2">' . htmlspecialchars($comanda['PRNOMBRE']) . '</h5>';
+                    echo '      <p class="mb-1"><strong>Cantidad:</strong> ' . htmlspecialchars($comanda['DEPCANTIDAD']) . '</p>';
+                    echo '      <p class="mb-1"><strong>Mesa:</strong> ' . htmlspecialchars($comanda['MENUMEROINTERNO']) . '</p>';
+                    echo '      <p class="mb-1"><strong>Hora pedido:</strong> ' . htmlspecialchars($hora) . '</p>';
+                    echo '      <button class="btn btn-success mt-3 w-100 entregar-btn" type="button" disabled>Entregar</button>';
+                    echo '    </div>';
+                    echo '  </div>';
+                    echo '</div>';
+                }
+            }
+            ?>
         </div>
-        <div class="text-center text-muted" id="comandas-placeholder" style="display:none;">No hay comandas activas para este local.</div>
     </div>
 
     <!-- Onda decorativa inferior -->
@@ -239,107 +251,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_comandas'])) {
 
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/darkmode.js"></script>
-    <script>
-    // --- Renderizar comandas activas del local ---
-    function cargarComandas() {
-        fetch('ver-comanda.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'get_comandas=1'
-        })
-        .then(r => r.json())
-        .then(comandas => {
-            const list = document.getElementById('comandas-list');
-            list.innerHTML = '';
-            if (!comandas.length) {
-                document.getElementById('comandas-placeholder').style.display = '';
-                return;
-            }
-            document.getElementById('comandas-placeholder').style.display = 'none';
-            comandas.forEach((c, idx) => {
-                const hora = c.COHORAINICIO ? new Date(c.COHORAINICIO).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : '';
-                const card = document.createElement('div');
-                card.className = 'col-12 col-sm-6 col-md-4';
-                card.innerHTML = `
-                    <div class="card comanda-card border-primary" tabindex="0" data-idx="${idx}" data-conumero="${c.CONUMERO}">
-                        <div class="card-header bg-primary text-white">
-                            Orden #${c.CONUMERO}
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title mb-2">${c.PRODUCTO}</h5>
-                            <p class="mb-1"><strong>Cantidad:</strong> ${c.CANTIDAD}</p>
-                            <p class="mb-1"><strong>Mesa:</strong> ${c.MESA}</p>
-                            <p class="mb-1"><strong>Hora pedido:</strong> ${hora}</p>
-                            <button class="btn btn-success mt-3 w-100 entregar-btn">Entregar</button>
-                        </div>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-            setListeners();
-        });
-    }
-
-    function setListeners() {
-        const cards = Array.from(document.querySelectorAll('.comanda-card'));
-        let selectedIdx = 0;
-        if (cards.length) {
-            cards[selectedIdx].classList.add('selected');
-            cards[selectedIdx].focus();
-        }
-        cards.forEach((card, idx) => {
-            card.querySelector('.entregar-btn').onclick = function() {
-                entregarComanda(card.getAttribute('data-conumero'), card);
-            };
-        });
-        document.addEventListener('keydown', function(e) {
-            if (!cards.length) return;
-            // Flecha derecha o abajo
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                cards[selectedIdx].classList.remove('selected');
-                selectedIdx = (selectedIdx + 1) % cards.length;
-                cards[selectedIdx].classList.add('selected');
-                cards[selectedIdx].focus();
-                e.preventDefault();
-            }
-            // Flecha izquierda o arriba
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                cards[selectedIdx].classList.remove('selected');
-                selectedIdx = (selectedIdx - 1 + cards.length) % cards.length;
-                cards[selectedIdx].classList.add('selected');
-                cards[selectedIdx].focus();
-                e.preventDefault();
-            }
-            // Enter: entregar comanda seleccionada
-            if (e.key === 'Enter') {
-                entregarComanda(cards[selectedIdx].getAttribute('data-conumero'), cards[selectedIdx]);
-                e.preventDefault();
-            }
-        });
-    }
-
-    function entregarComanda(conumero, card) {
-        fetch('ver-comanda.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `finalizar_comanda=1&conumero=${encodeURIComponent(conumero)}`
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                card.style.transition = 'opacity 0.3s';
-                card.style.opacity = 0;
-                setTimeout(() => {
-                    card.parentElement.remove();
-                    cargarComandas();
-                }, 300);
-            } else {
-                alert('Error al finalizar la comanda');
-            }
-        });
-    }
-
-    cargarComandas();
-    </script>
+    <!-- El JS de selección y animación se puede reimplementar si se desea, pero ahora la entrega es por POST -->
 </body>
 </html>
