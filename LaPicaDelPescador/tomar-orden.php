@@ -42,6 +42,63 @@ $stmt_productos = $conn->prepare($sql_productos);
 $stmt_productos->bindParam(':local_loid', $local_loid, PDO::PARAM_INT);
 $stmt_productos->execute();
 $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
+
+// Procesar el POST para crear pedido y detalles
+$mensaje = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
+    try {
+        // Fecha y hora actual
+        $fecha_emision = date('Y-m-d H:i:s'); // Formato compatible con TO_DATE en Oracle
+        $hora_emision = date('Y-m-d H:i:s');
+        echo '<div class="container mt-2"><pre>POST: ' . print_r($_POST, true) . "\nFecha emision: $fecha_emision\nHora emision: $hora_emision" . '</pre></div>';
+        // Usar el valor de mesa_real si existe
+        $mesa_id = isset($_POST['mesa_real']) ? intval($_POST['mesa_real']) : (isset($_POST['mesa']) ? intval($_POST['mesa']) : null);
+        $trabajador_id = isset($_SESSION['TRID']) ? intval($_SESSION['TRID']) : null;
+        // Obtener productos de la orden (JSON)
+        $productos_json = isset($_POST['productos_orden']) ? $_POST['productos_orden'] : '[]';
+        $productos_orden = json_decode($productos_json, true);
+        // DEBUG: Mostrar datos recibidos
+        // file_put_contents('debug_orden.txt', print_r($_POST, true) . "\nProductos: " . print_r($productos_orden, true));
+        if (!$mesa_id) throw new Exception('No se seleccionó mesa.');
+        if (!$trabajador_id) throw new Exception('No se encontró el trabajador.');
+        if (!is_array($productos_orden) || count($productos_orden) === 0) throw new Exception('No se agregaron productos a la orden.');
+
+        // 1. Ejecutar CREARPEDIDO
+        $stmt = $conn->prepare("CALL RTHEARTLESS.CREARPEDIDO(TO_DATE(:p_peFechaEmision, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:p_peHoraEmision, 'YYYY-MM-DD HH24:MI:SS'), :p_MesaID, :p_TrabajadorID)");
+        $stmt->bindParam(':p_peFechaEmision', $fecha_emision);
+        $stmt->bindParam(':p_peHoraEmision', $hora_emision);
+        $stmt->bindParam(':p_MesaID', $mesa_id);
+        $stmt->bindParam(':p_TrabajadorID', $trabajador_id);
+        $stmt->execute();
+        // Obtener el número de pedido generado (si lo necesitas, deberás consultarlo aparte)
+
+        // 2. Ejecutar CREARDETALLEPEDIDO para cada producto
+        foreach ($productos_orden as $prod) {
+            $cantidad = intval($prod['cantidad']);
+            $precio_unitario = intval($prod['precio']);
+            $prid = intval($prod['id']);
+
+            // Se obtiene el número de pedido generado para pasarlo aquí
+
+            $sql_last = "SELECT MAX(PENUMERO) AS PEID FROM PEDIDO WHERE MESALOCAL_MEID = :mesa_id AND TRABAJADOR_TRID = :trabajador_id";
+            $stmt_last = $conn->prepare($sql_last);
+            $stmt_last->bindParam(':mesa_id', $mesa_id);
+            $stmt_last->bindParam(':trabajador_id', $trabajador_id);
+            $stmt_last->execute();
+            $pe_numero = $stmt_last->fetchColumn();
+
+            $stmt_det = $conn->prepare("CALL RTHEARTLESS.CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
+            $stmt_det->bindParam(':p_DePCantidad', $cantidad);
+            $stmt_det->bindParam(':p_DePPrecioUnitario', $precio_unitario);
+            $stmt_det->bindParam(':p_PeNumero', $pe_numero);
+            $stmt_det->bindParam(':p_PrID', $prid);
+            $stmt_det->execute();
+        }
+        $mensaje = 'Orden creada exitosamente. Número de pedido: ' . $pe_numero;
+    } catch (Exception $ex) {
+        $mensaje = 'Error al crear la orden: ' . $ex->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -207,6 +264,8 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="card-body">
                 <form method="post" id="form-tomar-orden">
+                    <input type="hidden" name="mesa_real" id="mesa-real">
+                    <input type="hidden" name="debug_mesa_js" id="debug-mesa-js">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="mesa" class="form-label">Mesa</label>
@@ -214,7 +273,12 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
                                 <option value="">Selecciona mesa</option>
                                 <?php
                                 foreach ($mesas as $mesa) {
-                                    echo '<option value="' . htmlspecialchars($mesa['MEID']) . '">Mesa ' . htmlspecialchars($mesa['MENUMEROINTERNO']) . '</option>';
+                                    echo '<option value="' . htmlspecialchars($mesa['MEID']) . '"';
+                                    // Si se envió el formulario y la mesa coincide, marcar como seleccionada
+                                    if (isset($_POST['mesa']) && $_POST['mesa'] == $mesa['MEID']) {
+                                        echo ' selected';
+                                    }
+                                    echo '>Mesa ' . htmlspecialchars($mesa['MENUMEROINTERNO']) . '</option>';
                                 }
                                 ?>
                             </select>
@@ -248,6 +312,11 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
                             <button type="button" class="btn btn-success w-100">Agregar</button>
                         </div>
                     </div>
+                    <!-- Input oculto para productosOrden -->
+                    <input type="hidden" name="productos_orden" id="input-productos-orden">
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-primary" name="enviar_orden">Enviar Orden</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -270,15 +339,12 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
                         <!-- JS rellena aquí los productos agregados -->
                     </tbody>
                 </table>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary">Enviar Orden</button>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- Onda decorativa inferior -->
-    <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+    <svg class="wave" viewBox="0="0 1440 180" preserveAspectRatio="none">
         <path fill="#4fc3f7" fill-opacity="0.6" d="M0,120 C360,180 1080,60 1440,120 L1440,180 L0,180 Z"></path>
         <path fill="#81d4fa" fill-opacity="0.5" d="M0,140 C400,100 1040,180 1440,140 L1440,180 L0,180 Z"></path>
         <path fill="#b3e0ff" fill-opacity="0.4" d="M0,180 C400,160 1040,180 1440,180 L1440,180 L0,180 Z"></path>
@@ -434,9 +500,52 @@ $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
             actualizarEstadoAgregar();
         });
 
-        actualizarEstadoAgregar();
-        renderProductosOrden();
+        // Enviar productosOrden al backend al enviar la orden
+        const formTomarOrden = document.getElementById('form-tomar-orden');
+        const inputProductosOrden = document.getElementById('input-productos-orden');
+        if (formTomarOrden) {
+            formTomarOrden.addEventListener('submit', function(e) {
+                // Validar que haya productos antes de enviar
+                if (productosOrden.length === 0) {
+                    alert('Debes agregar al menos un producto a la orden.');
+                    e.preventDefault();
+                    return;
+                }
+                inputProductosOrden.value = JSON.stringify(productosOrden);
+                // Copiar el valor de la mesa seleccionada al input oculto
+                document.getElementById('mesa-real').value = selectMesa.value;
+                document.getElementById('debug-mesa-js').value = selectMesa.value;
+                console.log('Valor enviado de mesa:', selectMesa.value);
+            });
+        }
+
+        // Mostrar en consola todas las opciones de la cascada de mesa al cargar la página
+        console.log('Opciones de mesa:');
+        for (let i = 0; i < selectMesa.options.length; i++) {
+            const opt = selectMesa.options[i];
+            console.log('Mesa option', i, 'value:', opt.value, 'text:', opt.text);
+        }
+        // Mostrar el valor seleccionado al entrar
+        console.log('Valor inicial de selectMesa.value:', selectMesa.value);
+
+        // Mostrar el valor seleccionado cada vez que cambie la mesa
+        selectMesa.addEventListener('change', function() {
+            console.log('Mesa seleccionada:', selectMesa.value);
+        });
     });
     </script>
+
+    <?php if (!empty($mensaje)): ?>
+    <div class="container mt-3">
+        <div class="alert alert-info"> <?php echo htmlspecialchars($mensaje); ?> </div>
+    </div>
+    <?php endif; ?>
+
+    <?php
+    // DEBUG: mostrar el valor recibido en el POST
+    if (isset($_POST['debug_mesa_js'])) {
+        echo '<div class="container mt-2"><pre>Valor recibido de mesa (debug JS): ' . htmlspecialchars($_POST['debug_mesa_js']) . '</pre></div>';
+    }
+    ?>
 </body>
 </html>

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarDatoPago
+CREATE OR REPLACE PROCEDURE AgregarDatoPago
 (
     p_DTNumeroOrden      IN INTEGER,
     p_DaPCantidadAbonada IN INTEGER,
@@ -25,7 +25,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20008, 'No se pudo agregar el dato de pago: ' || SQLERRM);
 END AgregarDatoPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarLocal
+CREATE OR REPLACE PROCEDURE AgregarLocal
 (
     p_horario_apertura IN DATE,
     p_horario_cierre IN DATE,
@@ -64,7 +64,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20028, 'No se pudo realizar el pedido: ' || SQLERRM);
 END AgregarLocal;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarMesa
+CREATE OR REPLACE PROCEDURE AgregarMesa
 (
     p_MeNumeroInterno IN INTEGER,
     p_MeActivo IN NUMBER,
@@ -93,7 +93,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20031, 'No se pudo agregar la mesa: ' || SQLERRM);
 END AgregarMesa;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarProducto(
+CREATE OR REPLACE PROCEDURE AgregarProducto(
     p_nombre           IN VARCHAR2,
     p_descripcion      IN VARCHAR2,
     p_precio           IN INTEGER,
@@ -147,7 +147,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20045, 'No se pudo agregar el producto: ' || SQLERRM);
 END AgregarProducto;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.AgregarTrabajador(
+CREATE OR REPLACE PROCEDURE AgregarTrabajador(
     p_TrRUN                IN INTEGER,
     p_TrTelefono           IN INTEGER DEFAULT NULL,
     p_TrCorreo             IN VARCHAR2 DEFAULT NULL,
@@ -214,7 +214,7 @@ BEGIN
     SELECT MAX(TrID) INTO v_trid FROM Trabajador WHERE TrRUN = p_TrRUN;
 
     -- Llamar a CrearFechaDetalle con la fecha actual y el ID
-    RTHEARTLESS.CrearFechaDetalle(SYSDATE, v_trid);
+    CrearFechaDetalle(SYSDATE, v_trid);
 
     COMMIT;
 EXCEPTION
@@ -223,7 +223,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20049, 'No se pudo agregar el trabajador: ' || SQLERRM);
 END AgregarTrabajador;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CambiarABoleta
+CREATE OR REPLACE PROCEDURE CambiarABoleta
 (
     p_DTNumeroOrden IN INTEGER
 )
@@ -244,7 +244,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20012, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
 END CambiarABoleta;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CambiarAFactura
+CREATE OR REPLACE PROCEDURE CambiarAFactura
 (
     p_DTNumeroOrden IN INTEGER
 )
@@ -265,7 +265,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20014, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
 END CambiarAFactura;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CambiarContraseña
+CREATE OR REPLACE PROCEDURE CambiarContraseña
 (
     p_TrID IN INTEGER,
     p_TrContraseña IN VARCHAR2
@@ -288,7 +288,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20056, 'No se pudo modificar la contraseña del trabajador: ' || SQLERRM);
 END CambiarContraseña;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearComanda
+CREATE OR REPLACE PROCEDURE CrearComanda
 (
     p_CoHoraInicio IN DATE,
     p_DePID IN INTEGER
@@ -318,7 +318,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20017, 'No se pudo crear comanda: ' || SQLERRM);
 END CrearComanda;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearDetallePedido
+CREATE OR REPLACE PROCEDURE CrearDetallePedido
 (
     p_DePCantidad IN INTEGER,
     p_DePPrecioUnitario IN INTEGER,
@@ -350,7 +350,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20043, 'No se pudo añadir detalle de pedido: ' || SQLERRM);
 END CrearDetallePedido;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearDocTrib(
+CREATE OR REPLACE PROCEDURE CrearDocTrib(
     p_fecha_emision      IN DATE,
     p_hora_emision       IN DATE,
     p_vuelto             IN INTEGER,
@@ -395,7 +395,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20001, 'No se pudo crear el documento tributario: ' || SQLERRM);
 END CrearDocTrib;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearEmpresa
+CREATE OR REPLACE PROCEDURE CrearEmpresa
 (
     p_EmRUT IN VARCHAR2,
     p_EmNombre IN VARCHAR2,
@@ -439,7 +439,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20020, 'No se pudo agregar la empresa: ' || SQLERRM);
 END CrearEmpresa;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearFechaDetalle
+CREATE OR REPLACE PROCEDURE CrearFechaDetalle
 (
     p_FeFechaIngreso IN DATE,
     p_TrID IN INTEGER
@@ -478,7 +478,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20024, 'No se pudo agregar el detalle de la fecha de usuario: ' || SQLERRM);
 END CrearFechaDetalle;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearMetodoPago
+CREATE OR REPLACE PROCEDURE CrearMetodoPago
 (
     p_MedioDePago IN VARCHAR2
 )
@@ -501,7 +501,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20034, 'No se pudo agregar el metodo de pago: ' || SQLERRM);
 END CrearMetodoPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearPago
+CREATE OR REPLACE PROCEDURE CrearPago
 (
     p_CantidadAbonada IN INTEGER,
     p_MPID IN INTEGER,
@@ -530,7 +530,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20037, 'No se pudo añadir el pago: ' || SQLERRM);
 END CrearPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.CrearPedido
+CREATE OR REPLACE PROCEDURE CrearPedido
 (
     p_peFechaEmision IN DATE,
     p_peHoraEmision IN DATE,
@@ -565,7 +565,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20040, 'No se pudo realizar el pedido: ' || SQLERRM);
 END CrearPedido;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EditarEmpresa
+CREATE OR REPLACE PROCEDURE EditarEmpresa
 (
     p_EmID IN INTEGER,
     p_EmRUT IN VARCHAR2,
@@ -603,7 +603,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20022, 'No se pudo editar la empresa: ' || SQLERRM);
 END EditarEmpresa;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EditarLocal
+CREATE OR REPLACE PROCEDURE EditarLocal
 (
     p_LoID IN INTEGER,
     p_horario_apertura IN DATE,
@@ -639,7 +639,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20030, 'No se pudo editar el local: ' || SQLERRM);
 END EditarLocal;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EditarMesa
+CREATE OR REPLACE PROCEDURE EditarMesa
 (
     p_MeID              IN INTEGER,
     p_MeNumeroInterno   IN INTEGER,
@@ -667,7 +667,7 @@ END EditarMesa;
 
 -- PARECE QUE TODAS ESTAS FUNCIONES ESTAN LISTAS;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EditarMetodoPago
+CREATE OR REPLACE PROCEDURE EditarMetodoPago
 (
     p_MPID IN INTEGER,
     p_MedioDePago IN VARCHAR2
@@ -688,7 +688,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20036, 'No se pudo editar el metodo de pago: ' || SQLERRM);
 END EditarMetodoPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EditarProducto
+CREATE OR REPLACE PROCEDURE EditarProducto
 (
     p_prid            IN INTEGER,
     p_nombre          IN VARCHAR2,
@@ -751,7 +751,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20048, 'No se pudo editar el producto: ' || SQLERRM);
 END EditarProducto;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EgresarFechaDetalle
+CREATE OR REPLACE PROCEDURE EgresarFechaDetalle
 (
     p_FeID IN INTEGER,
     p_FeFechaEgreso IN DATE,
@@ -785,7 +785,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20027, 'No se pudo egresar al trabajador: ' || SQLERRM);
 END EgresarFechaDetalle;
 
---CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarDatoPago
+--CREATE OR REPLACE PROCEDURE EliminarDatoPago
 --(
 --    p_DaPID     IN INTEGER
 --)
@@ -805,7 +805,7 @@ END EgresarFechaDetalle;
 --        RAISE_APPLICATION_ERROR(-20010, 'No se pudo eliminar el dato de pago: ' || SQLERRM);
 --END EliminarDatoPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarDescuento
+CREATE OR REPLACE PROCEDURE EliminarDescuento
 (
     p_DTNumeroOrden INTEGER
 )
@@ -826,7 +826,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20007, 'No se pudo eliminar el descuento: ' || SQLERRM);
 END EliminarDescuento;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.EliminarPago
+CREATE OR REPLACE PROCEDURE EliminarPago
 (
     p_DaPID IN INTEGER,
     p_DTNumeroOrden IN INTEGER
@@ -847,7 +847,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20039, 'No se pudo eliminar el pago: ' || SQLERRM);
 END EliminarPago;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.FinalizarComanda
+CREATE OR REPLACE PROCEDURE FinalizarComanda
 (
     p_CoNumero IN INTEGER,
     p_CoHoraFinal IN DATE
@@ -871,7 +871,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20019, 'No se pudo finalizar la comanda: ' || SQLERRM);
 END FinalizarComanda;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.FinalizarPedido
+CREATE OR REPLACE PROCEDURE FinalizarPedido
 (
     p_PeNumero IN INTEGER
 )
@@ -892,7 +892,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20042, 'No se pudo finalizar la comanda: ' || SQLERRM);
 END FinalizarPedido;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.MarcarEntrada
+CREATE OR REPLACE PROCEDURE MarcarEntrada
 (
     p_HoIngreso IN DATE,
     p_HoFechaRegistro IN DATE,
@@ -923,7 +923,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20052, 'No se pudo registrar la hora: ' || SQLERRM);
 END MarcarEntrada;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.MarcarSalida
+CREATE OR REPLACE PROCEDURE MarcarSalida
 (
     p_HoID IN INTEGER,
     p_HoEgreso IN DATE
@@ -945,7 +945,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20054, 'No se pudo modificar el horario de trabajo: ' || SQLERRM);
 END MarcarSalida;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.ModificarDescuento
+CREATE OR REPLACE PROCEDURE ModificarDescuento
 (
     p_DTNumeroOrden INTEGER,
     p_DTDescuento INTEGER
@@ -967,7 +967,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20005, 'No se pudo modificar el descuento: ' || SQLERRM);
 END ModificarDescuento;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.ModificarPropina
+CREATE OR REPLACE PROCEDURE ModificarPropina
 (
     p_DTNumeroOrden INTEGER,
     p_DTPagoPropina NUMBER
@@ -989,7 +989,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20003, 'No se pudo modificar la propina: ' || SQLERRM);
 END ModificarPropina;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.ModificarTrabajador(
+CREATE OR REPLACE PROCEDURE ModificarTrabajador(
     p_trid              IN INTEGER,
     p_run               IN INTEGER,
     p_telefono          IN INTEGER,
@@ -1039,7 +1039,7 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20051, 'No se pudo modificar el trabajador: ' || SQLERRM);
 END ModificarTrabajador;
 
-CREATE OR REPLACE PROCEDURE RTHEARTLESS.SeleccionarEmpresa
+CREATE OR REPLACE PROCEDURE SeleccionarEmpresa
 (
     p_DTNumeroOrden     IN INTEGER,
     p_EmID              IN INTEGER
