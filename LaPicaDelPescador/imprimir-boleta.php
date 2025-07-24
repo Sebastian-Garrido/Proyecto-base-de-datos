@@ -261,10 +261,91 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
                             </tfoot>
                         </table>
                         <div class="text-center mt-3">
-                            <button class="btn btn-outline-primary me-2" id="btnPagarBoleta" onclick="abrirModalPago('boleta')">Boleta</button>
-                            <button class="btn btn-outline-secondary" id="btnPagarFactura" onclick="abrirModalPago('factura')">Factura</button>
+                            <button class="btn btn-outline-primary me-2" onclick="abrirModalPago('boleta', <?php echo $pedido_numero; ?>, <?php echo $subtotal; ?>, <?php echo $propina; ?>, <?php echo $total; ?>)">Boleta</button>
+                            <button class="btn btn-outline-secondary" onclick="abrirModalPago('factura', <?php echo $pedido_numero; ?>, <?php echo $subtotal; ?>, <?php echo $propina; ?>, <?php echo $total; ?>)">Factura</button>
                         </div>
                     </div>
+
+    <?php
+    // Obtener métodos de pago
+    $metodos_pago = [];
+    $stmt_mp = $conn->query("SELECT MPMEDIODEPAGO FROM METODOPAGO ORDER BY MPMEDIODEPAGO ASC");
+    if ($stmt_mp) {
+        $metodos_pago = $stmt_mp->fetchAll(PDO::FETCH_ASSOC);
+    }
+    // Obtener empresas
+    $empresas = [];
+    $stmt_emp = $conn->query("SELECT EMID, EMNOMBRE, EMRUT, EMTELEFONO, EMCORREO, EMCALLE, EMNUMEROCALLE FROM EMPRESA ORDER BY EMNOMBRE ASC");
+    if ($stmt_emp) {
+        $empresas = $stmt_emp->fetchAll(PDO::FETCH_ASSOC);
+    }
+    ?>
+    <div class="modal fade" id="modalPago" tabindex="-1" aria-labelledby="modalPagoLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalPagoLabel">Registrar Pago</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formPago">
+              <input type="hidden" id="modal-pedido-numero" name="modal-pedido-numero">
+              <div id="empresa-select-modal" style="display:none;">
+                <label for="empresa-modal" class="form-label">Empresa</label>
+                <select class="form-select mb-2" id="empresa-modal" name="empresa-modal">
+                  <option value="">Seleccione empresa...</option>
+                  <?php foreach ($empresas as $idx => $emp) { ?>
+                    <option value="<?php echo $idx; ?>"><?php echo htmlspecialchars($emp['EMNOMBRE']); ?></option>
+                  <?php } ?>
+                </select>
+                <div class="mb-2">
+                  <strong>RUT:</strong> <span id="factura-empresa-rut">---</span><br>
+                  <strong>Teléfono:</strong> <span id="factura-empresa-telefono">---</span><br>
+                  <strong>Correo:</strong> <span id="factura-empresa-correo">---</span><br>
+                  <strong>Dirección:</strong> <span id="factura-empresa-direccion">---</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="descuentoManual" class="form-label">Descuento a aplicar</label>
+                <input type="number" class="form-control" id="descuentoManual" name="descuentoManual" min="0" value="0">
+                <div id="descuento-error" class="text-danger small" style="display:none;"></div>
+              </div>
+              <div class="mb-3">
+                <label for="metodo-pago" class="form-label">Método de pago</label>
+                <select class="form-select" id="metodo-pago" name="metodo-pago" required>
+                  <option value="">Seleccione método...</option>
+                  <?php foreach ($metodos_pago as $mp) { ?>
+                    <option value="<?php echo htmlspecialchars($mp['MPMEDIODEPAGO']); ?>"><?php echo htmlspecialchars($mp['MPMEDIODEPAGO']); ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="monto-abono" class="form-label">Monto a abonar</label>
+                <input type="number" class="form-control" id="monto-abono" name="monto-abono" min="1" required>
+                <div id="monto-error" class="text-danger small" style="display:none;"></div>
+              </div>
+              <div class="mb-3">
+                <input type="checkbox" id="incluirPropina" checked> <label for="incluirPropina">Incluir propina sugerida (<span id="propina-sugerida-modal"></span>)</label>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-success">Registrar abono</button>
+              </div>
+              <div id="lista-abonos"></div>
+              <div class="mt-3">
+                <span>Total abonado: <b id="total-abonado">0</b></span><br>
+                <span>Restante: <b id="restante">0</b></span><br>
+                <span id="vuelto"></span>
+              </div>
+              <div class="mt-3" id="info-pago"></div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btnImprimirModal" disabled>Imprimir</button>
+          </div>
+        </div>
+      </div>
+    </div>
                 </div>
             </div>
             <?php
@@ -289,300 +370,166 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
     </svg>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- Configuración de totales ---
-        const subtotalSinPropina = 15500;
-        const propinaSugerida = 1550;
-        const subtotalConPropina = subtotalSinPropina + propinaSugerida;
-        let abonos = [];
-        let incluirPropina = true;
-        let modoPago = "boleta"; // "boleta" o "factura"
-        let pagoCompleto = false;
-        let descuentoManual = 0;
-        let descuentoAplicado = 0;
-        let descuentoBloqueado = false;
+    // --- Configuración de totales ---
+    let abonos = [];
+    let incluirPropina = true;
+    let modoPago = "boleta";
+    let pagoCompleto = false;
+    let descuentoManual = 0;
+    let descuentoAplicado = 0;
+    let descuentoBloqueado = false;
+    let subtotalSinPropina = 0;
+    let propinaSugerida = 0;
+    let subtotalConPropina = 0;
+    let pedidoSeleccionado = null;
 
-        // Empresas
-        const empresasData = [
-            {
-                nombre: "Mariscos Iquique SpA",
-                rut: "76.123.456-7",
-                telefono: "+56 9 1111 2222",
-                correo: "contacto@mariscos.cl",
-                direccion: "Av. Costanera 1234, Iquique"
-            },
-            {
-                nombre: "Mariscos Alto Hospicio Ltda.",
-                rut: "77.987.654-3",
-                telefono: "+56 9 3333 4444",
-                correo: "altohospicio@mariscos.cl",
-                direccion: "Calle Principal 456, Alto Hospicio"
-            },
-            {
-                nombre: "Pescados del Norte S.A.",
-                rut: "78.555.666-1",
-                telefono: "+56 9 5555 6666",
-                correo: "ventas@pescadosnorte.cl",
-                direccion: "Ruta 5 Norte km 10, Iquique"
-            }
-        ];
+    // Empresas desde PHP
+    const empresasData = <?php echo json_encode($empresas); ?>;
 
-        // Mostrar modal de pago según tipo
-        function abrirModalPago(tipo) {
-            modoPago = tipo;
-            document.getElementById('empresa-select-modal').style.display = (tipo === 'factura') ? '' : 'none';
-            document.getElementById('modalPagoLabel').textContent = tipo === 'factura' ? "Registrar Pago Factura" : "Registrar Pago Boleta";
-            document.getElementById('btnImprimirModal').textContent = tipo === 'factura' ? "Imprimir Factura" : "Imprimir Boleta";
-            document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
-            const modal = new bootstrap.Modal(document.getElementById('modalPago'));
-            modal.show();
-            actualizarAbonos();
-        }
+    function abrirModalPago(tipo, pedido_numero, subtotal, propina, total) {
+      modoPago = tipo;
+      pedidoSeleccionado = pedido_numero;
+      subtotalSinPropina = subtotal;
+      propinaSugerida = propina;
+      subtotalConPropina = subtotal + propina;
+      document.getElementById('modal-pedido-numero').value = pedido_numero;
+      document.getElementById('empresa-select-modal').style.display = (tipo === 'factura') ? '' : 'none';
+      document.getElementById('modalPagoLabel').textContent = tipo === 'factura' ? "Registrar Pago Factura" : "Registrar Pago Boleta";
+      document.getElementById('btnImprimirModal').textContent = tipo === 'factura' ? "Imprimir Factura" : "Imprimir Boleta";
+      document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
+      document.getElementById('formPago').reset();
+      abonos = [];
+      actualizarAbonos();
+      const modal = new bootstrap.Modal(document.getElementById('modalPago'));
+      modal.show();
+    }
 
-        document.getElementById('btnPagarBoleta').addEventListener('click', function() {
-            abrirModalPago('boleta');
-        });
-        document.getElementById('btnPagarFactura').addEventListener('click', function() {
-            abrirModalPago('factura');
-        });
+    document.getElementById('empresa-modal').addEventListener('change', function() {
+      const idx = this.value;
+      if (empresasData[idx]) {
+        const empresa = empresasData[idx];
+        document.getElementById('factura-empresa-rut').textContent = empresa.EMRUT;
+        document.getElementById('factura-empresa-telefono').textContent = empresa.EMTELEFONO;
+        document.getElementById('factura-empresa-correo').textContent = empresa.EMCORREO;
+    document.getElementById('factura-empresa-direccion').textContent = (empresa.EMCALLE ? empresa.EMCALLE : "") + (empresa.EMNUMEROCALLE ? " " + empresa.EMNUMEROCALLE : "");
+      } else {
+        document.getElementById('factura-empresa-rut').textContent = "---";
+        document.getElementById('factura-empresa-telefono').textContent = "---";
+        document.getElementById('factura-empresa-correo').textContent = "---";
+        document.getElementById('factura-empresa-direccion').textContent = "---";
+      }
+      actualizarBotonesImprimir();
+    });
 
-        document.getElementById('empresa-modal').addEventListener('change', function() {
-            const idx = this.value;
-            if (empresasData[idx]) {
-                const empresa = empresasData[idx];
-                document.getElementById('factura-empresa-nombre').textContent = empresa.nombre;
-                document.getElementById('factura-empresa-rut').textContent = empresa.rut;
-                document.getElementById('factura-empresa-telefono').textContent = empresa.telefono;
-                document.getElementById('factura-empresa-correo').textContent = empresa.correo;
-                document.getElementById('factura-empresa-direccion').textContent = empresa.direccion;
-            } else {
-                document.getElementById('factura-empresa-nombre').textContent = "---";
-                document.getElementById('factura-empresa-rut').textContent = "---";
-                document.getElementById('factura-empresa-telefono').textContent = "---";
-                document.getElementById('factura-empresa-correo').textContent = "---";
-                document.getElementById('factura-empresa-direccion').textContent = "---";
-            }
-        });
+    function getTotalAPagar() {
+      const base = incluirPropina ? subtotalConPropina : subtotalSinPropina;
+      return Math.max(base - (descuentoAplicado || descuentoManual), 0);
+    }
 
-        // --- Pago y totales ---
-        function getTotalAPagar() {
-            const base = incluirPropina ? subtotalConPropina : subtotalSinPropina;
-            return Math.max(base - (descuentoAplicado || descuentoManual), 0);
-        }
+    function actualizarBotonesImprimir() {
+      const empresaValida = document.getElementById('empresa-modal').value !== "";
+      if (modoPago === "factura") {
+        document.getElementById('btnImprimirModal').disabled = !(pagoCompleto && empresaValida);
+      } else {
+        document.getElementById('btnImprimirModal').disabled = !pagoCompleto;
+      }
+    }
 
-        function actualizarBotonesImprimir() {
-            const empresaValida = document.getElementById('empresa-modal').value !== "";
-            // Si tienes dos botones:
-            // document.getElementById('btnImprimirBoleta').disabled = !pagoCompleto;
-            // document.getElementById('btnImprimirFactura').disabled = !(pagoCompleto && empresaValida);
+    function actualizarAbonos() {
+      const lista = document.getElementById('lista-abonos');
+      lista.innerHTML = '';
+      let total = 0;
+      abonos.forEach((abono, idx) => {
+        total += abono.monto;
+        const div = document.createElement('div');
+        div.className = "alert alert-secondary py-2 d-flex justify-content-between align-items-center mb-2";
+        div.innerHTML = `<span><strong>${abono.metodo}</strong> - $${abono.monto.toLocaleString()}</span><button class="btn btn-sm btn-danger" onclick="eliminarAbono(${idx})">Eliminar</button>`;
+        lista.appendChild(div);
+      });
+      document.getElementById('total-abonado').textContent = total.toLocaleString();
+      const tienePagos = abonos.length > 0;
+      document.getElementById('descuentoManual').disabled = tienePagos;
+      document.getElementById('incluirPropina').disabled = tienePagos || descuentoAplicado > 0;
+      const totalAPagar = getTotalAPagar();
+      let restante = Math.max(totalAPagar - total, 0);
+      document.getElementById('restante').textContent = restante.toLocaleString();
+      let vuelto = total > totalAPagar ? total - totalAPagar : 0;
+      document.getElementById('vuelto').textContent = vuelto > 0 ? `Vuelto: $${vuelto.toLocaleString()}` : '';
+      let info = `<span>Subtotal sin propina: <b>$${subtotalSinPropina.toLocaleString()}</b></span><br>`;
+      info += `<span>Subtotal con propina: <b>$${subtotalConPropina.toLocaleString()}</b> (propina sugerida $${propinaSugerida.toLocaleString()})</span>`;
+      if (!incluirPropina && total >= subtotalSinPropina) {
+        info += `<br><span class="text-warning">Has pagado el subtotal sin propina.</span>`;
+      }
+      if (incluirPropina && total >= subtotalConPropina) {
+        info += `<br><span class="text-success">¡Pago completo incluyendo propina!</span>`;
+      }
+      document.getElementById('info-pago').innerHTML = info;
+      pagoCompleto = total >= totalAPagar;
+      actualizarBotonesImprimir();
+    }
 
-            // Si tienes un solo botón y el modo es boleta/factura:
-            if (modoPago === "factura") {
-                document.getElementById('btnImprimirModal').disabled = !(pagoCompleto && empresaValida);
-            } else {
-                document.getElementById('btnImprimirModal').disabled = !pagoCompleto;
-            }
-        }
+    function eliminarAbono(idx) {
+      abonos.splice(idx, 1);
+      actualizarAbonos();
+      if (abonos.length === 0 && descuentoAplicado === 0) {
+        document.getElementById('incluirPropina').disabled = false;
+        document.getElementById('descuentoManual').disabled = false;
+      } else {
+        document.getElementById('incluirPropina').disabled = true;
+      }
+    }
 
-        function actualizarAbonos() {
-            const lista = document.getElementById('lista-abonos');
-            lista.innerHTML = '';
-            let total = 0;
-            abonos.forEach((abono, idx) => {
-                total += abono.monto;
-                const div = document.createElement('div');
-                div.className = "alert alert-secondary py-2 d-flex justify-content-between align-items-center mb-2";
-                div.innerHTML = `
-                    <span><strong>${abono.metodo}</strong> - $${abono.monto.toLocaleString()}</span>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarAbono(${idx})">Eliminar</button>
-                `;
-                lista.appendChild(div);
-            });
-            document.getElementById('total-abonado').textContent = total.toLocaleString();
+    document.getElementById('formPago').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const metodo = document.getElementById('metodo-pago').value;
+      const monto = parseInt(document.getElementById('monto-abono').value, 10);
+      const totalAPagar = getTotalAPagar();
+      const totalAbonado = abonos.reduce((sum, abono) => sum + abono.monto, 0);
+      const restante = Math.max(totalAPagar - totalAbonado, 0);
+      const errorDiv = document.getElementById('monto-error');
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+      if (!metodo || isNaN(monto) || monto < 1) return;
+      abonos.push({metodo, monto});
+      document.getElementById('formPago').reset();
+      errorDiv.style.display = 'none';
+      actualizarAbonos();
+      document.getElementById('incluirPropina').disabled = true;
+      document.getElementById('descuentoManual').disabled = true;
+    });
 
-            // Controlar el descuento según si hay pagos
-            const tienePagos = abonos.length > 0;
-            document.getElementById('descuentoManual').disabled = tienePagos;
-            document.getElementById('btnAgregarDescuento').disabled = tienePagos;
+    document.getElementById('descuentoManual').addEventListener('input', function() {
+      if (descuentoBloqueado) return;
+      const valor = parseInt(this.value, 10) || 0;
+      const totalBase = incluirPropina ? subtotalConPropina : subtotalSinPropina;
+      const errorDiv = document.getElementById('descuento-error');
+      const propinaCheckbox = document.getElementById('incluirPropina');
+      if (this.value !== "" && valor > 0) {
+        propinaCheckbox.disabled = true;
+      } else {
+        propinaCheckbox.disabled = false;
+      }
+      if (valor < 0) {
+        errorDiv.textContent = "El descuento no puede ser negativo.";
+        errorDiv.style.display = 'block';
+        this.value = 0;
+        descuentoManual = 0;
+      } else if (valor > totalBase) {
+        errorDiv.textContent = "El descuento no puede ser mayor al total.";
+        errorDiv.style.display = 'block';
+        this.value = totalBase;
+        descuentoManual = totalBase;
+      } else {
+        errorDiv.style.display = 'none';
+        descuentoManual = valor;
+      }
+      actualizarAbonos();
+    });
 
-            // Deshabilitar botón de eliminar descuento si hay abonos
-            document.getElementById('btnEliminarDescuento').disabled = tienePagos;
-
-            // Si hay pagos, también bloquea la checkbox de propina
-            document.getElementById('incluirPropina').disabled = tienePagos || descuentoAplicado > 0;
-
-            // Calcular el total a pagar según propina
-            const totalAPagar = getTotalAPagar();
-            let restante = Math.max(totalAPagar - total, 0);
-            document.getElementById('restante').textContent = restante.toLocaleString();
-
-            // Mostrar vuelto si pagó de más
-            let vuelto = total > totalAPagar ? total - totalAPagar : 0;
-            document.getElementById('vuelto').textContent = vuelto > 0 ? `Vuelto: $${vuelto.toLocaleString()}` : '';
-
-            // Mostrar info de pago
-            let info = `<span>Subtotal sin propina: <b>$${subtotalSinPropina.toLocaleString()}</b></span><br>`;
-            info += `<span>Subtotal con propina: <b>$${subtotalConPropina.toLocaleString()}</b> (propina sugerida $${propinaSugerida.toLocaleString()})</span>`;
-            if (!incluirPropina && total >= subtotalSinPropina) {
-                info += `<br><span class="text-warning">Has pagado el subtotal sin propina.</span>`;
-            }
-            if (incluirPropina && total >= subtotalConPropina) {
-                info += `<br><span class="text-success">¡Pago completo incluyendo propina!</span>`;
-            }
-            document.getElementById('info-pago').innerHTML = info;
-
-            // Mostrar total pagado y vuelto en la card si el pago está completo
-            pagoCompleto = total >= totalAPagar;
-            if (modoPago === "boleta" || modoPago == "factura") {
-                document.getElementById('pago-doc-trib-info').style.display = pagoCompleto ? '' : 'none';
-                document.getElementById('total-pagado-boleta').textContent = total.toLocaleString();
-                document.getElementById('vuelto-boleta-monto').textContent = vuelto.toLocaleString();
-            } else {
-                document.getElementById('pago-doc-trib-info').style.display = 'none';
-            }
-
-            // Mostrar descuento en la card si está aplicado
-            const filaDescuento = document.getElementById('fila-descuento');
-            const descuentoCard = document.getElementById('descuento-card');
-            if (descuentoAplicado > 0) {
-                filaDescuento.style.display = '';
-                descuentoCard.textContent = `$${descuentoAplicado.toLocaleString()}`;
-            } else {
-                filaDescuento.style.display = 'none';
-                descuentoCard.textContent = '$0';
-            }
-            // Mostrar total en la card
-            const totalCard = document.getElementById('total-card');
-            totalCard.textContent = `$${getTotalAPagar().toLocaleString()}`;
-            // Mostrar info de propina pagada en la card (previsualización)
-            const infoPropinaCard = document.getElementById('info-propina-card');
-            if (document.getElementById('incluirPropina').checked) {
-                infoPropinaCard.innerHTML = '<span class="text-success fw-bold">Pago con propina</span>';
-            } else {
-                infoPropinaCard.innerHTML = '<span class="text-warning fw-bold">Pago sin propina</span>';
-            }
-
-            actualizarBotonesImprimir();
-        }
-
-        function eliminarAbono(idx) {
-            abonos.splice(idx, 1);
-            actualizarAbonos();
-            // Si no hay abonos, permitir nuevamente descuento y propina SOLO si tampoco hay descuento aplicado
-            if (abonos.length === 0 && descuentoAplicado === 0) {
-                document.getElementById('incluirPropina').disabled = false;
-                document.getElementById('descuentoManual').disabled = false;
-                document.getElementById('btnAgregarDescuento').disabled = false;
-            } else {
-                // Si queda algún abono o descuento, mantener la checkbox bloqueada
-                document.getElementById('incluirPropina').disabled = true;
-            }
-        }
-
-        document.getElementById('empresa-modal').addEventListener('change', function() {
-            actualizarBotonesImprimir();
-        });
-
-        document.getElementById('form-abono').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const metodo = document.getElementById('metodo-pago').value;
-            const monto = parseInt(document.getElementById('monto-abono').value, 10);
-            const totalAPagar = getTotalAPagar();
-            const totalAbonado = abonos.reduce((sum, abono) => sum + abono.monto, 0);
-            const restante = Math.max(totalAPagar - totalAbonado, 0);
-            const errorDiv = document.getElementById('monto-error');
-            errorDiv.style.display = 'none';
-            errorDiv.textContent = '';
-
-            if (!metodo || isNaN(monto) || monto < 1) return;
-
-            if (metodo === "Tarjeta" && monto > restante) {
-                errorDiv.textContent = "El monto pagado con tarjeta no puede ser mayor al total por pagar.";
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            abonos.push({metodo, monto});
-            document.getElementById('form-abono').reset();
-            errorDiv.style.display = 'none';
-            actualizarAbonos();
-            // Bloquear propina y descuento al agregar abono
-            document.getElementById('incluirPropina').disabled = true;
-            document.getElementById('descuentoManual').disabled = true;
-            document.getElementById('btnAgregarDescuento').disabled = true;
-        });
-
-        document.getElementById('btnAgregarDescuento').addEventListener('click', function() {
-            const valor = parseInt(document.getElementById('descuentoManual').value, 10) || 0;
-            if (valor > 0) {
-                descuentoAplicado = valor;
-                document.getElementById('descuento-aplicado-monto').textContent = valor.toLocaleString();
-                document.getElementById('descuento-aplicado').style.display = '';
-                document.getElementById('descuentoManual').disabled = true;
-                document.getElementById('btnAgregarDescuento').disabled = true;
-                descuentoBloqueado = true;
-                // Aquí iría la lógica para guardar el descuento en la base de datos con fetch/AJAX
-            }
-            actualizarAbonos();
-        });
-
-        // Botón para eliminar descuento
-        document.getElementById('btnEliminarDescuento').addEventListener('click', function() {
-            if (abonos.length > 0) return; // No hacer nada si hay abonos
-            descuentoAplicado = 0;
-            descuentoBloqueado = false;
-            document.getElementById('descuento-aplicado').style.display = 'none';
-            document.getElementById('descuentoManual').value = 0;
-            document.getElementById('descuentoManual').disabled = false;
-            document.getElementById('btnAgregarDescuento').disabled = false;
-            // Si no hay abonos, desbloquear la checkbox, si hay abonos mantenerla bloqueada
-            if (abonos.length === 0) {
-                document.getElementById('incluirPropina').disabled = false;
-            } else {
-                document.getElementById('incluirPropina').disabled = true;
-            }
-            actualizarAbonos();
-        });
-
-        document.getElementById('incluirPropina').addEventListener('change', function() {
-            incluirPropina = this.checked;
-            actualizarAbonos();
-        });
-
-        document.getElementById('descuentoManual').addEventListener('input', function() {
-            if (descuentoBloqueado) return;
-            const valor = parseInt(this.value, 10) || 0;
-            const totalBase = incluirPropina ? totalConPropina : totalSinPropina;
-            const errorDiv = document.getElementById('descuento-error');
-            const propinaCheckbox = document.getElementById('incluirPropina');
-            if (this.value !== "" && valor > 0) {
-                propinaCheckbox.disabled = true;
-                // No modificar el estado checked
-            } else {
-                propinaCheckbox.disabled = false;
-            }
-            if (valor < 0) {
-                errorDiv.textContent = "El descuento no puede ser negativo.";
-                errorDiv.style.display = 'block';
-                this.value = 0;
-                descuentoManual = 0;
-            } else if (valor > totalBase) {
-                errorDiv.textContent = "El descuento no puede ser mayor al total.";
-                errorDiv.style.display = 'block';
-                this.value = totalBase;
-                descuentoManual = totalBase;
-            } else {
-                errorDiv.style.display = 'none';
-                descuentoManual = valor;
-            }
-            actualizarAbonos();
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('subtotal-boleta').textContent = `$${subtotalSinPropina.toLocaleString()}`;
-            document.getElementById('propina-sugerida').textContent = `$${propinaSugerida.toLocaleString()}`;
-            document.getElementById('propina-sugerida-modal').textContent = propinaSugerida.toLocaleString();
-            actualizarAbonos();
-        });
+    document.getElementById('incluirPropina').addEventListener('change', function() {
+      incluirPropina = this.checked;
+      actualizarAbonos();
+    });
     </script>
     <script src="js/darkmode.js"></script>
 
