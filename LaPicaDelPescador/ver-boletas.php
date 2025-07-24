@@ -165,63 +165,169 @@ if (!isset($_SESSION['TRID']) || !isset($_SESSION['TRRUN']) || !isset($_SESSION[
         </div>
         <!-- Resultados de boletas -->
         <div id="boletas-resultados" class="row justify-content-center">
-            <!-- Ejemplo de boleta, puedes generar dinámicamente con PHP -->
-            <div class="col-md-6 mb-4">
-                <div class="card boleta-preview shadow-lg">
-                    <div class="card-header bg-primary text-white text-center fs-5">
-                        Boleta N° 12345 - 2025-07-20
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Mesa:</strong> 7</p>
-                        <p><strong>Garzón:</strong> Juan Pérez</p>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th class="text-end">Cantidad</th>
-                                    <th class="text-end">Precio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Paila Marina</td>
-                                    <td class="text-end">2</td>
-                                    <td class="text-end">$12.000</td>
-                                </tr>
-                                <tr>
-                                    <td>Empanada de Mariscos</td>
-                                    <td class="text-end">1</td>
-                                    <td class="text-end">$3.500</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="2" class="text-end">Total</th>
-                                    <th class="text-end">$15.500</th>
-                                </tr>
-                                <tr>
-                                    <th colspan="2" class="text-end">Propina sugerida (10%)</th>
-                                    <th class="text-end">$1.550</th>
-                                </tr>
-                                <tr>
-                                    <th colspan="2" class="text-end">Total con propina</th>
-                                    <th class="text-end">$17.050</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        <div class="mt-2">
-                            <div class="text-success"><strong>Total pagado:</strong> $17.050</div>
-                            <div class="text-success"><strong>Vuelto:</strong> $0</div>
-                            <div>
-                                <strong>Propina pagada:</strong>
-                                <span class="text-success">Sí</span>
-                                <!-- Si no pagó propina, cambia por: <span class="text-danger">No</span> -->
-                            </div>
+        <?php
+        // Obtener el local del trabajador en sesión
+        $sql_local = "SELECT LOCAL_LOID FROM TRABAJADOR WHERE TRID = :trid";
+        $stmt_local = $conn->prepare($sql_local);
+        $stmt_local->bindParam(':trid', $_SESSION['TRID'], PDO::PARAM_INT);
+        $stmt_local->execute();
+        $local_loid = $stmt_local->fetchColumn();
+
+        // Filtros del formulario
+        $where = " WHERE D.DTCOMPLETADA = 1 AND M.LOCAL_LOID = :local_loid";
+        $params = array(':local_loid' => $local_loid);
+        if (isset($_GET['fechaBoleta']) && $_GET['fechaBoleta'] !== '') {
+            $where .= " AND TRUNC(D.DTFECHAEMISION) = TO_DATE(:fechaBoleta, 'YYYY-MM-DD')";
+            $params[':fechaBoleta'] = $_GET['fechaBoleta'];
+        }
+        if (isset($_GET['idBoleta']) && $_GET['idBoleta'] !== '') {
+            $where .= " AND D.DTNUMEROORDEN = :idBoleta";
+            $params[':idBoleta'] = $_GET['idBoleta'];
+        }
+        if (isset($_GET['tipoDocumento']) && is_array($_GET['tipoDocumento'])) {
+            $tipos = [];
+            foreach ($_GET['tipoDocumento'] as $tipo) {
+                if ($tipo === 'boleta') $tipos[] = 0;
+                if ($tipo === 'factura') $tipos[] = 1;
+            }
+            if (count($tipos) > 0) {
+                $where .= " AND D.DTTIPO IN (" . implode(',', $tipos) . ")";
+            }
+        }
+        // Plato: buscar por nombre en los detalles
+        $platoBoleta = isset($_GET['platoBoleta']) ? trim($_GET['platoBoleta']) : '';
+        $sql_boletas = "
+            SELECT D.*, P.PENUMERO, M.MENUMEROINTERNO, D.DTFECHAEMISION
+            FROM DOCTRIB D
+            JOIN PEDIDO P ON D.PEDIDO_PENUMERO = P.PENUMERO
+            JOIN MESALOCAL M ON P.MESALOCAL_MEID = M.MEID
+            $where
+            ORDER BY D.DTFECHAEMISION DESC
+        ";
+        $stmt_boletas = $conn->prepare($sql_boletas);
+        foreach ($params as $key => $value) {
+            $stmt_boletas->bindValue($key, $value, PDO::PARAM_STR);
+        }
+        $stmt_boletas->execute();
+        $boletas = $stmt_boletas->fetchAll(PDO::FETCH_ASSOC);
+        // Filtrar por plato si corresponde
+        if ($platoBoleta !== '') {
+            $boletas = array_filter($boletas, function($boleta) use ($conn, $platoBoleta) {
+                $sql_det = "SELECT PR.PRNOMBRE FROM DETALLEPEDIDO DP JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID WHERE DP.PEDIDO_PENUMERO = :pedido";
+                $stmt_det = $conn->prepare($sql_det);
+                $stmt_det->bindParam(':pedido', $boleta['PEDIDO_PENUMERO'], PDO::PARAM_INT);
+                $stmt_det->execute();
+                $detalles = $stmt_det->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($detalles as $nombre) {
+                    if (stripos($nombre, $platoBoleta) !== false) return true;
+                }
+                return false;
+            });
+        }
+        if ($boletas && count($boletas) > 0) {
+            $colCount = 0;
+            foreach ($boletas as $boleta) {
+                $pedido_numero = $boleta['PEDIDO_PENUMERO'];
+                // Mesa
+                $mesa = $boleta['MENUMEROINTERNO'];
+                // Garzón
+                $sql_garzon = "SELECT TRNOMBRES, TRAPELLIDOPATERNO, TRAPELLIDOMATERNO FROM TRABAJADOR WHERE TRID = :trid";
+                $stmt_garzon = $conn->prepare($sql_garzon);
+                $stmt_garzon->bindParam(':trid', $boleta['TRABAJADOR_TRID'], PDO::PARAM_INT);
+                $stmt_garzon->execute();
+                $garzon = $stmt_garzon->fetch(PDO::FETCH_ASSOC);
+                $garzon_nombre = $garzon ? $garzon['TRNOMBRES'] . ' ' . $garzon['TRAPELLIDOPATERNO'] . ' ' . $garzon['TRAPELLIDOMATERNO'] : '--';
+                // Detalles de productos
+                $sql_detalles = "SELECT DP.DEPCANTIDAD, DP.DEPPRECIOUNITARIO, PR.PRNOMBRE FROM DETALLEPEDIDO DP JOIN PRODUCTO PR ON DP.PRODUCTO_PRID = PR.PRID WHERE DP.PEDIDO_PENUMERO = :pedido";
+                $stmt_detalles = $conn->prepare($sql_detalles);
+                $stmt_detalles->bindParam(':pedido', $pedido_numero, PDO::PARAM_INT);
+                $stmt_detalles->execute();
+                $detalles = $stmt_detalles->fetchAll(PDO::FETCH_ASSOC);
+                // Calcular subtotal
+                $subtotal = 0;
+                foreach ($detalles as $d) {
+                    $subtotal += $d['DEPCANTIDAD'] * $d['DEPPRECIOUNITARIO'];
+                }
+                $propina = round($subtotal * 0.10);
+                $total = ($boleta['DTPAGOPROPINA'] == 1) ? $subtotal + $propina : $subtotal;
+                $fecha = $boleta['DTFECHAEMISION'];
+                $tipoDoc = ($boleta['DTTIPO'] == 1) ? 'Factura' : 'Boleta';
+                // Si tiene empresa asociada, mostrar nombre y RUT y cambiar tipoDoc a Factura
+                $empresaInfo = '';
+                if (!empty($boleta['EMPRESA_EMID'])) {
+                    $sql_empresa = "SELECT EMNOMBRE, EMRUT FROM EMPRESA WHERE EMID = :emid";
+                    $stmt_empresa = $conn->prepare($sql_empresa);
+                    $stmt_empresa->bindParam(':emid', $boleta['EMPRESA_EMID'], PDO::PARAM_INT);
+                    $stmt_empresa->execute();
+                    $empresa = $stmt_empresa->fetch(PDO::FETCH_ASSOC);
+                    if ($empresa) {
+                        $empresaInfo = '<div class="mb-2"><strong>Empresa:</strong> ' . htmlspecialchars($empresa['EMNOMBRE']) . '<br><strong>RUT:</strong> ' . htmlspecialchars($empresa['EMRUT']) . '</div>';
+                        $tipoDoc = 'Factura';
+                    }
+                }
+        ?>
+        <div class="col-md-4 d-flex align-items-stretch mb-4">
+            <div class="card boleta-preview shadow-lg w-100">
+                <div class="card-header bg-primary text-white text-center fs-5">
+                    <?php echo $tipoDoc; ?> N° <?php echo htmlspecialchars($boleta['DTNUMEROORDEN']); ?> - <?php echo htmlspecialchars($fecha); ?>
+                </div>
+                <div class="card-body">
+                    <?php echo $empresaInfo; ?>
+                    <p><strong>Mesa:</strong> <?php echo htmlspecialchars($mesa); ?></p>
+                    <p><strong>Garzón:</strong> <?php echo htmlspecialchars($garzon_nombre); ?></p>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-end">Cantidad</th>
+                                <th class="text-end">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($detalles as $d) { ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($d['PRNOMBRE']); ?></td>
+                                <td class="text-end"><?php echo htmlspecialchars($d['DEPCANTIDAD']); ?></td>
+                                <td class="text-end">$<?php echo number_format($d['DEPPRECIOUNITARIO'], 0, ',', '.'); ?></td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" class="text-end">Total</th>
+                                <th class="text-end">$<?php echo number_format($subtotal, 0, ',', '.'); ?></th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="text-end">Propina sugerida (10%)</th>
+                                <th class="text-end">$<?php echo number_format($propina, 0, ',', '.'); ?></th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="text-end">Total con propina</th>
+                                <th class="text-end">$<?php echo number_format($total, 0, ',', '.'); ?></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="mt-2">
+                        <div class="text-success"><strong>Total pagado:</strong> $<?php echo number_format($total, 0, ',', '.'); ?></div>
+                        <div class="text-success"><strong>Vuelto:</strong> $0</div>
+                        <div>
+                            <strong>Propina pagada:</strong>
+                            <span class="<?php echo ($boleta['DTPAGOPROPINA'] == 1) ? 'text-success' : 'text-danger'; ?>"><?php echo ($boleta['DTPAGOPROPINA'] == 1) ? 'Sí' : 'No'; ?></span>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Puedes duplicar este bloque con PHP para mostrar más boletas -->
+        </div>
+        <?php
+                $colCount++;
+                if ($colCount % 3 == 0) {
+                    echo '</div><div class="row justify-content-center mb-4">';
+                }
+            }
+        } else {
+            echo '<div class="alert alert-info">No hay boletas/facturas finalizadas en este local.</div>';
+        }
+        ?>
         </div>
     </div>
 
