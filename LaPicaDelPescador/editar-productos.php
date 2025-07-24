@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 throw new Exception('Tipo de producto no válido');
             }
-            $sql = "CALL RTHEARTLESS.AGREGARPRODUCTO(:P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD, :P_LOCAL_ID)";
+            $sql = "CALL AGREGARPRODUCTO(:P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD, :P_LOCAL_ID)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_NOMBRE', $nombre);
             $stmt->bindParam(':P_DESCRIPCION', $descripcion);
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 throw new Exception('Tipo de producto no válido');
             }
-            $sql = "CALL RTHEARTLESS.EDITARPRODUCTO(:P_PRID, :P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD)";
+            $sql = "CALL EDITARPRODUCTO(:P_PRID, :P_NOMBRE, :P_DESCRIPCION, :P_PRECIO, :P_TIPO, :P_ENSTOCK, :P_ENMARCA, :P_DISPONIBILIDAD)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_PRID', $prid);
             $stmt->bindParam(':P_NOMBRE', $nombre);

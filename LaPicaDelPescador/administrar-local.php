@@ -13,7 +13,7 @@
         $activo = ($_POST['activo'] ?? '1') == '1' ? 1 : 0;
         if (isset($_POST['editar_local']) && $_POST['localId']) {
             $localId = $_POST['localId'];
-            $sql = "CALL RTHEARTLESS.EDITARLOCAL(:P_LOID, TO_DATE(:P_HORARIO_APERTURA, 'HH24:MI'), TO_DATE(:P_HORARIO_CIERRE, 'HH24:MI'), :P_REGION, :P_COMUNA, :P_CALLE, :P_NCALLE, :P_ACTIVO)";
+            $sql = "CALL EDITARLOCAL(:P_LOID, TO_DATE(:P_HORARIO_APERTURA, 'HH24:MI'), TO_DATE(:P_HORARIO_CIERRE, 'HH24:MI'), :P_REGION, :P_COMUNA, :P_CALLE, :P_NCALLE, :P_ACTIVO)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_LOID', $localId, PDO::PARAM_INT);
             $stmt->bindParam(':P_HORARIO_APERTURA', $horaApertura);
@@ -27,7 +27,7 @@
             echo '<script>window.location.href = "administrar-local.php";</script>';
             exit;
         } elseif (isset($_POST['agregar_local'])) {
-            $sql = "CALL RTHEARTLESS.AGREGARLOCAL(TO_DATE(:P_HORARIO_APERTURA, 'HH24:MI'), TO_DATE(:P_HORARIO_CIERRE, 'HH24:MI'), :P_REGION, :P_COMUNA, :P_CALLE, :P_NCALLE, :P_ACTIVO)";
+            $sql = "CALL AGREGARLOCAL(TO_DATE(:P_HORARIO_APERTURA, 'HH24:MI'), TO_DATE(:P_HORARIO_CIERRE, 'HH24:MI'), :P_REGION, :P_COMUNA, :P_CALLE, :P_NCALLE, :P_ACTIVO)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_HORARIO_APERTURA', $horaApertura);
             $stmt->bindParam(':P_HORARIO_CIERRE', $horaCierre);
@@ -45,7 +45,7 @@
             $localIdMesa = intval($_POST['local_mesas']);
             $numeroInterno = intval($_POST['identificadorMesa']);
             $activoMesa = isset($_POST['activoMesa']) && $_POST['activoMesa'] == '1' ? 1 : 0;
-            $sql = "CALL RTHEARTLESS.AGREGARMESA(:P_MENUMEROINTERNO, :P_MEACTIVO, :P_LOCAL_LOID)";
+            $sql = "CALL AGREGARMESA(:P_MENUMEROINTERNO, :P_MEACTIVO, :P_LOCAL_LOID)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_MENUMEROINTERNO', $numeroInterno, PDO::PARAM_INT);
             $stmt->bindParam(':P_MEACTIVO', $activoMesa, PDO::PARAM_INT);
@@ -58,7 +58,7 @@
             $mesaId = intval($_POST['mesaId']);
             $numeroInterno = intval($_POST['identificadorMesa']);
             $activoMesa = isset($_POST['activoMesa']) && $_POST['activoMesa'] == '1' ? 1 : 0;
-            $sql = "CALL RTHEARTLESS.EDITARMESA(:P_MEID, :P_MENUMEROINTERNO, :P_MEACTIVO)";
+            $sql = "CALL EDITARMESA(:P_MEID, :P_MENUMEROINTERNO, :P_MEACTIVO)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_MEID', $mesaId, PDO::PARAM_INT);
             $stmt->bindParam(':P_MENUMEROINTERNO', $numeroInterno, PDO::PARAM_INT);

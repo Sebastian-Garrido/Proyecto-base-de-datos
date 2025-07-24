@@ -247,7 +247,7 @@ $fecha_ingreso = ($row_fecha && $row_fecha['FEFECHAINGRESO']) ? $row_fecha['FEFE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar_entrada'])) {
     $fechaHora = date('Y-m-d H:i:s');
     try {
-        $sql_call = "CALL RTHEARTLESS.MarcarEntrada(TO_DATE(:hoingreso, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:hofecharegistro, 'YYYY-MM-DD HH24:MI:SS'), :trid)";
+        $sql_call = "CALL MarcarEntrada(TO_DATE(:hoingreso, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:hofecharegistro, 'YYYY-MM-DD HH24:MI:SS'), :trid)";
         $stmt_call = $conn->prepare($sql_call);
         $stmt_call->bindParam(':hoingreso', $fechaHora);
         $stmt_call->bindParam(':hofecharegistro', $fechaHora);
@@ -275,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar_salida'])) {
         if ($row_hoid && $row_hoid['HOID']) {
             $hoid = $row_hoid['HOID'];
             // Llamar al procedimiento almacenado para marcar salida
-            $sql_call = "CALL RTHEARTLESS.MARCARSALIDA(:P_HOID, TO_DATE(:P_HOEGRESO, 'YYYY-MM-DD HH24:MI:SS'))";
+            $sql_call = "CALL MARCARSALIDA(:P_HOID, TO_DATE(:P_HOEGRESO, 'YYYY-MM-DD HH24:MI:SS'))";
             $stmt_call = $conn->prepare($sql_call);
             $stmt_call->bindParam(':P_HOID', $hoid, PDO::PARAM_INT);
             $stmt_call->bindParam(':P_HOEGRESO', $fechaHora);

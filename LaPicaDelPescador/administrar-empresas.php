@@ -13,7 +13,7 @@
         $emcalle = $_POST['calleSucursal'] ?? '';
         $emnumerocalle = $_POST['numeroSucursal'] ?? '';
         if (isset($_POST['editar_empresa']) && $emid) {
-            $sql = "CALL RTHEARTLESS.EDITAREMPRESA(:P_EMID, :P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
+            $sql = "CALL EDITAREMPRESA(:P_EMID, :P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_EMID', $emid, PDO::PARAM_INT);
             $stmt->bindParam(':P_EMRUT', $emrut);
@@ -26,7 +26,7 @@
             $stmt->bindParam(':P_EMNUMEROCALLE', $emnumerocalle);
             $stmt->execute();
         } elseif (isset($_POST['agregar_empresa'])) {
-            $sql = "CALL RTHEARTLESS.CREAREMPRESA(:P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
+            $sql = "CALL CREAREMPRESA(:P_EMRUT, :P_EMNOMBRE, :P_EMCORREO, :P_EMTELEFONO, :P_EMREGION, :P_EMCOMUNA, :P_EMCALLE, :P_EMNUMEROCALLE)";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':P_EMRUT', $emrut);
             $stmt->bindParam(':P_EMNOMBRE', $emnombre);

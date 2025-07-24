@@ -22,7 +22,7 @@
                 $numeroCalle = $_POST['numeroCalle'] ?? '';
                 $direccionAdicional = $_POST['direccionAdicional'] ?? null;
                 $local = $_POST['localCascada'] ?? '';
-                $sql = "CALL RTHEARTLESS.AgregarTrabajador(:p_TrRUN, :p_TrTelefono, :p_TrCorreo, :p_TrCargo, :p_TrContraseña, TO_DATE(:p_TrFechaNacimiento, 'YYYY-MM-DD'), :p_TrSueldoHora, :p_TrNombres, :p_TrApellidoPaterno, :p_TrApellidoMaterno, :p_TrVigente, :p_TrRegion, :p_TrComuna, :p_TrCalle, :p_TrNumeroCalle, :p_TrDireccionAdicional, :p_Local_LoID)";
+                $sql = "CALL AgregarTrabajador(:p_TrRUN, :p_TrTelefono, :p_TrCorreo, :p_TrCargo, :p_TrContraseña, TO_DATE(:p_TrFechaNacimiento, 'YYYY-MM-DD'), :p_TrSueldoHora, :p_TrNombres, :p_TrApellidoPaterno, :p_TrApellidoMaterno, :p_TrVigente, :p_TrRegion, :p_TrComuna, :p_TrCalle, :p_TrNumeroCalle, :p_TrDireccionAdicional, :p_Local_LoID)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':p_TrRUN', $run, PDO::PARAM_INT);
                 $stmt->bindParam(':p_TrTelefono', $telefono, PDO::PARAM_INT);
@@ -63,7 +63,7 @@
                 $local = $_POST['editLocal'] ?? '';
                 $numeroCalle = $_POST['editNumeroCalle'] ?? '';
                 $direccionAdic = $_POST['editDireccionAdicional'] ?? null;
-                $sql = "CALL RTHEARTLESS.ModificarTrabajador(:p_trid, :p_run, :p_telefono, :p_correo, :p_cargo, TO_DATE(:p_birth, 'YYYY-MM-DD'), :p_sueldo_hora, :p_nombres, :p_apellidop, :p_apellidom, :p_region, :p_comuna, :p_calle, :p_local, :p_numero_calle, :p_direccion_adic)";
+                $sql = "CALL ModificarTrabajador(:p_trid, :p_run, :p_telefono, :p_correo, :p_cargo, TO_DATE(:p_birth, 'YYYY-MM-DD'), :p_sueldo_hora, :p_nombres, :p_apellidop, :p_apellidom, :p_region, :p_comuna, :p_calle, :p_local, :p_numero_calle, :p_direccion_adic)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':p_trid', $trid, PDO::PARAM_INT);
                 $stmt->bindParam(':p_run', $run, PDO::PARAM_INT);
@@ -90,7 +90,7 @@
     $trid = $_POST['trid_fecha'] ?? '';
     $fechaIngreso = $_POST['fecha_ingreso'] ?? '';
     if ($trid && $fechaIngreso) {
-        $sql = "CALL RTHEARTLESS.CREARFECHADETALLE(TO_DATE(:P_FEFECHAINGRESO, 'YYYY-MM-DD'), :P_TRID)";
+        $sql = "CALL CREARFECHADETALLE(TO_DATE(:P_FEFECHAINGRESO, 'YYYY-MM-DD'), :P_TRID)";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':P_FEFECHAINGRESO', $fechaIngreso);
         $stmt->bindParam(':P_TRID', $trid, PDO::PARAM_INT);
@@ -105,7 +105,7 @@
     $feid = $_POST['feid'] ?? '';
     $fechaEgreso = $_POST['fecha_egreso'] ?? '';
     if ($trid && $feid && $fechaEgreso) {
-        $sql = "CALL RTHEARTLESS.EGRESARFECHADETALLE(:P_FEID, TO_DATE(:P_FEFECHAEGRESO, 'YYYY-MM-DD'), :P_TRID)";
+        $sql = "CALL EGRESARFECHADETALLE(:P_FEID, TO_DATE(:P_FEFECHAEGRESO, 'YYYY-MM-DD'), :P_TRID)";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':P_FEID', $feid, PDO::PARAM_INT);
         $stmt->bindParam(':P_FEFECHAEGRESO', $fechaEgreso);

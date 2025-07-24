@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
         if (!is_array($productos_orden) || count($productos_orden) === 0) throw new Exception('No se agregaron productos a la orden.');
 
         // 1. Ejecutar CREARPEDIDO
-        $stmt = $conn->prepare("CALL RTHEARTLESS.CREARPEDIDO(TO_DATE(:p_peFechaEmision, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:p_peHoraEmision, 'YYYY-MM-DD HH24:MI:SS'), :p_MesaID, :p_TrabajadorID)");
+        $stmt = $conn->prepare("CALL CREARPEDIDO(TO_DATE(:p_peFechaEmision, 'YYYY-MM-DD HH24:MI:SS'), TO_DATE(:p_peHoraEmision, 'YYYY-MM-DD HH24:MI:SS'), :p_MesaID, :p_TrabajadorID)");
         $stmt->bindParam(':p_peFechaEmision', $fecha_emision);
         $stmt->bindParam(':p_peHoraEmision', $hora_emision);
         $stmt->bindParam(':p_MesaID', $mesa_id);
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
             $stmt_last->execute();
             $pe_numero = $stmt_last->fetchColumn();
 
-            $stmt_det = $conn->prepare("CALL RTHEARTLESS.CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
+            $stmt_det = $conn->prepare("CALL CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
             $stmt_det->bindParam(':p_DePCantidad', $cantidad);
             $stmt_det->bindParam(':p_DePPrecioUnitario', $precio_unitario);
             $stmt_det->bindParam(':p_PeNumero', $pe_numero);
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_orden'])) {
             $depid = $detalle['DEPID'];
             $hora_inicio = date('Y-m-d H:i:s');
             // Llamar al procedimiento CrearComanda
-            $stmt_comanda = $conn->prepare("CALL RTHEARTLESS.CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
+            $stmt_comanda = $conn->prepare("CALL CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
             $stmt_comanda->bindParam(':p_CoHoraInicio', $hora_inicio);
             $stmt_comanda->bindParam(':p_DePID', $depid, PDO::PARAM_INT);
             $stmt_comanda->execute();

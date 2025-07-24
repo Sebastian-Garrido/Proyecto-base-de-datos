@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['finalizar_pedido'])) 
         $tipo = 'Boleta';
         $empresa_id = null;
 
-        $stmt_boleta = $conn->prepare("CALL RTHEARTLESS.CREARDOCTRIB(TO_DATE(:P_FECHA_EMISION, 'YYYY-MM-DD'), TO_DATE(:P_HORA_EMISION, 'YYYY-MM-DD HH24:MI:SS'), :P_VUELTO, :P_PAGO_PROPINA, :P_DESCUENTO, :P_TIPO, :P_PEDIDO_NUMERO, :P_TRABAJADOR_ID, :P_EMPRESA_ID)");
+        $stmt_boleta = $conn->prepare("CALL CREARDOCTRIB(TO_DATE(:P_FECHA_EMISION, 'YYYY-MM-DD'), TO_DATE(:P_HORA_EMISION, 'YYYY-MM-DD HH24:MI:SS'), :P_VUELTO, :P_PAGO_PROPINA, :P_DESCUENTO, :P_TIPO, :P_PEDIDO_NUMERO, :P_TRABAJADOR_ID, :P_EMPRESA_ID)");
         $stmt_boleta->bindParam(':P_FECHA_EMISION', $fecha_emision);
         $stmt_boleta->bindParam(':P_HORA_EMISION', $hora_emision);
         $stmt_boleta->bindParam(':P_VUELTO', $vuelto, PDO::PARAM_INT);
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pedido']) && isset($_
             $tipo = isset($prod['tipo']) ? $prod['tipo'] : '';
 
             // 1. Insertar detallepedido
-            $stmt_det = $conn->prepare("CALL RTHEARTLESS.CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
+            $stmt_det = $conn->prepare("CALL CREARDETALLEPEDIDO(:p_DePCantidad, :p_DePPrecioUnitario, :p_PeNumero, :p_PrID)");
             $stmt_det->bindParam(':p_DePCantidad', $cantidad, PDO::PARAM_INT);
             $stmt_det->bindParam(':p_DePPrecioUnitario', $precio_unitario, PDO::PARAM_INT);
             $stmt_det->bindParam(':p_PeNumero', $pedido, PDO::PARAM_INT);
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pedido']) && isset($_
             // 3. Si es preparado, crear comanda solo para este detalle
             if ($tipo === 'Preparado' && $depid) {
                 $hora_inicio = date('Y-m-d H:i:s');
-                $stmt_comanda = $conn->prepare("CALL RTHEARTLESS.CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
+                $stmt_comanda = $conn->prepare("CALL CREARCOMANDA(TO_DATE(:p_CoHoraInicio, 'YYYY-MM-DD HH24:MI:SS'), :p_DePID)");
                 $stmt_comanda->bindParam(':p_CoHoraInicio', $hora_inicio);
                 $stmt_comanda->bindParam(':p_DePID', $depid, PDO::PARAM_INT);
                 $stmt_comanda->execute();
